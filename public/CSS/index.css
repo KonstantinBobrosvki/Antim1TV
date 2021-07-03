@@ -1,0 +1,13 @@
+﻿.player-wrapper {
+    /*16 on 9*/
+    width: 64vw;
+    height: 36vw;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#player {
+    width:100%;
+    height:100%;
+    
+}

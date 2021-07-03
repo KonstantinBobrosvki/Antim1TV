@@ -1,0 +1,39 @@
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card box">
+                <ul class="nav nav-tabs" id="myFormTabs">
+                    <li class="active"><a href="#LoginTab"><h1>Вход</h1></a></li>
+                    <li><a href="#SingUpTab"><h1>Регистрация</h1></a></li>
+                </ul>
+
+
+                <div class="tab-content">
+                    <div class="tab-pane active" id="LoginTab">
+                        <form action="enter/login" name="login" method="POST">
+                            <p class="text-muted"> Моля въведете име или email и парола!</p>
+                            <input type="text" name="usernameOrEmail" placeholder="Име или email">
+                            <input type="password" name="password" placeholder="Парола">
+                            <a class="forgot text-muted" href="#">Забравена парола?</a>
+                            <input type="submit" name="" value="Login" href="#">
+                        </form>
+                    </div>
+
+
+                    <div class="tab-pane" id="SingUpTab">
+                        <form action="enter/signup" name="signup" method="POST">
+                            <p class="text-muted"> Моля въведете име, email и парола!</p>
+                            <input type="text" name="username" placeholder="Име">
+                            <input type="text" name="email" placeholder="Email">
+                            <input type="password" name="password" placeholder="Парола">
+                            <input type="submit" name="" value="SingUp" href="#">
+                        </form>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+

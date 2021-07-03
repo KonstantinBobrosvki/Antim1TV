@@ -1,0 +1,20 @@
+﻿footer {
+    background: linear-gradient(to right, rgb(128, 103, 103), rgb(103, 113, 128));
+    margin-top:90px;
+    margin-bottom:0;
+    padding-bottom:0;
+    position:relative;
+    height:auto;
+}
+
+small {
+    font-size: calc(12px + (15 - 12) * ((100vw - 360px) / (1600 - 360))) !important
+}
+
+.bold-text {
+    color: #989c9e !important
+}
+
+.mt-55 {
+    margin-top: calc(50px + (60 - 50) * ((100vw - 360px) / (1600 - 360))) !important
+}
