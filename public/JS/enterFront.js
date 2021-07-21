@@ -1,13 +1,11 @@
-﻿console.log('Loaded');
-
-$('#myFormTabs a').click(function (e) {
+﻿$('#myFormTabs a').click(function(e) {
     e.preventDefault();
     $(this).tab('show');
 })
 
-$(function () {
+$(function() {
     $.validator.addMethod("alloweddomain",
-        function (value, element) {
+        function(value, element) {
             let domain = value.split("@")[1]
             const allowedEmails = ['gmail.com', 'abv.bg', 'yandex.ru', 'yahoo.com']
             return allowedEmails.includes(domain);
@@ -24,7 +22,7 @@ $(function () {
             // of an input field. Validation rules are defined
             // on the right side
             usernameOrEmail: "required",
-            
+
             password: {
                 required: true,
                 minlength: 5
@@ -40,7 +38,7 @@ $(function () {
         },
         // Make sure the form is submitted to the destination defined
         // in the "action" attribute of the form when valid
-        submitHandler: function (form) {
+        submitHandler: function(form) {
             form.submit();
         }
     });
@@ -57,7 +55,7 @@ $(function () {
                 // Specify that email should be validated
                 // by the built-in "email" rule
                 email: true,
-                alloweddomain:true
+                alloweddomain: true
 
             },
             password: {
@@ -73,17 +71,42 @@ $(function () {
                 minlength: "Моля въведете парола по дълга от 5 символа"
             },
             email: {
-                email:"Моля въведете истински email адрес",
-                alloweddomain:"Извенете, позволени са само gmail.com, abv.bg, yandex.ru, yahoo.com ."
+                email: "Моля въведете истински email адрес",
+                alloweddomain: "Извенете, позволени са само gmail.com, abv.bg, yandex.ru, yahoo.com ."
             }
         },
         // Make sure the form is submitted to the destination defined
         // in the "action" attribute of the form when valid
-        submitHandler: function (form) {
-            console.log('Submiting');
-            form.submit();
-           
+        submitHandler: function(form) {
+            form = $(form);
+            let url = form.attr('action');
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(), // serializes the form's elements.
+                success: function(data) {
+
+                    if (data.Errors) {
+                        AddErrors(data.Errors)
+                    }
+                    if (data.Messages) {
+                        AddMessages(data.Messages);
+                    }
+                    if (data.success) {
+                        //expires is counted in 24 hour so 0.125 is 3 hours
+                        Cookies.set('access', data.access, { expires: 0.125 })
+                        window.location = '/account'
+                    }
+                }
+            });
+
+
         }
     });
 
 });
+
+function SendForm(form) {
+
+}

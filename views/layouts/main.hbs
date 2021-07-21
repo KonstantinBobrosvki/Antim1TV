@@ -21,9 +21,13 @@
 <body>
     {{> navbar }}
 
+
+    <div id="MessagesArea" class="col-md-8 offset-md-2 col-sm-12">
+
+    </div>
     {{#each messages.Errors}}
 
-    <div class="flash alert alert-danger col-md-8 offset-md-2 col-sm-12" role="alert">
+    <div class="flash alert alert-danger " role="alert">
         {{this}}
     </div>
     
@@ -37,6 +41,8 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@2.2.1/src/js.cookie.min.js"></script>
+    <script src="/JS/main.js"></script>
 
     {{#each externalJS}}
     <script src="{{this}}"></script>
