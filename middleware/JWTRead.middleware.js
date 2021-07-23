@@ -11,7 +11,6 @@ function JWTRead(req, res, next) {
                 res.locals.user = decoded.user
                 res.locals.role = decoded.role
                 res.locals.loggedin = true;
-                console.log(decoded)
             }
 
             next();
