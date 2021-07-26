@@ -30,7 +30,7 @@ async function Start() {
     app.use(express.urlencoded({ extended: true }));
     app.use(express.json())
 
-    await sequelize.sync({ force: true });
+    await sequelize.sync({ alter: true });
 
     await TestFill();
 
@@ -45,6 +45,7 @@ async function Start() {
 }
 
 async function TestFill() {
+    return;
     await Roles.create({ tag: 'Участник', priority: 2, mutable: false })
     await Roles.create({ tag: 'Главен администратор', priority: 1000, mutable: false })
     await Roles.create({ tag: 'Старши модератор', priority: 500, mutable: false })

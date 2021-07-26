@@ -1,14 +1,13 @@
 ﻿body {
-    
-
     margin: 0;
     padding: 0;
     font-family: sans-serif;
     background: linear-gradient(to right, #b92b27, #1565c0);
     overflow-x: hidden;
 }
+
 .content {
-    margin-top:40px;
+    margin-top: 40px;
     min-height: 100vh;
     margin-bottom: 20px;
 }
@@ -19,11 +18,12 @@ html {
 }
 
 ::-webkit-scrollbar {
-    width: 0; /* Remove scrollbar space */
-   
+    width: 0;
+    /* Remove scrollbar space */
 }
 
-html, body {
+html,
+body {
     overflow-x: hidden;
     scrollbar-width: none;
     height: 100%;
@@ -38,4 +38,21 @@ html, body {
     margin-right: auto;*/
     margin-top: 40px;
     opacity: 0.7;
+}
+
+.error-hide {
+    animation-duration: 6s;
+    animation-name: TextHideAnim;
+}
+
+.message-hide {
+    animation-duration: 10s;
+    animation-name: TextHideAnim;
+}
+
+@keyframes TextHideAnim {
+    to {
+        opacity: 0;
+        display: none;
+    }
 }

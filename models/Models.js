@@ -14,7 +14,10 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
         acquire: 60000,
         idle: 5000
     },
-    logging: false
+    logging: false,
+    query: {
+        raw: true
+    }
 });
 
 let Users = require('./Users.model')(sequelize, DataTypes);

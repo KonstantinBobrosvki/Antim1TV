@@ -39,7 +39,28 @@ $(function() {
         // Make sure the form is submitted to the destination defined
         // in the "action" attribute of the form when valid
         submitHandler: function(form) {
-            form.submit();
+            form = $(form);
+            let url = form.attr('action');
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(), // serializes the form's elements.
+                success: function(data) {
+
+                    if (data.Errors) {
+                        AddErrors(data.Errors)
+                    }
+                    if (data.Messages) {
+                        AddMessages(data.Messages);
+                    }
+                    if (data.success) {
+                        //expires is counted in 24 hour so 0.125 is 3 hours
+                        Cookies.set('access', data.access, { expires: 0.125 })
+                        window.location = '/account'
+                    }
+                }
+            });
         }
     });
 
@@ -49,7 +70,10 @@ $(function() {
             // The key name on the left side is the name attribute
             // of an input field. Validation rules are defined
             // on the right side
-            name: "required",
+            username: {
+                required: true,
+                minlength: 6
+            },
             email: {
                 required: true,
                 // Specify that email should be validated
@@ -65,7 +89,10 @@ $(function() {
         },
         // Specify validation error messages
         messages: {
-            name: "Моля въведете име",
+            username: {
+                required: "Моля въведете име",
+                minlength: "Моля въведете име по-дълго от 5 символа"
+            },
             password: {
                 required: "Моля въведете парола",
                 minlength: "Моля въведете парола по дълга от 5 символа"
@@ -106,7 +133,3 @@ $(function() {
     });
 
 });
-
-function SendForm(form) {
-
-}

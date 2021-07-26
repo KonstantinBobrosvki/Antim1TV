@@ -26,19 +26,6 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.STRING,
             allowNull: false
         }
-    }, {
-        instanceMethods: {
-            /**
-             * Check hashes
-             * @param {string} probablyPassword text to check 
-             * @returns true or false
-             */
-            ValidatePassword: async function(probablyPassword) {
-                let hashed = await bcrypt.hash(probablyPassword, 10)
-                return this.password == hashed;
-            }
-
-        }
     });
 
     return User;
