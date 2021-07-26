@@ -10,7 +10,9 @@ function CheckAuth(min_priority) {
 
     return function(req, res, next) {
         if (res.locals.loggedin == false) {
-            return res.json({ Errors: ['Не сте влезли'] });
+            if (req.accepts('html')) {} else
+                return res.json({ Errors: ['Не сте влезли'] });
+
         } else if (res.locals.role.Priority < min_priority) {
             return res.json({ Errors: ['Недостатъчно ниво на достъп'] });
         } else {

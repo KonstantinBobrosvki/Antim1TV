@@ -30,14 +30,18 @@ class AuthController {
             return res.json({ Errors: ["Грешка в името. Трябва да е по-дълго от 5 символа"] })
         }
 
-
         user.password = await bcrypt.hash(user.password, 10)
 
-        Users.create(user).then(async function(new_user) {
+        Users.create(user, { raw: true }).then(async function(new_user) {
             let [upd_user, role] = await RolesService.GiveStandartRole(new_user);
             delete upd_user.password
             let access = await JwtService.CreateAccessToken(upd_user, role);
-            return res.json({ success: true, access })
+            res.cookie('access', access, {
+                secure: process.env.NODE_ENV !== "development",
+                httpOnly: true,
+                expires: new Date(Date.now() + 60 * 60000),
+            });
+            return res.json({ success: true })
         }).catch(err => {
             if (err instanceof Sequelize.UniqueConstraintError) {
                 return res.json({ Errors: ["Името или email са заети"] })
@@ -65,14 +69,21 @@ class AuthController {
             where.username = body.usernameOrEmail
         }
 
-        let user = await Users.findOne({ where, include: Roles });
+        let user = await Users.findOne({ raw: true, nest: true, where, include: Roles });
         if (!user) {
             return res.json({ Errors: ["Няма такъв потребител"] })
         }
-        let password_check = await user.ValidatePassword(body.password)
-        if (password_check === true) {
+
+        let compare_result = await bcrypt.compare(body.password, user.password)
+
+        if (compare_result === true) {
             let access = await JwtService.CreateAccessToken(user, user.role);
-            return res.json({ success: true, access })
+            res.cookie('access', access, {
+                secure: process.env.NODE_ENV !== "development",
+                httpOnly: true,
+                expires: new Date(Date.now() + 60 * 60000),
+            });
+            return res.json({ success: true })
 
         } else {
             return res.json({ Errors: ["Грешка в паролата"] })
