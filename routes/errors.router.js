@@ -1,14 +1,19 @@
 const express = require('express');
 const static = require('../controllers/static.controller.js');
-const auth = require('../controllers/auth.controller')
-
-let public_router = express.Router();
-
-public_router.get('/', static.GetIndex);
-
-public_router.get('/enter', auth.GetAuthPage)
-public_router.post('/enter/login', auth.Login)
-public_router.post('/enter/signup', auth.SignUp)
 
 
-module.exports = public_router;
+let errors_router = express.Router();
+
+errors_router.all('/403', static.GetUserErrorPage(403));
+errors_router.all('/401', static.GetUserErrorPage(401));
+errors_router.all('/404', static.GetUserErrorPage(404));
+errors_router.all('/500', static.GetBackendErrorPage);
+errors_router.all('/*', function(req, res) {
+    res.redirect('/404')
+});
+
+
+
+
+
+module.exports = errors_router;

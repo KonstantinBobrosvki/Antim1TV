@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const JWt_Reader = require('../middleware/JWTRead.middleware');
 
-router.use(JWt_Reader);
+router.use(require('../middleware/HTTP5XX.midleware'))
+router.use(require('../middleware/JWTRead.middleware'));
 router.use(require('./authed.router'));
 router.use(require('./public.router'));
+router.use(require('./errors.router'));
 
 module.exports = router;

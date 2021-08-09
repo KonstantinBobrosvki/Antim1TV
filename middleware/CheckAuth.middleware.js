@@ -10,11 +10,16 @@ function CheckAuth(min_priority) {
 
     return function(req, res, next) {
         if (res.locals.loggedin == false) {
-            if (req.accepts('html')) {} else
+            if (req.accepts('html')) {
+                res.status(401).redirect('/401');
+            } else
                 return res.json({ Errors: ['Не сте влезли'] });
 
         } else if (res.locals.role.Priority < min_priority) {
-            return res.json({ Errors: ['Недостатъчно ниво на достъп'] });
+            if (req.accepts('html')) {
+                res.status(403).redirect('/403');
+            } else
+                return res.json({ Errors: ['Недостатъчно ниво на достъп'] });
         } else {
             next();
         }
