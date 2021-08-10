@@ -5,13 +5,15 @@ const exphbs = require('express-handlebars');
 const cookieParser = require('cookie-parser')
 const cors = require('cors')
 
-const { sequelize, Users, Roles } = require('./models/Models');
+//Inits db
+const db = require('./models/Models');
 
-Start();
+WrapControllers();
+StartApp();
 
 
 
-async function Start() {
+async function StartApp() {
 
     const app = express();
 
@@ -30,13 +32,7 @@ async function Start() {
     app.use(express.urlencoded({ extended: true }));
     app.use(express.json())
 
-    await sequelize.sync({ alter: true });
-
-    await TestFill();
-
     app.use(require('./routes/main.router'));
-
-
 
     app.listen(process.env.PORT, () => {
         console.log(`I WORK. Example app listening at http://localhost:${process.env.PORT}`)
@@ -44,13 +40,37 @@ async function Start() {
 
 }
 
-async function TestFill() {
-    return;
-    await Roles.create({ tag: 'Участник', priority: 2, mutable: false })
-    await Roles.create({ tag: 'Главен администратор', priority: 1000, mutable: false })
-    await Roles.create({ tag: 'Старши модератор', priority: 500, mutable: false })
-    await Roles.create({ tag: 'Модератор', priority: 300, mutable: false })
-    await Roles.create({ tag: 'Учител', priority: 100, mutable: false })
-    await Roles.create({ tag: 'Депутат', priority: 50, mutable: false })
-    await Roles.create({ tag: 'Система', priority: 20, mutable: false })
+//Wraps to prevent errors
+function WrapControllers() {
+
+    function Wrap(fn) {
+        return function(req, res) {
+            try {
+                return fn(req, res);
+            } catch (ex) {
+                if (req.accepts('html')) {
+                    res.status(500).redirect('/500');
+                } else
+                    return res.json({ Errors: ['SERVER ERROR'] });
+            }
+        };
+    }
+
+    let normalizedPath = require("path").join(__dirname, "controllers");
+    const standartMethods = ['constructor', '__defineGetter__', '__defineSetter__', 'hasOwnProperty', '__lookupGetter__', '__lookupSetter__', 'isPrototypeOf', 'propertyIsEnumerable', 'toString', 'valueOf', 'toLocaleString']
+    require("fs").readdirSync(normalizedPath).forEach(function(file) {
+
+        let controller = require("./controllers/" + file);
+
+        let currentObj = controller
+        do {
+            Object.getOwnPropertyNames(currentObj).filter(item => typeof currentObj[item] === 'function').forEach(item => {
+                if (!standartMethods.includes(item)) {
+
+                    currentObj[item] = Wrap(currentObj[item])
+                }
+            })
+        } while ((currentObj = Object.getPrototypeOf(currentObj)))
+
+    });
 }

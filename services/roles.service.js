@@ -1,39 +1,22 @@
-const { sequelize, Users, Roles, RolesLogs } = require('../models/Models');
-let StandartRole;
-Init()
-
-async function Init() {
-    StandartRole = await Roles.findOne({
-        where: {
-            mutable: false,
-            priority: 2
-        }
-    });
-
-    if (!StandartRole) {
-        console.log("NO STANDART ROLE")
-        throw new Error("NO STANDART ROLE");
-    }
-    //console.log(StandartRole)
-
-}
-
-
+const { sequelize, Users, Actions, Priorities } = require('../models/Models');
+const ActionsEnum = require('../models/Actions.enum');
 
 class RolesService {
-    async GiveStandartRole(user) {
-        user.roleId = StandartRole.id;
-
-        try {
-            await Promise.all([user.save(), RolesLogs.create({ UserId: user.id, GiverId: null, roleId: StandartRole.id })])
-            return [user, StandartRole];
-        } catch (error) {
-            console.error(error);
-            throw error;
-        }
-
-
-
+    async SetStudenttRole(user) {
+        return new Promise(async(resolve, reject) => {
+            const t = await sequelize.transaction();
+            try {
+                await Promise.all([user.createAction({ actionCode: ActionsEnum.Suggest }, { transaction: t }),
+                    Priorities.create({ priority: 2, ReceiverId: user.id }, { transaction: t })
+                ]);
+                await t.commit();
+                resolve(true);
+            } catch (error) {
+                console.log(error)
+                await t.rollback();
+                return reject(error);
+            }
+        });
     }
 }
 

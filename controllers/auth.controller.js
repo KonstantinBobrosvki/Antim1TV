@@ -1,8 +1,10 @@
-const { sequelize, Users, Roles } = require('../models/Models');
+const { sequelize, Users } = require('../models/Models');
 const { Sequelize } = require('sequelize');
 const bcrypt = require('bcrypt');
 const RolesService = require('../services/roles.service');
 const JwtService = require('../services/JWT.service');
+const rolesService = require('../services/roles.service');
+
 class AuthController {
 
     async GetAuthPage(req, res) {
@@ -30,27 +32,36 @@ class AuthController {
             return res.json({ Errors: ["Грешка в името. Трябва да е по-дълго от 5 символа"] })
         }
 
-        user.password = await bcrypt.hash(user.password, 10)
+        let new_psw = await bcrypt.hash(user.password, 10)
+        user.password = new_psw;
+        try {
 
-        Users.create(user, { raw: true }).then(async function(new_user) {
-            let [upd_user, role] = await RolesService.GiveStandartRole(new_user);
-            delete upd_user.password
-            let access = await JwtService.CreateAccessToken(upd_user, role);
-            res.cookie('access', access, {
-                secure: process.env.NODE_ENV !== "development",
-                httpOnly: true,
-                expires: new Date(Date.now() + 60 * 60000),
-            });
-            return res.json({ success: true })
-        }).catch(err => {
-            if (err instanceof Sequelize.UniqueConstraintError) {
+            let new_user = await Users.create(user);
+            try {
+                await rolesService.SetStudenttRole(new_user)
+
+                let access = await JwtService.CreateAccessToken(new_user);
+                res.cookie('access', access, {
+                    secure: process.env.NODE_ENV !== "development",
+                    httpOnly: true,
+                    expires: new Date(Date.now() + 60 * 60000),
+                });
+                return res.json({ success: true })
+
+            } catch (error) {
+                console.error(error)
+                await new_user.destroy();
+                return res.redirect('/500');
+            }
+        } catch (error) {
+            console.log('ERROR')
+            if (error instanceof Sequelize.UniqueConstraintError) {
                 return res.json({ Errors: ["Името или email са заети"] })
             } else {
-                console.log(err)
+                console.log(error)
                 return res.json({ Errors: ["Неизвестна грешка"] })
             }
-
-        });
+        }
     }
 
     async Login(req, res) {
@@ -69,7 +80,7 @@ class AuthController {
             where.username = body.usernameOrEmail
         }
 
-        let user = await Users.findOne({ raw: true, nest: true, where, include: Roles });
+        let user = await Users.findOne({ raw: true, where });
         if (!user) {
             return res.json({ Errors: ["Няма такъв потребител"] })
         }
@@ -77,7 +88,7 @@ class AuthController {
         let compare_result = await bcrypt.compare(body.password, user.password)
 
         if (compare_result === true) {
-            let access = await JwtService.CreateAccessToken(user, user.role);
+            let access = await JwtService.CreateAccessToken(user);
             res.cookie('access', access, {
                 secure: process.env.NODE_ENV !== "development",
                 httpOnly: true,
