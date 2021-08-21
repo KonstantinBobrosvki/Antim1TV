@@ -1,0 +1,16 @@
+#VideoSuggest div {
+    border-radius: 10px;
+}
+
+#VideoSuggest input {
+    border-radius: 10px;
+}
+
+.cool-submit {
+    background-color: rgba(154, 246, 34, 0.883);
+    margin-left: 0px;
+}
+
+.cool-submit:hover::after {
+    content: "Прати";
+}

@@ -56,7 +56,7 @@ $(function() {
                     }
                     if (data.success) {
                         //expires is counted in 24 hour so 0.125 is 3 hours
-                        Cookies.set('access', data.access, { expires: 0.125 })
+                        //Cookies.set('access', data.access, { expires: 0.125 })
                         window.location = '/account'
                     }
                 }
@@ -72,7 +72,7 @@ $(function() {
             // on the right side
             username: {
                 required: true,
-                minlength: 6
+                minlength: 5
             },
             email: {
                 required: true,
@@ -122,7 +122,7 @@ $(function() {
                     }
                     if (data.success) {
                         //expires is counted in 24 hour so 0.125 is 3 hours
-                        Cookies.set('access', data.access, { expires: 0.125 })
+                        //Cookies.set('access', data.access, { expires: 0.125 })
                         window.location = '/account'
                     }
                 }

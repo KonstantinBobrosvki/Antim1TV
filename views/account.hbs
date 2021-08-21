@@ -1,8 +1,65 @@
 <div class="col-sm-12">
-    <span class="w-100 text-center">Предложени видеа</span>
+    <span class="w-100 text-center text-center">
+        <h2>Предложени видеа</h2>
+    </span>
+    <table class="w-100 table table-light overflow-scroll">
+        <thead>
+            <tr>
+                <th class="text-center" scope="col">Preview</th>
+                <th class="text-center" scope="col">Линк</th>
+                <th class="text-center" scope="col">Предложено на</th>
+                <th class="text-center" scope="col">Състояние</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each myVideos}}
+            <tr>
+                <th><img class="table-img" src="https://img.youtube.com/vi/{{this.videoLink}}/hqdefault.jpg"
+                        loading="lazy" alt="Preview"></th>
+                <th class="text-center align-middle">
+                    <a href="https://www.youtube.com/watch?v={{this.videoLink}}">https://www.youtube.com/watch?v={{this.videoLink}}</a>
+                </th>
+                <td class="text-center align-middle" data-postgreTime='true'>{{this.createdAt}}</td>
+                <td class="text-center align-middle">{{#Equals this.verified '0'}}Неодобрено :({{else Equals this.verified '1'}}Одобрено{{else}}Няма
+                    информация{{/Equals}}</td>
+
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
 </div>
+
+{{#if videosToAllow}}
 
 <div class="col-sm-12">
-    <h2 class="w-100 text-center">Акаунти на потребители</h2>
-
+    <h2 class="w-100 text-center">Видеа за проверка</h2>
+    <div class="row">
+        {{#each videosToAllow}}
+        <div class="card col-sm-6 col-md-6 col-lg-4 my-3 mx-auto">
+            <img src="https://img.youtube.com/vi/{{this.videoLink}}/hqdefault.jpg" loading="lazy" class="card-img-top"
+                alt="Preview">
+            <div class="card-body">
+                <h5 class="card-title" data-getMetaDataSource='https://www.youtube.com/watch?v={{this.videoLink}}'>Card title</h5>
+                <p class="card-text">Линк: <a href="https://www.youtube.com/watch?v={{this.videoLink}}">Изгледай
+                        клипчето</a></p>
+                <div class="row">
+                    <div class="col mx-auto">
+                        <form action="/videos/allow" method="post" onsubmit="SendForm(this,HideCard(this));return false">
+                            <input name='id' type="hidden" value="{{this.id}}">
+                            <button  type="submit"  class=" btn btn-outline-warning mx-auto">Позволи</button>
+                        </form>
+                    </div>
+                    <div class="col mx-auto">
+                        <form action="/videos/reject" method="post"  onsubmit="SendForm(this,HideCard(this));return false">
+                            <input name='id' type="hidden" value="{{this.id}}">
+                            <button  type="submit"   class=" btn btn-outline-danger mx-auto">Изтрий</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
 </div>
+
+{{/if}}

@@ -1,16 +1,40 @@
-const { sequelize, Users, Actions, Priorities } = require('../models/Models');
+const { sequelize, Users, Rights, Priorities } = require('../models/Models');
 const ActionsEnum = require('../models/Actions.enum');
 
 class RolesService {
+
     async SetStudenttRole(user) {
         return new Promise(async(resolve, reject) => {
             const t = await sequelize.transaction();
             try {
-                await Promise.all([user.createAction({ actionCode: ActionsEnum.Suggest }, { transaction: t }),
+                let [right, priority] = await Promise.all([Rights.create({ ReceiverId: user.id, actionCode: ActionsEnum.Suggest }, { transaction: t }),
                     Priorities.create({ priority: 2, ReceiverId: user.id }, { transaction: t })
                 ]);
                 await t.commit();
-                resolve(true);
+                resolve([
+                    [right.actionCode], priority.priority
+                ]);
+            } catch (error) {
+                console.log(error)
+                await t.rollback();
+                return reject(error);
+            }
+        });
+    }
+
+    async SetJuniorModeratortRole(user, giver) {
+        return new Promise(async(resolve, reject) => {
+            const t = await sequelize.transaction();
+            try {
+                let [right1, right2, right3, priority] = await Promise.all([
+                    Rights.create({ ReceiverId: user.id, actionCode: ActionsEnum.Suggest, GiverId: giver && giver.id }, { transaction: t }),
+                    Rights.create({ ReceiverId: user.id, actionCode: ActionsEnum.AllowVideo, GiverId: giver && giver.id }, { transaction: t }),
+                    Rights.create({ ReceiverId: user.id, actionCode: ActionsEnum.AllowAds, GiverId: giver && giver.id }, { transaction: t }),
+                    Priorities.create({ priority: 2, ReceiverId: user.id }, { transaction: t })
+                ]);
+                let rights = [right1, right2, right3].map(item => item.actionCode)
+                await t.commit();
+                resolve([rights, priority.priority]);
             } catch (error) {
                 console.log(error)
                 await t.rollback();

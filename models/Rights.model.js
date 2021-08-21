@@ -1,7 +1,7 @@
 const actions = require('./Actions.enum');
 const myenum = Object.values(actions);
 module.exports = function(sequelize, DataTypes) {
-    let Action = sequelize.define('action', {
+    let Rights = sequelize.define('right', {
         id: {
             field: 'id',
             type: DataTypes.INTEGER,
@@ -17,5 +17,5 @@ module.exports = function(sequelize, DataTypes) {
         }
     });
 
-    return Action;
+    return Rights;
 }

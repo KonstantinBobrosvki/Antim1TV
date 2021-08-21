@@ -1,4 +1,5 @@
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+const loggerService = require('../services/logger.service');
 
 function JWTRead(req, res, next) {
     let token = req.cookies['access']

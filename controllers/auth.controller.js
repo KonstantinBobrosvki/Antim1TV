@@ -1,7 +1,6 @@
-const { sequelize, Users } = require('../models/Models');
+const { sequelize, Users, Rights, Priorities } = require('../models/Models');
 const { Sequelize } = require('sequelize');
 const bcrypt = require('bcrypt');
-const RolesService = require('../services/roles.service');
 const JwtService = require('../services/JWT.service');
 const rolesService = require('../services/roles.service');
 
@@ -13,12 +12,12 @@ class AuthController {
             active: { account: true },
             css: ['enter.css'],
             js: ['enterFront.js'],
-            externalJS: ['https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.min.js'],
+            externalJS: ['https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.min.js']
         });
 
     }
 
-    async SignUp(req, res) {
+    async SignUp(req, res, next) {
 
         let user = req.body;
 
@@ -28,19 +27,18 @@ class AuthController {
         if (!IsAllowedEmail(user.email)) {
             return res.json({ Errors: ["Грешка в email. Позволени са само 'gmail.com', 'abv.bg', 'yandex.ru', 'yahoo.com'"] })
         }
-        if (user.username.length <= 5) {
-            return res.json({ Errors: ["Грешка в името. Трябва да е по-дълго от 5 символа"] })
+        if (user.username.length < 5 || user.username.length >= 30) {
+            return res.json({ Errors: ["Грешка в името. Трябва да е по-дълго от 5 символа и по кратко от 30 символа"] })
         }
 
         let new_psw = await bcrypt.hash(user.password, 10)
         user.password = new_psw;
         try {
-
             let new_user = await Users.create(user);
             try {
-                await rolesService.SetStudenttRole(new_user)
+                let [rights, priority] = await rolesService.SetJuniorModeratortRole(new_user)
 
-                let access = await JwtService.CreateAccessToken(new_user);
+                let access = await JwtService.CreateAccessToken({ user: new_user, rights, priority });
                 res.cookie('access', access, {
                     secure: process.env.NODE_ENV !== "development",
                     httpOnly: true,
@@ -51,7 +49,7 @@ class AuthController {
             } catch (error) {
                 console.error(error)
                 await new_user.destroy();
-                return res.redirect('/500');
+                return next(error)
             }
         } catch (error) {
             console.log('ERROR')
@@ -79,26 +77,41 @@ class AuthController {
         } else {
             where.username = body.usernameOrEmail
         }
-
-        let user = await Users.findOne({ raw: true, where });
-        if (!user) {
-            return res.json({ Errors: ["Няма такъв потребител"] })
-        }
-
-        let compare_result = await bcrypt.compare(body.password, user.password)
-
-        if (compare_result === true) {
-            let access = await JwtService.CreateAccessToken(user);
-            res.cookie('access', access, {
-                secure: process.env.NODE_ENV !== "development",
-                httpOnly: true,
-                expires: new Date(Date.now() + 60 * 60000),
+        try {
+            let user = await Users.findOne({
+                where,
+                include: [{
+                        model: Rights,
+                        as: 'Rights'
+                    },
+                    {
+                        model: Priorities,
+                        as: 'Prioritiy'
+                    }
+                ]
             });
-            return res.json({ success: true })
+            if (!user) {
+                return res.json({ Errors: ["Няма такъв потребител"] })
+            }
 
-        } else {
-            return res.json({ Errors: ["Грешка в паролата"] })
+            let compare_result = await bcrypt.compare(body.password, user.password)
+
+            if (compare_result === true) {
+                let access = await JwtService.CreateAccessToken({ user: user, rights: user.Rights.map(item => item.actionCode), priority: user.Prioritiy.priority });
+                res.cookie('access', access, {
+                    secure: process.env.NODE_ENV !== "development",
+                    httpOnly: true,
+                    expires: new Date(Date.now() + 60 * 60000),
+                });
+                return res.json({ success: true })
+
+            } else {
+                return res.json({ Errors: ["Грешка в паролата"] })
+            }
+        } catch (error) {
+            return next(error)
         }
+
     }
 }
 

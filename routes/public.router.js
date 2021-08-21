@@ -10,5 +10,4 @@ public_router.get('/enter', auth.GetAuthPage)
 public_router.post('/enter/login', auth.Login)
 public_router.post('/enter/signup', auth.SignUp)
 
-
 module.exports = public_router;

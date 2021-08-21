@@ -8,9 +8,6 @@ errors_router.all('/403', static.GetUserErrorPage(403));
 errors_router.all('/401', static.GetUserErrorPage(401));
 errors_router.all('/404', static.GetUserErrorPage(404));
 errors_router.all('/500', static.GetBackendErrorPage);
-errors_router.all('/*', function(req, res) {
-    res.redirect('/404')
-});
 
 
 

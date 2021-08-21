@@ -18,11 +18,25 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
 });
 
 let Users = require('./Users.model')(sequelize, DataTypes);
-let Actions = require('./UserActions.model')(sequelize, DataTypes);
+let Rights = require('./Rights.model')(sequelize, DataTypes);
 let Priorities = require('./UserPriority.model')(sequelize, DataTypes)
+let Videos = require('./Videos.model')(sequelize, DataTypes);
+let AllowedVideos = require('./AllowedVideos.model')(sequelize, DataTypes);
 
-Users.hasMany(Actions);
-Users.hasOne(Priorities, {
+//I know that is shit
+Rights.belongsTo(Users, {
+    as: "Receiver",
+    onDelete: 'CASCADE',
+    foreignKey: {
+        allowNull: false,
+    }
+})
+Users.hasMany(Rights, { as: 'Rights', foreignKey: 'ReceiverId' })
+
+Rights.belongsTo(Users, { as: "Giver", onDelete: 'CASCADE' })
+
+//one to one
+Priorities.belongsTo(Users, {
     as: "Receiver",
     onDelete: 'CASCADE',
     foreignKey: {
@@ -30,13 +44,23 @@ Users.hasOne(Priorities, {
         unique: true
     }
 })
-Priorities.belongsTo(Users, { as: "Giver", onDelete: 'SET NULL' })
+Users.hasOne(Priorities, { as: 'Prioritiy', foreignKey: 'ReceiverId' })
+
+//one to many
+Priorities.belongsTo(Users, { as: "Giver", onDelete: 'CASCADE' })
+
+//one to many
+Videos.belongsTo(Users, { as: "Suggester", onDelete: 'CASCADE' })
+Videos.hasOne(AllowedVideos, { onDelete: 'CASCADE' })
+
+AllowedVideos.belongsTo(Users, { as: "Allower", onDelete: 'CASCADE' })
+AllowedVideos.belongsTo(Videos, { onDelete: 'CASCADE' });
 
 Sync();
 async function Sync() {
+    await sequelize.sync() //{ force: true })
     console.log('Synced');
-    await sequelize.sync({ force: true })
 }
 console.log('Imported sequalize');
 
-module.exports = { sequelize, Users, Actions, Priorities };
+module.exports = { sequelize, Users, Rights, Priorities, Videos, AllowedVideos };
