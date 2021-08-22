@@ -1,5 +1,5 @@
 const Verified = require("./Verified.enum");
-
+const VerifiedValues = Object.values(Verified);
 
 module.exports = function(sequelize, DataTypes) {
     let Videos = sequelize.define('video', {
@@ -18,7 +18,10 @@ module.exports = function(sequelize, DataTypes) {
         },
         verified: {
             field: 'verified',
-            type: DataTypes.ENUM(Object.values(Verified)),
+            type: DataTypes.STRING,
+            validate: {
+                isIn: [VerifiedValues]
+            },
             allowNull: true
         }
     });

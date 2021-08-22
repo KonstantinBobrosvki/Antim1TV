@@ -11,8 +11,10 @@ module.exports = function(sequelize, DataTypes) {
         },
         actionCode: {
             field: 'actionCode',
-            //Sequalize wants strings
-            type: DataTypes.ENUM(myenum),
+            type: DataTypes.STRING,
+            validate: {
+                isIn: [myenum]
+            },
             allowNull: false
         }
     });

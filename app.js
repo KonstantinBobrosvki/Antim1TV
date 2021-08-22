@@ -1,6 +1,5 @@
 const express = require('express');
 require('dotenv').config();
-//require('express-async-errors')
 const exphbs = require('express-handlebars');
 const cookieParser = require('cookie-parser')
 const cors = require('cors')

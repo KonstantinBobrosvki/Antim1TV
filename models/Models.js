@@ -58,7 +58,7 @@ AllowedVideos.belongsTo(Videos, { onDelete: 'CASCADE' });
 
 Sync();
 async function Sync() {
-    await sequelize.sync() //{ force: true })
+    await sequelize.sync({ alter: true })
     console.log('Synced');
 }
 console.log('Imported sequalize');
