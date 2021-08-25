@@ -29,3 +29,19 @@ function getRandomInt(min, max) {
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min)) + min; //Максимум не включается, минимум включается
 }
+
+function GetYoutubeMetadata(id) {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            type: "GET",
+            url: `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`,
+            success: function(data) {
+                resolve(data)
+            },
+            error: function(error) {
+                reject(error)
+            }
+        });
+    })
+
+}

@@ -1,19 +1,24 @@
-<div>
-
+<div id='VideosForVoteWrapper' class="col-sm-12">
+    <div id='VideosForVote' class="row w-100 d-flex justify-content-evenly">
+       
+    </div>
+    <div id='showingToggleWrapper' class='col-12 d-flex flex-column justify-content-center' >
+        <button id='showingToggle' onclick="ToogleShowing(this)" class="btn btn-light w-100">Покажи повече</button>
+    </div>
 </div>
 
-<form id='VideoSuggest' class="col-sm-12" action="/suggest/suggestVideo" method="POST">
+<form id='VideoSuggest' class="col-sm-12 mt-2" action="/suggest/suggestVideo" method="POST">
     <div class="d-flex flex-column justify-content-center bg-info mx-auto">
         <span class="w-100 fs-1 text-center">Линк към видео:</span>
-        <span style='height:fit-content; height: -moz-max-content;'class="w-100">
+        <span style='height:fit-content; height: -moz-max-content;' class="w-100">
             <span id="linkError" class="fs-2 alert-danger"></span>
         </span>
         <div class="d-flex flex-row justify-content-center">
-        <input name="link" class=" w-50" type="text" />
-        <button class="cool-submit">
-            <i class="bi bi-caret-right-fill"></i>
-        </button>
+            <input name="link" class="w-50" type="text" />
+            <button class="cool-submit">
+                <i class="bi bi-caret-right-fill"></i>
+            </button>
         </div>
-       
+
     </div>
 </form>

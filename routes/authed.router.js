@@ -16,5 +16,7 @@ authed_router.get('/account', CheckAuth, account.GetPage)
 authed_router.post('/suggest/suggestVideo', CheckAuth, SuggestController.SuggestVideo);
 authed_router.post('/videos/allow', CheckAuth, VideoController.AllowVideo);
 authed_router.post('/videos/reject', CheckAuth, VideoController.RejectVideo)
+authed_router.get('/videos/getVideos', CheckAuth, VideoController.GetAllowedVideos)
+authed_router.post('/videos/vote', CheckAuth, VideoController.VoteVideo)
 
 module.exports = authed_router;

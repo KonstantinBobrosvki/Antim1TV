@@ -22,6 +22,7 @@ let Rights = require('./Rights.model')(sequelize, DataTypes);
 let Priorities = require('./UserPriority.model')(sequelize, DataTypes)
 let Videos = require('./Videos.model')(sequelize, DataTypes);
 let AllowedVideos = require('./AllowedVideos.model')(sequelize, DataTypes);
+let UserVideoVotes = require('./UserVideoVotes.model')(sequelize, DataTypes);
 
 //I know that is shit
 Rights.belongsTo(Users, {
@@ -56,6 +57,9 @@ Videos.hasOne(AllowedVideos, { onDelete: 'CASCADE' })
 AllowedVideos.belongsTo(Users, { as: "Allower", onDelete: 'CASCADE' })
 AllowedVideos.belongsTo(Videos, { onDelete: 'CASCADE' });
 
+UserVideoVotes.belongsTo(AllowedVideos, { foreignKey: 'videoId', onDelete: 'CASCADE' })
+UserVideoVotes.belongsTo(Users, { foreignKey: 'userId', onDelete: 'CASCADE' })
+
 Sync();
 async function Sync() {
     await sequelize.sync({ alter: true })
@@ -63,4 +67,4 @@ async function Sync() {
 }
 console.log('Imported sequalize');
 
-module.exports = { sequelize, Users, Rights, Priorities, Videos, AllowedVideos };
+module.exports = { sequelize, Users, Rights, Priorities, Videos, AllowedVideos, UserVideoVotes };
