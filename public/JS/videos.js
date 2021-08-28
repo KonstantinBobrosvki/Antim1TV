@@ -1,14 +1,16 @@
-$(function() {
+$(function () {
+
+    ClearStorage();
     LoadAllowedVideos();
 
-    $("input[name='link'").bind("propertychange change click keyup input paste", function(event) {
+    $("input[name='link'").bind("propertychange change click keyup input paste", function (event) {
         let value = $("input[name='link'").val();
         if (value.match(/^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$/))
             $('#linkError').html('')
     })
 
     $.validator.addMethod("youtubeLink",
-        function(value, element) {
+        function (value, element) {
             return value.match(/^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$/)
         },
         "Извенете, позволени са само gmail.com, abv.bg, yandex.ru, yahoo.com ."
@@ -31,7 +33,7 @@ $(function() {
         },
         // Make sure the form is submitted to the destination defined
         // in the "action" attribute of the form when valid
-        submitHandler: function(form, event) {
+        submitHandler: function (form, event) {
 
             event.preventDefault();
             $('#linkError').html('')
@@ -41,7 +43,7 @@ $(function() {
                 type: "POST",
                 url: url,
                 data: $(form).serialize(), // serializes the form's elements.
-                success: function(data) {
+                success: function (data) {
                     if (data.Errors) {
                         AddErrors(data.Errors)
                     }
@@ -57,24 +59,26 @@ $(function() {
 
             return false;
         },
-        errorPlacement: function(error, element) {
+        errorPlacement: function (error, element) {
             console.log(error)
             $('#linkError').html(error[0]['textContent'])
         }
     });
+
+
 });
 
 function LoadAllowedVideos() {
     $.ajax({
         type: "GET",
         url: '/videos/getVideos',
-        success: function(data) {
+        success: function (data) {
             let html = ''
             data.forEach(el => {
-                html += `<div class="card col-sm-5 col-md-4 col-lg-2 mx-1 mx-md-5 mt-2">
+                html += `<div class="card col-sm-5 col-md-4 col-lg-2 mx-1 mx-md-5 mt-2 h-fit" >
                 <img src="https://img.youtube.com/vi/${el.video.videoLink}/hqdefault.jpg" loading="lazy" class="card-img-top w-100" alt="Preview">
-                <div class="card-body">
-                  <h5 data-youtubeId='${el.video.videoLink}' class="card-title">Card title</h5>
+                <div class="card-body h-fit">
+                  <span data-youtubeId='${el.video.videoLink}' data-videoId='${el.id}' class="card-title">Card title</span>
                   <button href="#" class="btn btn-primary" data-videoId='${el.id}' onclick='SendVote(this)'>Гласувай</button>
                 </div>
                 </div>`
@@ -86,7 +90,19 @@ function LoadAllowedVideos() {
             setTimeout(() => { $('#VideosForVote').height($('#VideosForVote .card').first().height() * 1.5) }, 1000)
 
             function SpanLoad() {
-                GetYoutubeMetadata($(this).attr('data-youtubeId')).then(meta => { $(this).text(meta.title) }).catch(console.log)
+                
+                const videoId = $(this).attr('data-videoId');
+                const youtubeId=$(this).attr('data-youtubeId');
+                let votedVids = JSON.parse(localStorage.getItem('votedVids')) ?? [];
+
+                if (!votedVids.some(el => el.videoId == videoId))
+                    GetYoutubeMetadata(youtubeId).then(meta => {
+                        const title = meta.title.lenght > 60 ? meta.title.slice(0, 60) + '...' : meta.title;
+                        $(this).text(title)
+                    }).catch(console.log)
+                else {
+                    $(this).closest('.card').remove();
+                }
             }
         }
     });
@@ -107,11 +123,35 @@ function SendVote(button) {
         type: "POST",
         data: $.param({ videoId: $(button).attr('data-videoId') }),
         url: `/videos/vote`,
-        success: function(data) {
-            console.log(data)
+        success: function (data) {
+            if (data.success === true) {
+
+                let votedVids = JSON.parse(localStorage.getItem('votedVids')) ?? [];
+                let someDate = new Date();
+                let numberOfDaysToAdd = 7;
+                someDate.setDate(someDate.getDate() + numberOfDaysToAdd);
+                votedVids.push({ videoId: $(button).attr('data-videoId'), remove: someDate })
+                localStorage.setItem('votedVids', JSON.stringify(votedVids));
+
+                $(button).closest('.card').remove();
+                AddMessages(['Успешно добавено'])
+            }
+
+            else
+                AddErrors(data.Errors)
         },
-        error: function(error) {
+        error: function (error) {
             console.log(error)
         }
     });
+}
+
+function ClearStorage(){
+    let votedVids = JSON.parse(localStorage.getItem('votedVids'));
+    const now=new Date();
+    if(votedVids){
+        votedVids=  votedVids.filter(el=>el.remove>now)
+    }
+    localStorage.setItem('votedVids', JSON.stringify(votedVids));
+
 }

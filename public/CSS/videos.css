@@ -34,3 +34,8 @@
     border-radius: 30% 30%;
     height: 75px;
 }
+
+.h-fit{
+    height: fit-content;
+    height: -moz-max-content;
+}
