@@ -90,9 +90,9 @@ function LoadAllowedVideos() {
             setTimeout(() => { $('#VideosForVote').height($('#VideosForVote .card').first().height() * 1.5) }, 1000)
 
             function SpanLoad() {
-                
+
                 const videoId = $(this).attr('data-videoId');
-                const youtubeId=$(this).attr('data-youtubeId');
+                const youtubeId = $(this).attr('data-youtubeId');
                 let votedVids = JSON.parse(localStorage.getItem('votedVids')) ?? [];
 
                 if (!votedVids.some(el => el.videoId == videoId))
@@ -146,11 +146,11 @@ function SendVote(button) {
     });
 }
 
-function ClearStorage(){
+function ClearStorage() {
     let votedVids = JSON.parse(localStorage.getItem('votedVids'));
-    const now=new Date();
-    if(votedVids){
-        votedVids=  votedVids.filter(el=>el.remove>now)
+    const now = new Date();
+    if (votedVids) {
+        votedVids = votedVids.filter(el => new Date(el.remove) > now)
     }
     localStorage.setItem('votedVids', JSON.stringify(votedVids));
 

@@ -1,8 +1,7 @@
 ﻿let player;
-let playlist = ['b_XKnkQZkOM', 'dnNt78eGjSM','3rtkCBmeA9A'];
-let playlistIndex = 0;
+const GetNextVideo = CreateLocalqueue();
 
-$(window).on('load',function () {
+$(window).on('load', function () {
     player = new YT.Player('player', {
         height: '240',
         width: '300',
@@ -15,7 +14,9 @@ $(window).on('load',function () {
 });
 
 function onPlayerReady(event) {
-    player.loadVideoById(playlist[playlistIndex++])
+    console.log('onPlayerReady');
+
+    player.loadVideoById(GetNextVideo())
 }
 
 function onStateChange(event) {
@@ -23,7 +24,8 @@ function onStateChange(event) {
     switch (event.data) {
         //On finish
         case 0:
-            player.loadVideoById(playlist[playlistIndex++])
+            console.log('onStateChange');
+            player.loadVideoById(GetNextVideo())
             break;
 
         default:
@@ -52,4 +54,53 @@ function onError(event) {
             console.log('error code: ' + event.data)
 
     }
+}
+
+function CreateLocalqueue() {
+    //if there is no video
+    const randomvids = ['jNQXAC9IVRw', 'H9154xIoYTA', 'qLGNj-xrgvY', 'Ay6K0_4ZZ_0', 'e9dZQelULDk', 'BE4oz2u6OHY'];
+
+    let playlist = [];
+
+    //for shifting que
+    return function () {
+        GetRemoteVideo().then(url => { playlist.push(url); }).catch((error) => { console.log(error); })
+        const shifted = playlist.shift();
+        if (shifted) {
+            return shifted;
+        }
+        else {
+            console.log('Local que');
+            return randomvids[getRandomInt(0, randomvids.length)]
+        }
+    }
+}
+
+//Gets next video from remote server
+async function GetRemoteVideo() {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            type: "POST",
+            url: '/videos/popQueue',
+            success: function (data) {
+
+                if (data.Errors) {
+                    console.log(data.Errors);
+
+                    return reject(data.Errors)
+                }
+                if (data.Messages) {
+                    console.log(data.Messages);
+                }
+                if (data.video) {
+                    const video = data.video;
+                    const videoUrl = video.video.videoLink;
+                    console.log(video);
+                    console.log(videoUrl);
+                    resolve(videoUrl);
+                }
+            }
+        });
+    })
+
 }

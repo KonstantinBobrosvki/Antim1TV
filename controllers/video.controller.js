@@ -19,8 +19,8 @@ class VideoController {
 
             const t = await sequelize.transaction();
             Promise.all([AllowedVideos.create({ AllowerId: user.id, videoId: id }, { transaction: t }),
-                Videos.update({ verified: Verified.allowed }, { where: { id } }, { transaction: t })
-            ]).then(async() => {
+            Videos.update({ verified: Verified.allowed }, { where: { id } }, { transaction: t })
+            ]).then(async () => {
                 await t.commit();
                 res.json({ success: true });
             }).catch(async error => {
@@ -55,13 +55,20 @@ class VideoController {
     }
 
     async GetAllowedVideos(req, res, next) {
-        res.send(AllowedVideosHash);
+        res.json(AllowedVideosHash);
     }
 
     async VoteVideo(req, res, next) {
         const user = res.locals.user;
         //allowed video id
         const videoId = req.body.videoId;
+
+        const hashed = AllowedVideosHash.find(el => el.id == videoId)
+        if (!hashed) {
+            return res.json({ Errors: ['Няма такова видео'] })
+
+        }
+
         const t = await sequelize.transaction();
         try {
 
@@ -77,6 +84,7 @@ class VideoController {
                 } else {
                     await video.increment('votes', { by: 1, transaction: t });
                     await t.commit();
+                    hashed.votes++;
                     res.json({ success: true })
                 }
             } else {
@@ -89,6 +97,38 @@ class VideoController {
             next(error)
         }
     }
+
+    //Get video that should be viewed next
+    async PopVideo(req, res, next) {
+        if (!res.locals.user.rights.includes(Actions.ControllPlayer)) {
+            return res.json({ Errors: ['NQMATE PRAVA 111!!!'] })
+        }
+
+        let pretendent = {};
+
+        const now = new Date()
+        const millisecondsInHour = 60 * 60 * 1000;
+        let iter = 0;
+        AllowedVideosHash.forEach(el => {
+            const diffInHours = Math.ceil(Math.abs(new Date(el.createdAt) - now) / millisecondsInHour);
+            const value = 1 + el.votes * Math.sqrt(diffInHours);
+
+            if (pretendent.prior || 0 < value) {
+                pretendent = { index: iter, prior: value, video: el };
+            }
+            iter++;
+        })
+
+        if (pretendent.video) {
+
+            AllowedVideosHash.splice(pretendent.index, 1)
+            await AllowedVideos.update({ played: true }, { where: { id: pretendent.video.id } });
+            return res.json({ video: pretendent.video })
+        }
+        return res.json({ Errors: ['Няма видеа в опашката'] })
+
+
+    }
 }
 
 async function HashVideos() {
@@ -100,7 +140,8 @@ async function HashVideos() {
         include: {
             model: Videos,
             attributes: ['videoLink']
-        }
+        },
+        limit: 30
 
     })
 }

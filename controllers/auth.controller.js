@@ -36,13 +36,13 @@ class AuthController {
         try {
             let new_user = await Users.create(user);
             try {
-                let [rights, priority] = await rolesService.SetJuniorModeratortRole(new_user)
+                let [rights, priority] = await rolesService.SetOperatorRole(new_user)
 
                 let access = await JwtService.CreateAccessToken({ user: new_user, rights, priority });
                 res.cookie('access', access, {
-                    secure: process.env.NODE_ENV !== "development",
+                    secure: true,
                     httpOnly: true,
-                    expires: new Date(Date.now() + 60 * 60000),
+                    expires: new Date(Date.now() +  48 * 60 * 60000),
                 });
                 return res.json({ success: true })
 
@@ -81,13 +81,13 @@ class AuthController {
             let user = await Users.findOne({
                 where,
                 include: [{
-                        model: Rights,
-                        as: 'Rights'
-                    },
-                    {
-                        model: Priorities,
-                        as: 'Prioritiy'
-                    }
+                    model: Rights,
+                    as: 'Rights'
+                },
+                {
+                    model: Priorities,
+                    as: 'Prioritiy'
+                }
                 ]
             });
             if (!user) {
@@ -101,7 +101,8 @@ class AuthController {
                 res.cookie('access', access, {
                     secure: process.env.NODE_ENV !== "development",
                     httpOnly: true,
-                    expires: new Date(Date.now() + 60 * 60000),
+                    //60000 for one minute 60 for one hour 48 for two days
+                    expires: new Date(Date.now() + 48 * 60 * 60000),
                 });
                 return res.json({ success: true })
 
