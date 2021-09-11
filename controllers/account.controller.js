@@ -1,7 +1,7 @@
 const { sequelize, Users, Rights, Priorities, Videos, AllowedVideos } = require('../models/Models')
 const Actions = require('../models/Actions.enum');
 class AccountController {
-    async GetPage(req, res, next) {
+    async GetMyAccountPage(req, res, next) {
         try {
             let [myVideos, rights] = await Promise.all([
                 Videos.findAll({ where: { SuggesterId: res.locals.user.id } }),
@@ -31,8 +31,7 @@ class AccountController {
         } catch (error) {
             next(error)
         }
-
-
     }
+
 }
 module.exports = new AccountController()
