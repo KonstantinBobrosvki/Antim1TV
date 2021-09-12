@@ -1,0 +1,30 @@
+<div class="col-sm-12">
+    <span class="w-100 text-center text-center">
+        <h2>Предложени видеа</h2>
+    </span>
+    <table class="w-100 table table-light overflow-scroll">
+        <thead>
+            <tr>
+                <th class="text-center" scope="col">Preview</th>
+                <th class="text-center" scope="col">Линк</th>
+                <th class="text-center" scope="col">Предложено на</th>
+                <th class="text-center" scope="col">Състояние</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each myVideos}}
+            <tr>
+                <th><img class="table-img" src="https://img.youtube.com/vi/{{this.videoLink}}/hqdefault.jpg"
+                        loading="lazy" alt="Preview"></th>
+                <th class="text-center align-middle">
+                    <a href="https://www.youtube.com/watch?v={{this.videoLink}}">https://www.youtube.com/watch?v={{this.videoLink}}</a>
+                </th>
+                <td class="text-center align-middle" data-postgreTime='true'>{{this.createdAt}}</td>
+                <td class="text-center align-middle">{{#Equals this.verified '0'}}Неодобрено :({{else Equals this.verified '1'}}Одобрено{{else}}Няма
+                    информация{{/Equals}}</td>
+
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>

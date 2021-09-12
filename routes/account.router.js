@@ -7,5 +7,6 @@ router.get('/',function(req,res) {
     res.redirect(req.baseUrl+'/me')
 })
 router.get('/me', account.GetMyAccountPage)
+router.get('/allows', account.GetAllowsPage)
 
 module.exports = router;

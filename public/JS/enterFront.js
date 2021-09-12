@@ -35,6 +35,32 @@ $(function() {
                 required: "Моля въведете парола",
                 minlength: "Моля въведете парола по дълга от 5 символа"
             },
+        },
+                // Make sure the form is submitted to the destination defined
+        // in the "action" attribute of the form when valid
+        submitHandler: function(form) {
+            form = $(form);
+            let url = form.attr('action');
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(), // serializes the form's elements.
+                success: function(data) {
+
+                    if (data.Errors) {
+                        AddErrors(data.Errors)
+                    }
+                    if (data.Messages) {
+                        AddMessages(data.Messages);
+                    }
+                    if (data.success) {
+                        //expires is counted in 24 hour so 0.125 is 3 hours
+                        //Cookies.set('access', data.access, { expires: 0.125 })
+                        window.location = '/account'
+                    }
+                }
+            });
         }
     });
 
@@ -75,9 +101,34 @@ $(function() {
                 email: "Моля въведете истински email адрес",
                 alloweddomain: "Извенете, позволени са само gmail.com, abv.bg, yandex.ru, yahoo.com ."
             }
+        }, submitHandler: function(form) {
+            form = $(form);
+            let url = form.attr('action');
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(), // serializes the form's elements.
+                success: function(data) {
+
+                    if (data.Errors) {
+                        AddErrors(data.Errors)
+                    }
+                    if (data.Messages) {
+                        AddMessages(data.Messages);
+                    }
+                    if (data.success) {
+                        //expires is counted in 24 hour so 0.125 is 3 hours
+                        //Cookies.set('access', data.access, { expires: 0.125 })
+                        window.location = '/account'
+                    }
+                }
+            });
+
+
         }
 
-       
+
     });
 
-});
+}); 
