@@ -1,16 +1,12 @@
+const Errors = require('../Errors/index.error');
+
 function CheckAuth(req, res, next) {
 
     if (res.locals.loggedin == false) {
-        if (req.accepts('html')) {
-            return res.status(401).redirect('/401');
-        } else
-            return res.json({ Errors: ['Не сте влезли'] });
-
+       next(new Errors.UnauthorizedError())
     } else {
         next();
     }
-
-
 
 }
 

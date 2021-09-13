@@ -12,6 +12,6 @@ router.use('/enter', require('./enter.router'),)
 router.use('/', require('./static.router'));
 
 
-router.use(require('../middleware/HTTP5XX.midleware'))
+router.use(require('../middleware/ErrorHandler.midleware'))
 
 module.exports = router;

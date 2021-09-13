@@ -1,8 +1,12 @@
 const { sequelize, Users, Rights, Priorities } = require('../models/Models');
 const { Sequelize } = require('sequelize');
+
 const bcrypt = require('bcrypt');
+
 const JwtService = require('../services/JWT.service');
 const rolesService = require('../services/roles.service');
+
+const Errors = require('../Errors/index.error');
 
 class AuthController {
 
@@ -22,13 +26,13 @@ class AuthController {
         let user = req.body;
 
         if (!user.username || !user.email || !user.password) {
-            return res.json({ Errors: ["Грешка в тялото на request"] })
+            return next(new Errors.BadRequestError())
         }
         if (!IsAllowedEmail(user.email)) {
-            return res.json({ Errors: ["Грешка в email. Позволени са само 'gmail.com', 'abv.bg', 'yandex.ru', 'yahoo.com'"] })
+            return next(new Errors.BadRequestError("Грешка в email. Позволени са само 'gmail.com', 'abv.bg', 'yandex.ru', 'yahoo.com'"))
         }
         if (user.username.length < 5 || user.username.length >= 30) {
-            return res.json({ Errors: ["Грешка в името. Трябва да е по-дълго от 5 символа и по кратко от 30 символа"] })
+            return next(new Errors.BadRequestError("Грешка в името. Трябва да е по-дълго от 5 символа и по кратко от 30 символа"))
         }
 
         let new_psw = await bcrypt.hash(user.password, 10)
@@ -42,7 +46,7 @@ class AuthController {
                 res.cookie('access', access, {
                     secure: true,
                     httpOnly: true,
-                    expires: new Date(Date.now() +  48 * 60 * 60000),
+                    expires: new Date(Date.now() + 48 * 60 * 60000),
                 });
                 return res.json({ success: true })
 
@@ -52,12 +56,10 @@ class AuthController {
                 return next(error)
             }
         } catch (error) {
-            console.log('ERROR')
             if (error instanceof Sequelize.UniqueConstraintError) {
-                return res.json({ Errors: ["Името или email са заети"] })
+                return next(new Errors.BadRequestError("Името или email са заети"))
             } else {
-                console.log(error)
-                return res.json({ Errors: ["Неизвестна грешка"] })
+                next(Errors.InternalError('Неизвестна грешка', error))
             }
         }
     }
@@ -67,7 +69,7 @@ class AuthController {
         let body = req.body;
 
         if (!body.usernameOrEmail) {
-            return res.json({ Errors: ["Грешка в тялото на request"] })
+            return next(new Errors.BadRequestError())
         }
 
         let where = {}
@@ -91,7 +93,8 @@ class AuthController {
                 ]
             });
             if (!user) {
-                return res.json({ Errors: ["Няма такъв потребител"] })
+                return next(new Errors.BadRequestError("Няма такъв потребител"))
+
             }
 
             let compare_result = await bcrypt.compare(body.password, user.password)
@@ -107,10 +110,10 @@ class AuthController {
                 return res.json({ success: true })
 
             } else {
-                return res.json({ Errors: ["Грешка в паролата"] })
+                return next(new Errors.BadRequestError("Грешка в паролата"))
             }
         } catch (error) {
-            return next(error)
+            next(Errors.InternalError('Неизвестна грешка', error))
         }
 
     }

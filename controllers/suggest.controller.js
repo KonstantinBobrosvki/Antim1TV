@@ -1,6 +1,8 @@
 const { sequelize, Users, Rights, Priorities, Videos, AllowedVideos } = require('../models/Models')
 const actions = require('../models/Actions.enum');
 
+const Errors = require('../Errors/index.error');
+
 class SuggestController {
     async GetPage(req, res) {
         res.render('videos', {
@@ -16,15 +18,15 @@ class SuggestController {
         let videoLink = req.body.link;
 
         if (!videoLink) {
-            return res.json({ Errors: ["Грешка в тялото на request"] })
+            return next(new Errors.BadRequestError());
         }
         if (!(/^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$/.test(videoLink))) {
-            return res.json({ Errors: ["Грешен линк"] })
+            return next(new Errors.BadRequestError("Грешен линк"));
         }
         let suggesterDto = res.locals.user;
 
         if (!res.locals.user.rights.includes(actions.Suggest))
-            return res.json({ Errors: ["Нямате право да предлагате видео:)"] })
+            return next(new Errors.ForbiddenError("Нямате право да предлагате видео:)"));
 
         try {
             let videoid = /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$/.exec(videoLink)[5]
@@ -32,7 +34,7 @@ class SuggestController {
             await Videos.create({ videoLink: videoid, SuggesterId: suggesterDto.id })
             return res.json({ success: true })
         } catch (error) {
-            next(error)
+            next(Errors.InternalError('Неизвестна грешка',error))
         }
 
     }

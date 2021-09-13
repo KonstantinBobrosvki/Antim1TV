@@ -5,9 +5,14 @@ function JWTRead(req, res, next) {
     let token = req.cookies['access']
     res.locals.loggedin = false;
     if (token) {
-        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function(err, decoded) {
+        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
             if (err) {
-                console.log(err)
+                if (err instanceof jwt.TokenExpiredError) {
+                    res.cookie('access', '', { expires: new Date(0) });
+                } else {
+                    console.log(err)
+                }
+
             } else {
                 res.locals.user = decoded.user
                 res.locals.loggedin = true;

@@ -7,7 +7,7 @@ class LoggerService {
 
     Error(error) {
         if (process.env.NODE_ENV.toString().replace(/ /g, '') == "dev") {
-            console.error('[ERROR]');
+            console.log('[ERROR]');
             console.error(error);
 
         }

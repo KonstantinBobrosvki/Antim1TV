@@ -2,6 +2,8 @@ const Actions = require('../models/Actions.enum');
 const { sequelize, Users, Rights, Priorities, Videos, AllowedVideos, UserVideoVotes } = require('../models/Models')
 const Verified = require("../models/Verified.enum");
 
+const Errors = require('../Errors/index.error');
+
 //Here will be stored all hashed allowed videos
 let AllowedVideosHash = []
 
@@ -12,9 +14,11 @@ class VideoController {
 
     async AllowVideo(req, res, next) {
         //id of allowed video
-        let id = req.body.id;
-        let user = res.locals.user;
-
+        const id = req.body.id;
+        const user = res.locals.user;
+        if (!id) {
+            return next(new Errors.BadRequestError());
+        }
         if (user.rights.includes(Actions.AllowVideo)) {
 
             const t = await sequelize.transaction();
@@ -25,12 +29,12 @@ class VideoController {
                 res.json({ success: true });
             }).catch(async error => {
                 await t.rollback();
-                next(error)
+                next(Errors.InternalError('Неизвестна грешка',error))
             });
 
 
         } else {
-            return res.json({ Errors: ["Нямате право да одобрявате видео:)"] })
+            return next(new Errors.ForbiddenError("Нямате право да одобрявате видео:)"));
         }
     }
 
@@ -45,17 +49,15 @@ class VideoController {
                 await Videos.update({ verified: Verified.rejected }, { where: { id } });
                 res.json({ success: true });
             } catch (error) {
-
-                return res.json({ Errors: ["Има грешка:("] })
-
+                next(Errors.InternalError('Неизвестна грешка',error))
             }
         } else {
-            return res.json({ Errors: ["Нямате право да правите това:)"] })
+            return next(new Errors.ForbiddenError("Нямате право да правите това:)"));
         }
     }
 
     async GetAllowedVideos(req, res, next) {
-        res.json(AllowedVideosHash);
+        return res.json(AllowedVideosHash);
     }
 
     async VoteVideo(req, res, next) {
@@ -65,8 +67,7 @@ class VideoController {
 
         const hashed = AllowedVideosHash.find(el => el.id == videoId)
         if (!hashed) {
-            return res.json({ Errors: ['Няма такова видео'] })
-
+            return next(new Errors.BadRequestError('Няма такова видео'));
         }
 
         const t = await sequelize.transaction();
@@ -80,7 +81,7 @@ class VideoController {
             if (created) {
                 const video = await AllowedVideos.findByPk(videoId);
                 if (!video) {
-                    return res.json({ Errors: ['Няма такова видео'] })
+                    return next(new Errors.BadRequestError('Няма такова видео'));
                 } else {
                     await video.increment('votes', { by: 1, transaction: t });
                     await t.commit();
@@ -88,20 +89,19 @@ class VideoController {
                     res.json({ success: true })
                 }
             } else {
-                return res.json({ Errors: ['Вече гласувахте'] })
-
+                return next(new Errors.ForbiddenError('Вече гласувахте'));
             }
 
         } catch (error) {
             await t.rollback();
-            next(error)
+            next(Errors.InternalError('Неизвестна грешка',error))
         }
     }
 
     //Get video that should be viewed next
     async PopVideo(req, res, next) {
         if (!res.locals.user.rights.includes(Actions.ControllPlayer)) {
-            return res.json({ Errors: ['NQMATE PRAVA 111!!!'] })
+            return next(new Errors.ForbiddenError('Нямате право да контролитате видео-опашката'));
         }
 
         let pretendent = {};
@@ -125,9 +125,8 @@ class VideoController {
             await AllowedVideos.update({ played: true }, { where: { id: pretendent.video.id } });
             return res.json({ video: pretendent.video })
         }
-        return res.json({ Errors: ['Няма видеа в опашката'] })
 
-
+        return next(new Errors.NotFoundError('Няма видеа в опашката'));
     }
 }
 

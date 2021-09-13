@@ -1,4 +1,7 @@
 const { sequelize, Users, Rights, Priorities, Videos, AllowedVideos } = require('../models/Models')
+
+const Errors = require('../Errors/index.error');
+
 const Actions = require('../models/Actions.enum');
 class AccountController {
 
@@ -17,7 +20,7 @@ class AccountController {
             });
 
         } catch (error) {
-            next(error)
+            next(Errors.InternalError('Неизвестна грешка',error))
         }
     }
 
@@ -33,16 +36,16 @@ class AccountController {
                     js: ['account.js'],
                     videosToAllow
                 });
-            }else{
-                req.redirect('/403')
+            } else {
+                next(new Errors.ForbiddenError())
             }
         } catch (error) {
-            next(error)
+            next(Errors.InternalError('Неизвестна грешка',error))
         }
     }
 
-    async GetUsersPage(req,res,next){
-        
+    async GetUsersPage(req, res, next) {
+
     }
 
 }

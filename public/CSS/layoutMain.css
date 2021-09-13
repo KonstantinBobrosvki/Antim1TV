@@ -33,6 +33,18 @@ body {
     height: 100%;
 }
 
+#MessagesArea{
+    position: fixed;
+    width: 30vw;
+    right: 0;
+    bottom: 0;
+    z-index: 10;
+}
+
+#MessagesArea div{
+   z-index: inherit;
+}
+
 .error {
     color: red;
 }
@@ -45,13 +57,11 @@ body {
 }
 
 .error-hide {
-    animation-duration: 6s;
-    animation-name: TextHideAnim;
+    animation: TextHideAnim 6s forwards;
 }
 
 .message-hide {
-    animation-duration: 10s;
-    animation-name: TextHideAnim;
+    animation: TextHideAnim 10s forwards;
 }
 
 @keyframes TextHideAnim {

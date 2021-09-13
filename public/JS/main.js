@@ -1,4 +1,15 @@
-let messagesArea = document.getElementById('MessagesArea')
+$.ajaxSetup({
+    headers: { 'Accept': 'application/json; charset=utf-8' }
+});
+
+$(document).ajaxError(function (event, jqXHR, ajaxSettings, thrownError) {
+    let errors = jqXHR.responseJSON.Errors;
+    if (errors) {
+        AddErrors(errors)
+    }
+});
+
+const messagesArea = $('#MessagesArea')
 
 function AddMessages(messages) {
     AddTextInfos(messages, 'flash alert alert-info message-hide w-100')
@@ -9,18 +20,15 @@ function AddErrors(errors) {
 }
 
 function AddTextInfos(texts, classes) {
-    let html = texts.reduce((acc, message) => {
-        acc += `<div class="${classes}" role="alert" >${message}</div>`
-        return acc
-    }, ``);
 
-    messagesArea.innerHTML += html
-    const animated = messagesArea.querySelectorAll('.flash');
-    animated.forEach(el => {
-        el.addEventListener('animationend', () => {
-            $(el).remove();
-        });
-    })
+    if (!Array.isArray(texts))
+        texts = [texts]
+
+
+
+    texts.forEach(message => {
+        messagesArea.append(`<div class="${classes}" role="alert" >${message}</div>`)
+    });
 
 }
 
@@ -35,13 +43,14 @@ function GetYoutubeMetadata(id) {
         $.ajax({
             type: "GET",
             url: `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`,
-            success: function(data) {
+            success: function (data) {
                 resolve(data)
             },
-            error: function(error) {
+            error: function (error) {
                 reject(error)
             }
         });
     })
 
 }
+

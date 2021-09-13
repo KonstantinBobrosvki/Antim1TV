@@ -1,11 +1,11 @@
-﻿$('#myFormTabs a').click(function(e) {
+﻿$('#myFormTabs a').click(function (e) {
     e.preventDefault();
     $(this).tab('show');
 })
 
-$(function() {
+$(function () {
     $.validator.addMethod("alloweddomain",
-        function(value, element) {
+        function (value, element) {
             let domain = value.split("@")[1]
             const allowedEmails = ['gmail.com', 'abv.bg', 'yandex.ru', 'yahoo.com']
             return allowedEmails.includes(domain);
@@ -36,9 +36,9 @@ $(function() {
                 minlength: "Моля въведете парола по дълга от 5 символа"
             },
         },
-                // Make sure the form is submitted to the destination defined
+        // Make sure the form is submitted to the destination defined
         // in the "action" attribute of the form when valid
-        submitHandler: function(form) {
+        submitHandler: function (form) {
             form = $(form);
             let url = form.attr('action');
 
@@ -46,7 +46,7 @@ $(function() {
                 type: "POST",
                 url: url,
                 data: form.serialize(), // serializes the form's elements.
-                success: function(data) {
+                success: function (data) {
 
                     if (data.Errors) {
                         AddErrors(data.Errors)
@@ -101,7 +101,7 @@ $(function() {
                 email: "Моля въведете истински email адрес",
                 alloweddomain: "Извенете, позволени са само gmail.com, abv.bg, yandex.ru, yahoo.com ."
             }
-        }, submitHandler: function(form) {
+        }, submitHandler: function (form) {
             form = $(form);
             let url = form.attr('action');
 
@@ -109,11 +109,7 @@ $(function() {
                 type: "POST",
                 url: url,
                 data: form.serialize(), // serializes the form's elements.
-                success: function(data) {
-
-                    if (data.Errors) {
-                        AddErrors(data.Errors)
-                    }
+                success: function (data) {        
                     if (data.Messages) {
                         AddMessages(data.Messages);
                     }
@@ -131,4 +127,4 @@ $(function() {
 
     });
 
-}); 
+});

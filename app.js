@@ -36,7 +36,6 @@ async function StartApp() {
     app.use(express.json())
 
     app.use(require('./routes/main.router'));
-    app.use(require('./middleware/HTTP5XX.midleware'));
 
     app.listen(process.env.PORT, () => {
         console.log(`I WORK. Example app listening at http://localhost:${process.env.PORT}`)
