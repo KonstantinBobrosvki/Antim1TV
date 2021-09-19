@@ -3,6 +3,7 @@ require('dotenv').config();
 const exphbs = require('express-handlebars');
 const cookieParser = require('cookie-parser')
 const cors = require('cors')
+const redirectToHTTPS = require('express-http-to-https').redirectToHTTPS
 
 //Inits db
 const db = require('./models/Models');
@@ -34,6 +35,8 @@ async function StartApp() {
 
     app.use(express.urlencoded({ extended: true }));
     app.use(express.json())
+
+    app.use(redirectToHTTPS([/localhost:(\d{4})/], [], 308));
 
     app.use(require('./routes/main.router'));
 

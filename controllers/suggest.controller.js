@@ -34,7 +34,7 @@ class SuggestController {
             await Videos.create({ videoLink: videoid, SuggesterId: suggesterDto.id })
             return res.json({ success: true })
         } catch (error) {
-            next(Errors.InternalError('Неизвестна грешка',error))
+            next(new Errors.InternalError('Неизвестна грешка',error))
         }
 
     }

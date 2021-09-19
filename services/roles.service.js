@@ -67,6 +67,31 @@ class RolesService {
             }
         });
     }
+
+    async SetMediumModerator(user,giver){
+        return new Promise(async(resolve, reject) => {
+            const t = await sequelize.transaction();
+            try {
+                let [rights, priority] = await Promise.all([
+                    Rights.bulkCreate([
+                        { ReceiverId: user.id, actionCode: ActionsEnum.Suggest, GiverId: giver && giver.id },
+                        { ReceiverId: user.id, actionCode: ActionsEnum.ChangeRight, GiverId: giver && giver.id },
+                        { ReceiverId: user.id, actionCode: ActionsEnum.ChangePriority, GiverId: giver && giver.id },
+                        { ReceiverId: user.id, actionCode: ActionsEnum.AllowVideo, GiverId: giver && giver.id }
+                    ],{ transaction: t }),
+                    Priorities.create({ priority: 60, ReceiverId: user.id }, { transaction: t })
+                ]);
+                rights = rights.map(item => item.actionCode)
+                console.log(rights);
+                await t.commit();
+                resolve([rights, priority.priority]);
+            } catch (error) {
+                console.log(error)
+                await t.rollback();
+                return reject(error);
+            }
+        });
+    }
 }
 
 module.exports = new RolesService();

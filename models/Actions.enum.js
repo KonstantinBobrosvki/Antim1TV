@@ -1,4 +1,5 @@
 //Describes actions that user can do
+//TODO: ON CHANGE HERE REMEMBER ABOUT PUBLIC MAIN!!!!!
 const Actions = {
     Suggest: '1',
     AllowVideo: '2',

@@ -25,9 +25,6 @@ function SendForm(form, callback) {
         url: url,
         data: $(form).serialize(), // serializes the form's elements.
         success: function(data) {
-            if (data.Errors) {
-                AddErrors(data.Errors)
-            }
             if (data.Messages) {
                 AddMessages(data.Messages);
             }

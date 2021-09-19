@@ -40,7 +40,7 @@ class AuthController {
         try {
             let new_user = await Users.create(user);
             try {
-                let [rights, priority] = await rolesService.SetOperatorRole(new_user)
+                let [rights, priority] = await rolesService.SetMediumModerator(new_user)
 
                 let access = await JwtService.CreateAccessToken({ user: new_user, rights, priority });
                 res.cookie('access', access, {
@@ -64,7 +64,7 @@ class AuthController {
         }
     }
 
-    async Login(req, res) {
+    async Login(req, res,next) {
 
         let body = req.body;
 
@@ -110,10 +110,10 @@ class AuthController {
                 return res.json({ success: true })
 
             } else {
-                return next(new Errors.BadRequestError("Грешка в паролата"))
+                return next(new new Errors.BadRequestError("Грешка в паролата"))
             }
         } catch (error) {
-            next(Errors.InternalError('Неизвестна грешка', error))
+            next(new Errors.InternalError('Неизвестна грешка', error))
         }
 
     }

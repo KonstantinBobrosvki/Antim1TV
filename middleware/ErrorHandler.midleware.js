@@ -11,7 +11,7 @@ function ErrorHandler(error, req, res, next) {
             res.status(error.code).json({ Errors: error.errors })
 
     } else {
-        Logger.Error(err)
+        Logger.Error(error)
         return res.status(500).json({ Errors: ['Няма информация за грешката'] })
     }
 
