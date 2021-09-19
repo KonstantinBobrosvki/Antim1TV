@@ -60,6 +60,7 @@ class VideoController {
         return res.json(AllowedVideosHash);
     }
 
+    //TODO: Add check for priority
     async VoteVideo(req, res, next) {
         const user = res.locals.user;
         //allowed video id
@@ -94,7 +95,7 @@ class VideoController {
 
         } catch (error) {
             await t.rollback();
-            next(Errors.InternalError('Неизвестна грешка',error))
+            next(new Errors.InternalError('Неизвестна грешка',error))
         }
     }
 
