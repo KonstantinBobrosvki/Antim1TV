@@ -257,7 +257,7 @@ class AccountController {
                     }]
                 }]
             })
-            console.log(right.Giver);
+
             if (right) {
                 if (right.Giver.Prioritiy.priority >= me.priority && right.Giver.id !== me.id)
                     return next(new Errors.ForbiddenError('Нямате правo да триете това право.'))
@@ -267,10 +267,7 @@ class AccountController {
 
                 }
             }
-
-
-
-            
+   
         } catch (error) {
             return next(new Errors.InternalError('Грешка', error))
         }
@@ -329,7 +326,9 @@ class AccountController {
                 success: true,
                 result: {
                     user: { id: userId },
-                    actionCode: rightCode
+                    actionCode: rightCode,
+                    id:right.id,
+                    GiverId:me.id
                 }
             })
         } catch (error) {
