@@ -243,8 +243,6 @@ class AccountController {
             if (receiver.Prioritiy.priority >= me.priority)
                 return next(new Errors.ForbiddenError('Нямате правo да променяте правата на този потребител'))
 
-            console.log(receiver.Prioritiy)
-
             const right = await Rights.findByPk(rightId, {
                 include: [{
                     //giver of right
@@ -259,14 +257,20 @@ class AccountController {
                     }]
                 }]
             })
+            console.log(right.Giver);
+            if (right) {
+                if (right.Giver.Prioritiy.priority >= me.priority && right.Giver.id !== me.id)
+                    return next(new Errors.ForbiddenError('Нямате правo да триете това право.'))
+                else {
+                    await right.destroy();
+                    res.json({ success: true })
 
-            if (right && right.Giver.Prioritiy.priority >= me.priority) {
-                return next(new Errors.ForbiddenError('Нямате правo да триете това право.'))
+                }
             }
 
-            await right.destroy();
 
-            res.json({ success: true })
+
+            
         } catch (error) {
             return next(new Errors.InternalError('Грешка', error))
         }
