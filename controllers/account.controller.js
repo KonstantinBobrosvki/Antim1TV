@@ -61,7 +61,7 @@ class AccountController {
 
         const myRights = me.rights;
 
-        if (!(myRights.includes(Actions.ChangePriority) || myRights.includes(Actions.Rights) || myRights.includes(Actions.BanUser))) {
+        if (!(myRights.includes(Actions.ChangePriority) || myRights.includes(Actions.ChangeRight) || myRights.includes(Actions.BanUser))) {
             return next(new Errors.ForbiddenError('Нямате права да контролирате акаунтите'))
         }
 
@@ -94,7 +94,7 @@ class AccountController {
 
         const myRights = me.rights;
 
-        if (!(myRights.includes(Actions.ChangePriority) || myRights.includes(Actions.Rights) || myRights.includes(Actions.BanUser))) {
+        if (!(myRights.includes(Actions.ChangePriority) || myRights.includes(Actions.ChangeRight) || myRights.includes(Actions.BanUser))) {
             return next(new Errors.ForbiddenError('Нямате права да контролирате акаунтите'))
         }
         if (!req.query.username) {
@@ -243,20 +243,28 @@ class AccountController {
             if (receiver.Prioritiy.priority >= me.priority)
                 return next(new Errors.ForbiddenError('Нямате правo да променяте правата на този потребител'))
 
-            const giverOfReceiverPriority = await Priorities.findByPk(receiver.Prioritiy.id)
-            if (giverOfReceiverPriority && giverOfReceiverPriority.priority>=me.priority) {
+            console.log(receiver.Prioritiy)
+
+            const right = await Rights.findByPk(rightId, {
+                include: [{
+                    //giver of right
+                    model: Users,
+                    as: 'Giver',
+                    attributes: ['id'],
+                    include: [{
+                        //priority of giver of right
+                        model: Priorities,
+                        as: 'Prioritiy',
+                        attributes: ['priority', 'GiverId', 'id']
+                    }]
+                }]
+            })
+
+            if (right && right.Giver.Prioritiy.priority >= me.priority) {
                 return next(new Errors.ForbiddenError('Нямате правo да триете това право.'))
             }
-            const destroyed = await Rights.destroy({
-                where: {
-                    id: rightId,
-                    ReceiverId: userId
 
-                },
-                options: {
-                    limit: 1
-                }
-            });
+            await right.destroy();
 
             res.json({ success: true })
         } catch (error) {
