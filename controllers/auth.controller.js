@@ -40,9 +40,9 @@ class AuthController {
         try {
             let new_user = await Users.create(user);
             try {
-                let [rights, priority] = await rolesService.SetMediumModerator(new_user)
+                let [rights, priority] = await rolesService.SetNewbieRole(new_user)
 
-                let access = await JwtService.CreateAccessToken({ user: new_user, rights, priority });
+                let access = await JwtService.CreateAccessToken({ user: new_user, rights, priority },'6h');
                 res.cookie('access', access, {
                     secure: true,
                     httpOnly: true,
@@ -100,9 +100,9 @@ class AuthController {
             let compare_result = await bcrypt.compare(body.password, user.password)
 
             if (compare_result === true) {
-                let access = await JwtService.CreateAccessToken({ user: user, rights: user.Rights.map(item => item.actionCode), priority: user.Prioritiy.priority });
+                let access = await JwtService.CreateAccessToken({ user: user, rights: user.Rights.map(item => item.actionCode), priority: user.Prioritiy.priority },'6h');
                 res.cookie('access', access, {
-                    secure: process.env.NODE_ENV !== "development",
+                    secure:true,
                     httpOnly: true,
                     //60000 for one minute 60 for one hour 48 for two days
                     expires: new Date(Date.now() + 48 * 60 * 60000),

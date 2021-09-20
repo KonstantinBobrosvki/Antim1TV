@@ -86,3 +86,10 @@ function OnSuccess(data) {
         }
     }
 }
+
+function SearchForGiver(button) {
+    
+    const giver=button.getAttribute('data-right-giver-id')
+    console.log(giver);
+    $('#user-search-input').val(`id=${giver}`)
+}

@@ -4,12 +4,6 @@ const Verified = require("../models/Verified.enum");
 
 const Errors = require('../Errors/index.error');
 
-//Here will be stored all hashed allowed videos
-let AllowedVideosHash = []
-
-HashVideos()
-setTimeout(HashVideos, 60000 * 10)
-
 class VideoController {
 
     async AllowVideo(req, res, next) {
@@ -29,7 +23,7 @@ class VideoController {
                 res.json({ success: true });
             }).catch(async error => {
                 await t.rollback();
-                next(Errors.InternalError('Неизвестна грешка',error))
+                next(new Errors.InternalError('Неизвестна грешка', error))
             });
 
 
@@ -49,7 +43,7 @@ class VideoController {
                 await Videos.update({ verified: Verified.rejected }, { where: { id } });
                 res.json({ success: true });
             } catch (error) {
-                next(Errors.InternalError('Неизвестна грешка',error))
+                next(new Errors.InternalError('Неизвестна грешка', error))
             }
         } else {
             return next(new Errors.ForbiddenError("Нямате право да правите това:)"));
@@ -57,7 +51,14 @@ class VideoController {
     }
 
     async GetAllowedVideos(req, res, next) {
-        return res.json(AllowedVideosHash);
+        try {
+            const vids =await GetVideos();
+            return res.json(vids);
+        } catch (error) {
+            next(new Errors.InternalError('Неизвестна грешка', error))
+
+        }
+
     }
 
     //TODO: Add check for priority
@@ -65,38 +66,40 @@ class VideoController {
         const user = res.locals.user;
         //allowed video id
         const videoId = req.body.videoId;
-
-        const hashed = AllowedVideosHash.find(el => el.id == videoId)
-        if (!hashed) {
-            return next(new Errors.BadRequestError('Няма такова видео'));
-        }
-
-        const t = await sequelize.transaction();
         try {
+            const vids = await GetVideos();
 
-
-            const [vote, created] = await UserVideoVotes.findOrCreate({
-                where: { userId: user.id, videoId: videoId },
-                transaction: t
-            });
-            if (created) {
-                const video = await AllowedVideos.findByPk(videoId);
-                if (!video) {
-                    return next(new Errors.BadRequestError('Няма такова видео'));
-                } else {
-                    await video.increment('votes', { by: 1, transaction: t });
-                    await t.commit();
-                    hashed.votes++;
-                    res.json({ success: true })
-                }
-            } else {
-                return next(new Errors.ForbiddenError('Вече гласувахте'));
+            const video = vids.find(el => el.id == videoId)
+            if (!video) {
+                return next(new Errors.BadRequestError('Няма такова видео'));
             }
 
+            const t = await sequelize.transaction();
+            try {
+
+                const [vote, created] = await UserVideoVotes.findOrCreate({
+                    where: { userId: user.id, videoId: videoId },
+                    transaction: t
+                });
+                if (created) {
+                    await video.increment('votes', { by: 1, transaction: t });
+                    await t.commit();
+
+                    res.json({ success: true })
+
+                } else {
+                    return next(new Errors.ForbiddenError('Вече гласувахте'));
+                }
+
+            } catch (error) {
+                await t.rollback();
+                next(new Errors.InternalError('Неизвестна грешка', error))
+            }
         } catch (error) {
-            await t.rollback();
-            next(new Errors.InternalError('Неизвестна грешка',error))
+            next(new Errors.InternalError('Неизвестна грешка', error))
+
         }
+
     }
 
     //Get video that should be viewed next
@@ -105,38 +108,43 @@ class VideoController {
             return next(new Errors.ForbiddenError('Нямате право да контролитате видео-опашката'));
         }
 
-        let pretendent = {};
+        try {
+            const vids = await GetVideos();
+            let pretendent = {};
 
-        const now = new Date()
-        const millisecondsInHour = 60 * 60 * 1000;
-        let iter = 0;
-        AllowedVideosHash.forEach(el => {
-            const diffInHours = Math.ceil(Math.abs(new Date(el.createdAt) - now) / millisecondsInHour);
-            const value = 1 + el.votes * Math.sqrt(diffInHours);
+            const now = new Date()
+            const millisecondsInHour = 60 * 60 * 1000;
 
-            if (pretendent.prior || 0 < value) {
-                pretendent = { index: iter, prior: value, video: el };
+            vids.forEach(el => {
+                const diffInHours = Math.ceil(Math.abs(new Date(el.createdAt) - now) / millisecondsInHour);
+                const value =( 1 + el.votes) * Math.sqrt(diffInHours);
+    
+                if (!pretendent.prior) {
+                    pretendent = {prior: value, video: el };
+                }else if(pretendent.prior<value){
+                    pretendent = {prior: value, video: el };
+                }
+
+            })
+    
+            if (pretendent.video) {
+  
+                await AllowedVideos.update({ played: true }, { where: { id: pretendent.video.id } });
+                return res.json({ video: pretendent.video })
             }
-            iter++;
-        })
-
-        if (pretendent.video) {
-
-            AllowedVideosHash.splice(pretendent.index, 1)
-            await AllowedVideos.update({ played: true }, { where: { id: pretendent.video.id } });
-            return res.json({ video: pretendent.video })
+    
+            return next(new Errors.NotFoundError('Няма видеа в опашката'));
+        } catch (error) {
+            
         }
-
-        return next(new Errors.NotFoundError('Няма видеа в опашката'));
+      
     }
 }
 
-async function HashVideos() {
-    AllowedVideosHash = await AllowedVideos.findAll({
+async function GetVideos() {
+    return AllowedVideos.findAll({
         where: { played: false },
-        raw: true,
         attributes: ['id', 'votes', 'createdAt'],
-        nest: true,
         include: {
             model: Videos,
             attributes: ['videoLink']

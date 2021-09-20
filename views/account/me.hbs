@@ -1,4 +1,28 @@
 <div class="col-sm-12">
+    <h2 class="w-100 text-center">Вашите права</h2>
+    <ul class="d-flex justify-content-evenly mb-4">
+        {{#each myRights}}
+
+        <li class="list-group-item bg-dark text-light  me-2">
+            <span>{{RightToText this}}</span>
+        </li>
+
+        {{/each}}
+    </ul>
+</div>
+
+<hr style="height: 3px;" class="mb-5">
+
+<div class="d-flex justify-content-center mt-3 mb-3">
+    <h2 class="bg-white text-center">Вашият приоритет: 
+        <br>{{myPriority}}
+    </h2>
+</div>
+
+
+<hr style="height: 3px;" class="mt-5">
+
+<div class="col-sm-12">
     <span class="w-100 text-center text-center">
         <h2>Предложени видеа</h2>
     </span>
@@ -17,10 +41,12 @@
                 <th><img class="table-img" src="https://img.youtube.com/vi/{{this.videoLink}}/hqdefault.jpg"
                         loading="lazy" alt="Preview"></th>
                 <th class="text-center align-middle">
-                    <a href="https://www.youtube.com/watch?v={{this.videoLink}}">https://www.youtube.com/watch?v={{this.videoLink}}</a>
+                    <a
+                        href="https://www.youtube.com/watch?v={{this.videoLink}}">https://www.youtube.com/watch?v={{this.videoLink}}</a>
                 </th>
                 <td class="text-center align-middle" data-postgreTime='true'>{{this.createdAt}}</td>
-                <td class="text-center align-middle">{{#Equals this.verified '0'}}Неодобрено :({{else Equals this.verified '1'}}Одобрено{{else}}Няма
+                <td class="text-center align-middle">{{#Equals this.verified '0'}}Неодобрено :({{else Equals
+                    this.verified '1'}}Одобрено{{else}}Няма
                     информация{{/Equals}}</td>
 
             </tr>

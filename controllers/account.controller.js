@@ -9,16 +9,17 @@ class AccountController {
 
     async GetMyAccountPage(req, res, next) {
         try {
-            let user = res.locals.user;
 
-            let myVideos = await Videos.findAll({ where: { SuggesterId: res.locals.user.id } })
-
+            const myVideos = await Videos.findAll({ where: { SuggesterId: res.locals.user.id } })
+            const myRights= res.locals.user.rights;
             res.render('account/me', {
                 title: "Мой аккаунт",
                 active: { account: true },
                 css: ['account.css'],
                 js: ['account.js'],
-                myVideos
+                myVideos,
+                myRights,
+                myPriority:res.locals.user.priority
             });
 
         } catch (error) {
@@ -110,17 +111,33 @@ class AccountController {
             })
         }
 
+        let users;
 
-        const users = await Users.findAll({
-            where: {
-                username: {
-                    [Op.like]: req.query.username + '%'
-                }
-            },
-            include,
-            attributes: ['username', 'id']
+        if (/^id=/.test(req.query.username)) {
+            users = await Users.findAll({
+                where: {
+                    id: req.query.username.slice(3)
+                },
+                include,
+                attributes: ['username', 'id']
 
-        })
+            })
+            if (users.length == 0)
+                return next(new Errors.NotFoundError('Този потребител не е намерен.Може би има по-висок от вас приоритет'))
+        }
+        else {
+            users = await Users.findAll({
+                where: {
+                    username: {
+                        [Op.like]: req.query.username + '%'
+                    }
+                },
+                include,
+                attributes: ['username', 'id']
+
+            })
+        }
+
 
         res.json(users)
 
@@ -273,10 +290,13 @@ class AccountController {
                 where: {
                     ReceiverId: userId,
                     actionCode: rightCode
+                },
+                defaults: {
+                    GiverId: me.id
                 }
             });
 
-            if(!created)
+            if (!created)
                 return next(new Errors.BadRequestError('Потребителя вече има това право'))
 
 

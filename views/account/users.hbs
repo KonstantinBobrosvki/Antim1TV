@@ -38,8 +38,13 @@
         <form data-form-selector='deleteRight' action="/account/deleteRight"  method="post">
             <input type="hidden" name="right_id" value="{{this.id}}">
             <input type="hidden" name="user_id" value="{{user.id}}">
+          
             <button type="submit" class="btn btn-danger w-100">Изтрий</button>
+
         </form>
+        <div onclick="SearchForGiver(this)" role="button" data-right-giver-id='{{this.GiverId}}' class="text-secondary mt-1">
+            <ins> Кой даде това право? </ins>
+        </div>
     </span>
   </li>
 </script>
