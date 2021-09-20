@@ -5,7 +5,7 @@ class UnauthorizedError extends StandartError {
         if (arguments.length)
             super(401, errors)
         else
-            super(401, 'Моля влезнете в профила си')
+            super(401, 'Моля влезте в профила си')
     }
 }
 

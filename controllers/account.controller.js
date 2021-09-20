@@ -11,7 +11,7 @@ class AccountController {
         try {
 
             const myVideos = await Videos.findAll({ where: { SuggesterId: res.locals.user.id } })
-            const myRights= res.locals.user.rights;
+            const myRights = res.locals.user.rights;
             res.render('account/me', {
                 title: "Мой аккаунт",
                 active: { account: true },
@@ -19,7 +19,7 @@ class AccountController {
                 js: ['account.js'],
                 myVideos,
                 myRights,
-                myPriority:res.locals.user.priority
+                myPriority: res.locals.user.priority
             });
 
         } catch (error) {
@@ -27,9 +27,9 @@ class AccountController {
         }
     }
 
-    async Logout(req,res,next){
-        res.clearCookie('access',{
-            secure:true,
+    async Logout(req, res, next) {
+        res.clearCookie('access', {
+            secure: true,
             httpOnly: true,
             expires: new Date(Date.now() + 6 * 60 * 60000),
         });
@@ -243,6 +243,10 @@ class AccountController {
             if (receiver.Prioritiy.priority >= me.priority)
                 return next(new Errors.ForbiddenError('Нямате правo да променяте правата на този потребител'))
 
+            const giverOfReceiverPriority = await Priorities.findByPk(receiver.Prioritiy.id)
+            if (giverOfReceiverPriority && giverOfReceiverPriority.priority>=me.priority) {
+                return next(new Errors.ForbiddenError('Нямате правo да триете това право.'))
+            }
             const destroyed = await Rights.destroy({
                 where: {
                     id: rightId,
