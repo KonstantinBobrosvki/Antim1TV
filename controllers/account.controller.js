@@ -27,6 +27,15 @@ class AccountController {
         }
     }
 
+    async Logout(req,res,next){
+        res.clearCookie('access',{
+            secure:true,
+            httpOnly: true,
+            expires: new Date(Date.now() + 6 * 60 * 60000),
+        });
+        res.redirect('/')
+    }
+
     async GetAllowsPage(req, res, next) {
         try {
             let user = res.locals.user;

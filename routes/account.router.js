@@ -10,6 +10,7 @@ router.get('/me', account.GetMyAccountPage)
 router.get('/allows', account.GetAllowsPage)
 router.get('/users', account.GetUsersPage)
 router.get('/getByName', account.GetByName)
+router.get('/logout',account.Logout)
 
 router.post('/changePriorityUp', account.ChangePriority(1))
 router.post('/changePriorityDown', account.ChangePriority(-1))

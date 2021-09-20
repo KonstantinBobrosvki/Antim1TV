@@ -46,7 +46,7 @@ class AuthController {
                 res.cookie('access', access, {
                     secure: true,
                     httpOnly: true,
-                    expires: new Date(Date.now() + 48 * 60 * 60000),
+                    expires: new Date(Date.now() + 6 * 60 * 60000),
                 });
                 return res.json({ success: true })
 
@@ -105,7 +105,7 @@ class AuthController {
                     secure:true,
                     httpOnly: true,
                     //60000 for one minute 60 for one hour 48 for two days
-                    expires: new Date(Date.now() + 48 * 60 * 60000),
+                    expires: new Date(Date.now() + 6 * 60 * 60000),
                 });
                 return res.json({ success: true })
 
