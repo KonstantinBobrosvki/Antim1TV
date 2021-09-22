@@ -7,6 +7,7 @@ const JwtService = require('../services/JWT.service');
 const rolesService = require('../services/roles.service');
 
 const Errors = require('../Errors/index.error');
+const Actions = require('../models/Actions.enum');
 
 class AuthController {
 
@@ -42,7 +43,7 @@ class AuthController {
             try {
                 let [rights, priority] = await rolesService.SetNewbieRole(new_user)
 
-                let access = await JwtService.CreateAccessToken({ user: new_user, rights, priority },'6h');
+                let access = await JwtService.CreateAccessToken({ user: new_user, rights, priority }, '6h');
                 res.cookie('access', access, {
                     secure: true,
                     httpOnly: true,
@@ -64,7 +65,7 @@ class AuthController {
         }
     }
 
-    async Login(req, res,next) {
+    async Login(req, res, next) {
 
         let body = req.body;
 
@@ -92,21 +93,32 @@ class AuthController {
                 }
                 ]
             });
+
             if (!user) {
                 return next(new Errors.BadRequestError("Няма такъв потребител"))
-
             }
 
             let compare_result = await bcrypt.compare(body.password, user.password)
 
             if (compare_result === true) {
-                let access = await JwtService.CreateAccessToken({ user: user, rights: user.Rights.map(item => item.actionCode), priority: user.Prioritiy.priority },'6h');
+                const rights_mapped = user.Rights.map(item => item.actionCode)
+                let expires;
+                if (rights_mapped.includes(Actions.ControllPlayer)) {
+                    //TODO: REMOVE THAT S**T so migrate to refresh token
+                    expires = 10000000000;
+                }
+                else {
+                    expires = 3600000 * 6;
+                }
+
+                let access = await JwtService.CreateAccessToken({ user: user, rights: rights_mapped, priority: user.Prioritiy.priority }, expires);
                 res.cookie('access', access, {
-                    secure:true,
+                    secure: true,
                     httpOnly: true,
                     //60000 for one minute 60 for one hour 48 for two days
-                    expires: new Date(Date.now() + 6 * 60 * 60000),
+                    expires: new Date(Date.now() + expires),
                 });
+
                 return res.json({ success: true })
 
             } else {

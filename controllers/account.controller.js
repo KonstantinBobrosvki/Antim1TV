@@ -39,14 +39,33 @@ class AccountController {
     async GetAllowsPage(req, res, next) {
         try {
             let user = res.locals.user;
+
             if (user.rights.includes(Actions.AllowVideo)) {
-                let videosToAllow = await Videos.findAll({ where: { verified: null } });
+                const [videosToAllow, allowedVideos] = await Promise.all([
+                    Videos.findAll({
+                        where: { verified: null }
+                    }),
+                    AllowedVideos.findAll({
+                        where: { },
+                        attributes: ['id', 'votes', 'createdAt'],
+                        include: {
+                            model: Videos,
+                            attributes: ['videoLink','id']
+                        },
+                        order: [
+                            ["createdAt", "DESC"]
+                        ],
+                        limit: 40
+
+                    })
+                ]);
                 res.render('account/allow', {
                     title: "Одобри контент",
                     active: { account: true },
                     css: ['account.css'],
                     js: ['account.js'],
-                    videosToAllow
+                    videosToAllow,
+                    allowedVideos
                 });
             } else {
                 next(new Errors.ForbiddenError())
@@ -267,7 +286,7 @@ class AccountController {
 
                 }
             }
-   
+
         } catch (error) {
             return next(new Errors.InternalError('Грешка', error))
         }
@@ -327,8 +346,8 @@ class AccountController {
                 result: {
                     user: { id: userId },
                     actionCode: rightCode,
-                    id:right.id,
-                    GiverId:me.id
+                    id: right.id,
+                    GiverId: me.id
                 }
             })
         } catch (error) {
