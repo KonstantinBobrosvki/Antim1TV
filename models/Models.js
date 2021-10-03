@@ -1,4 +1,5 @@
 const { Sequelize, DataTypes } = require('sequelize');
+const { AllowVideo } = require('./Actions.enum');
 
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
@@ -23,8 +24,8 @@ let Priorities = require('./UserPriority.model')(sequelize, DataTypes)
 let Videos = require('./Videos.model')(sequelize, DataTypes);
 let AllowedVideos = require('./AllowedVideos.model')(sequelize, DataTypes);
 let UserVideoVotes = require('./UserVideoVotes.model')(sequelize, DataTypes);
+let Tvs = require('./tv.model')(sequelize, DataTypes);
 
-//I know that is shit
 Rights.belongsTo(Users, {
     as: "Receiver",
     onDelete: 'CASCADE',
@@ -52,19 +53,23 @@ Priorities.belongsTo(Users, { as: "Giver", onDelete: 'CASCADE' })
 
 //one to many
 Videos.belongsTo(Users, { as: "Suggester", onDelete: 'CASCADE' })
-Videos.hasOne(AllowedVideos, { onDelete: 'CASCADE' })
+
+Videos.belongsTo(Tvs, { onDelete: 'CASCADE' })
 
 AllowedVideos.belongsTo(Users, { as: "Allower", onDelete: 'CASCADE' })
-AllowedVideos.belongsTo(Videos, { onDelete: 'CASCADE' });
+AllowedVideos.belongsTo(Videos, { onDelete: 'CASCADE' })
 
 UserVideoVotes.belongsTo(AllowedVideos, { foreignKey: 'videoId', onDelete: 'CASCADE' })
 UserVideoVotes.belongsTo(Users, { foreignKey: 'userId', onDelete: 'CASCADE' })
 
 Sync();
 async function Sync() {
+
     await sequelize.sync({ alter: true })
+
     console.log('Synced');
+
 }
 console.log('Imported sequalize');
 
-module.exports = { sequelize, Users, Rights, Priorities, Videos, AllowedVideos, UserVideoVotes };
+module.exports = { sequelize, Users, Rights, Priorities, Videos, AllowedVideos, UserVideoVotes, Tvs };

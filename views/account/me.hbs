@@ -1,5 +1,6 @@
 <div class="col-sm-12">
-    <h1 class="text-center">Ако вашите права или приоритет не се показват правилно,</br> излезте и влезте в акаунта си отново.</h1>
+    <h1 class="text-center">Ако вашите права или приоритет не се показват правилно,</br> излезте и влезте в акаунта си
+        отново.</h1>
 </div>
 <hr style="height: 3px;" class="mb-5">
 
@@ -18,14 +19,42 @@
 
 <hr style="height: 3px;" class="mb-5">
 
+
 <div class="d-flex justify-content-center mt-3 mb-3">
-    <h2 class="bg-white text-center">Вашият приоритет: 
+    <h2 class="bg-white text-center">Вашият приоритет:
         <br>{{myPriority}}
     </h2>
 </div>
 
 
 <hr style="height: 3px;" class="mt-5">
+
+<div class="col-sm-12">
+    <h2 class="w-100 text-center">Вашите стандартни телевизори</h2>
+    <ul id='my-tvs' class="d-flex justify-content-evenly mb-4">
+        {{#each myTvs}}
+
+        <li class="list-group-item bg-dark text-light  me-2">
+            <span>{{GetTVname ../tvs this}}</span>
+        </li>
+
+        {{/each}}
+    </ul>
+    <hr style="height: 3px;" class="mt-2 w-50 mx-auto" >
+    <form onsubmit="SendForm(this,setTimeout(()=> window.location.reload(true),1000));  return false;" class="d-flex flex-column justify-content-center align-items-center" method="POST" action="/account/setTvCookies">
+        <h2>Промени</h2>
+        <label class="w-50">
+            <select name="tvIds" id="tvIds-select" class="form-select bg-dark text-light border-round" multiple>
+                {{#each tvs}}
+                <option value="{{this.id}}">{{this.name}}</option>
+                {{/each}}
+            </select>
+        </label>
+        <input type="submit" value="Подтвърди" class="btn btn-dark mt-1">
+    </form>
+</div>
+
+<hr style="height: 3px;" class="mb-5">
 
 <div class="col-sm-12">
     <span class="w-100 text-center text-center">
@@ -36,6 +65,7 @@
             <tr>
                 <th class="text-center" scope="col">Preview</th>
                 <th class="text-center" scope="col">Линк</th>
+                <th class="text-center" scope="col">За телевизор</th>
                 <th class="text-center" scope="col">Предложено на</th>
                 <th class="text-center" scope="col">Състояние</th>
             </tr>
@@ -49,6 +79,7 @@
                     <a
                         href="https://www.youtube.com/watch?v={{this.videoLink}}">https://www.youtube.com/watch?v={{this.videoLink}}</a>
                 </th>
+                <td class="text-center align-middle" data-postgreTime='true'>{{GetTVname ../tvs this.tvId}}</td>
                 <td class="text-center align-middle" data-postgreTime='true'>{{this.createdAt}}</td>
                 <td class="text-center align-middle">{{#Equals this.verified '0'}}Неодобрено :({{else Equals
                     this.verified '1'}}Одобрено{{else}}Няма

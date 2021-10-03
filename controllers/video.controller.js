@@ -4,6 +4,9 @@ const Verified = require("../models/Verified.enum");
 
 const Errors = require('../Errors/index.error');
 const { AllowVideo } = require('../models/Actions.enum');
+const { Op } = require('sequelize')
+
+
 
 class VideoController {
 
@@ -79,7 +82,7 @@ class VideoController {
 
                 const allower = allowedVideo.Allower;
 
-                if (allower.Prioritiy.priority >= user.priority && allower.id!== user.id)
+                if (allower.Prioritiy.priority >= user.priority && allower.id !== user.id)
                     return next(new Errors.BadRequestError('Нямате достатАчно приоритет'))
 
                 video.verified = Verified.rejected;
@@ -109,8 +112,52 @@ class VideoController {
 
     async GetAllowedVideos(req, res, next) {
         try {
-            const vids = await GetVideos();
-            return res.json(vids);
+            if (!(req.query.tvs ?? req.cookies.tvs))
+                return next(new Errors.BadRequestError())
+
+            const time_where = {};
+            if (req.query['start-date']) {
+                const date = Date.parse(req.query['start-date'])
+                if (!date)
+                    return next(new Errors.BadRequestError())
+
+                time_where.createdAt = { [Op.gte]: date };
+            }
+
+            if (req.query['end-date']) {
+                const date = Date.parse(req.query['end-date'])
+                if (!date)
+                    return next(new Errors.BadRequestError())
+
+                if (!time_where.createdAt)
+                    time_where.createdAt = { [Op.lte]: date };
+                else {
+                    time_where.createdAt = { ...time_where.createdAt, [Op.lte]: date };
+                }
+            }
+
+            const queryTv = [].concat(req.query['select-tvs']).filter(el => el).map(el => parseInt(el))
+
+            const tvIds = queryTv.length == 0 ? req.cookies.tvs : queryTv
+
+            const allowedVideos = await AllowedVideos.findAll(
+                {
+                    where: {
+                        ...time_where
+                    },
+                    attributes: ['id', 'votes', 'createdAt'],
+                    include: {
+                        model: Videos,
+                        attributes: ['videoLink'],
+                        where: {
+                            tvId: {
+                                [Op.in]: tvIds
+                            }
+                        }
+                    }
+                }
+            );
+            return res.json({ success: true, allowedVideos })
         } catch (error) {
             next(new Errors.InternalError('Неизвестна грешка', error))
 
@@ -124,9 +171,14 @@ class VideoController {
         //allowed video id
         const videoId = req.body.videoId;
         try {
-            const vids = await GetVideos();
+            const video = await AllowedVideos.findByPk(videoId, {
+                attributes: ['id', 'votes', 'createdAt'],
+                include: {
+                    model: Videos,
+                    attributes: ['videoLink']
+                }
+            });
 
-            const video = vids.find(el => el.id == videoId)
             if (!video) {
                 return next(new Errors.BadRequestError('Няма такова видео'));
             }
@@ -159,59 +211,7 @@ class VideoController {
 
     }
 
-    //Get video that should be viewed next
-    async PopVideo(req, res, next) {
-        if (!res.locals.user.rights.includes(Actions.ControllPlayer)) {
-            return next(new Errors.ForbiddenError('Нямате право да контролитате видео-опашката'));
-        }
-
-        try {
-            const vids = await GetVideos();
-            let pretendent = {};
-
-            const now = new Date()
-            const millisecondsInHour = 60 * 60 * 1000;
-
-            vids.forEach(el => {
-                const diffInHours = Math.ceil(Math.abs(new Date(el.createdAt) - now) / millisecondsInHour);
-                const value = (1 + el.votes) * Math.sqrt(diffInHours);
-
-                if (!pretendent.prior) {
-                    pretendent = { prior: value, video: el };
-                } else if (pretendent.prior < value) {
-                    pretendent = { prior: value, video: el };
-                }
-
-            })
-
-            if (pretendent.video) {
-
-                await AllowedVideos.update({ played: true }, { where: { id: pretendent.video.id } });
-                return res.json({ video: pretendent.video })
-            }
-
-            return next(new Errors.NotFoundError('Няма видеа в опашката'));
-        } catch (error) {
-
-        }
-
-    }
 }
 
-async function GetVideos() {
-    return AllowedVideos.findAll({
-        where: { played: false },
-        attributes: ['id', 'votes', 'createdAt'],
-        include: {
-            model: Videos,
-            attributes: ['videoLink']
-        },
-        order: [
-            ["createdAt", "DESC"]
-        ],
-        limit: 30
-
-    })
-}
 
 module.exports = new VideoController()

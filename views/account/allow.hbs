@@ -2,31 +2,35 @@
     <h2 class="w-100 text-center">Видеа за проверка</h2>
     <div class="row">
         {{#each videosToAllow}}
-        <div class="card col-sm-6 col-md-6 col-lg-4 my-3 mx-auto">
-            <img src="https://img.youtube.com/vi/{{this.videoLink}}/hqdefault.jpg" loading="lazy" class="card-img-top"
-                alt="Preview">
-            <div class="card-body">
-                <h5 class="card-title" data-getMetaDataSource='https://www.youtube.com/watch?v={{this.videoLink}}'>Card
-                    title</h5>
-                <p class="card-text">Линк: <a href="https://www.youtube.com/watch?v={{this.videoLink}}">Изгледай
-                        клипчето</a></p>
-                <div class="row">
-                    <div class="col mx-auto">
-                        <form action="/videos/allow" method="post"
-                            onsubmit="SendForm(this,HideCard(this));return false">
-                            <input name='id' type="hidden" value="{{this.id}}">
-                            <button type="submit" class=" btn btn-outline-warning mx-auto">Позволи</button>
-                        </form>
-                    </div>
-                    <div class="col mx-auto">
-                        <form action="/videos/reject" method="post"
-                            onsubmit="SendForm(this,HideCard(this));return false">
-                            <input name='id' type="hidden" value="{{this.id}}">
-                            <button type="submit" class=" btn btn-outline-danger mx-auto">Изтрий</button>
-                        </form>
+        <div class="col-sm-6 col-md-6 col-lg-4 my-3">
+            <div class="card">
+                <img src="https://img.youtube.com/vi/{{this.videoLink}}/hqdefault.jpg" loading="lazy"
+                    class="card-img-top" alt="Preview">
+                <div class="card-body">
+                    <h5 class="card-title" data-getMetaDataSource='https://www.youtube.com/watch?v={{this.videoLink}}'>
+                        Заглавие</h5>
+                    <p class="card-text">За екран:{{GetTVname ../tvs this.tvId}}</p>
+                    <p class="card-text">Линк: <a href="https://www.youtube.com/watch?v={{this.videoLink}}">Изгледай
+                            клипчето</a></p>
+                    <div class="row">
+                        <div class="col mx-auto">
+                            <form action="/videos/allow" method="post"
+                                onsubmit="SendForm(this,HideCard(this));return false">
+                                <input name='id' type="hidden" value="{{this.id}}">
+                                <button type="submit" class=" btn btn-outline-warning mx-auto">Позволи</button>
+                            </form>
+                        </div>
+                        <div class="col mx-auto">
+                            <form action="/videos/reject" method="post"
+                                onsubmit="SendForm(this,HideCard(this));return false">
+                                <input name='id' type="hidden" value="{{this.id}}">
+                                <button type="submit" class=" btn btn-outline-danger mx-auto">Изтрий</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
+
         </div>
         {{/each}}
     </div>
@@ -35,28 +39,71 @@
 <hr class="mt-5 mb-5" style="height: 3px;">
 <div class="col-sm-12">
     <h2 class="w-100 text-center">Одобрени видеа</h2>
-    <div class="row">
-        {{#each allowedVideos}}
-        <div class="card col-sm-6 col-md-6 col-lg-4 my-3 mx-auto">
-            <img src="https://img.youtube.com/vi/{{this.video.videoLink}}/hqdefault.jpg" loading="lazy"
-                class="card-img-top" alt="Preview">
-            <div class="card-body">
-                <h5 class="card-title"
-                    data-getMetaDataSource='https://www.youtube.com/watch?v={{this.video.videoLink}}'>
-                    Card title</h5>
-                <p class="card-text">Линк: <a href="https://www.youtube.com/watch?v={{this.video.videoLink}}">Изгледай
-                        клипчето</a></p>
-                <div class="row">
-                    <div class="col mx-auto">
-                        <form action="/videos/reject" method="post"
-                            onsubmit="SendForm(this,HideCard(this));return false">
-                            <input name='id' type="hidden" value="{{this.video.id}}">
-                            <button type="submit" class=" btn btn-outline-danger mx-auto">Изтрий</button>
-                        </form>
+
+    <form action="/videos/getAllowedVideos" method="GET" onsubmit="GetAllowedVideos(this);return false">
+        <div class="row rounded bg-dark text-light">
+            <div class="col-md-3 my-auto">
+                <label class="w-100">
+                    Начална дата <small class="text-secondary">(Остави празно, за да не се прилага този филтър)</small>
+                    <input name="start-date" type="date" class="form-control" id="start-date-search">
+                </label>
+
+            </div>
+            <div class="col-md-3 my-auto">
+                <label class="w-100">
+                    Крайна дата <small class="text-secondary">(Остави празно, за да не се прилага този филтър)</small>
+                    <input name="end-date" type="date" class="form-control" id="end-date-search">
+                </label>
+            </div>
+            <div class="col-md-6">
+                <label class="w-100">
+                    Избери за кои телевизори
+                    <select name="select-tvs" id="select-tvs" class="form-select" multiple>
+                        {{#each tvs}}
+                        <option value="{{this.id}}">{{this.name}}</option>
+                        {{/each}}
+                    </select>
+                </label>
+            </div>
+            <div class="col-md-12 pb-3 pt-3 d-flex ">
+                <button class="btn bg-info bg-gradient w-75 mx-auto">Търси</button>
+            </div>
+        </div>
+    </form>
+
+    <div id="AllowedVideosRow" class="row">
+
+    </div>
+
+</div>
+
+{{{{Raw}}}}
+<script id='video-cards' type="text/x-handlebars-template">
+{{#each allowedVideos}}
+        <div class="col-sm-6 col-md-6 col-lg-4 my-3">
+            <div class="card">
+                <img src="https://img.youtube.com/vi/{{this.video.videoLink}}/hqdefault.jpg" loading="lazy"
+                    class="card-img-top" alt="Preview">
+                <div class="card-body">
+                    <h5 class="card-title"
+                        data-getMetaDataSource='https://www.youtube.com/watch?v={{this.video.videoLink}}'>
+                        Card title</h5>
+                    <p class="card-text">Линк: <a
+                            href="https://www.youtube.com/watch?v={{this.video.videoLink}}">Изгледай
+                            клипчето</a></p>
+                    <div class="row">
+                        <div class="col mx-auto">
+                            <form action="/videos/reject" method="post"
+                                onsubmit="SendForm(this,HideCard(this));return false">
+                                <input name='id' type="hidden" value="{{this.video.id}}">
+                                <button type="submit" class=" btn btn-outline-danger mx-auto">Изтрий</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
+
         </div>
         {{/each}}
-    </div>
-</div>
+</script>
+{{{{/Raw}}}}

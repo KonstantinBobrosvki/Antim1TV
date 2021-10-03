@@ -68,3 +68,12 @@ function GetRights() {
         '128': 'Одобри цитат'
     }
 }
+
+function buttonCollapseClick() {
+    if ($('#navbar-menu').hasClass('collapse')) {
+        $('#navbar-menu').removeClass("collapse");
+    }
+    else {
+        $('#navbar-menu').addClass("collapse");
+    }
+}

@@ -5,9 +5,11 @@ const bcrypt = require('bcrypt');
 
 const JwtService = require('../services/JWT.service');
 const rolesService = require('../services/roles.service');
+const tvService = require('../services/tv.service');
 
 const Errors = require('../Errors/index.error');
 const Actions = require('../models/Actions.enum');
+
 
 class AuthController {
 
@@ -49,6 +51,13 @@ class AuthController {
                     httpOnly: true,
                     expires: new Date(Date.now() + 6 * 60 * 60000),
                 });
+
+
+                res.cookie('tvs', tvService.GetDefaults().map(tv => tv.id), {
+                    //10 years
+                    expires: new Date(Date.now() + 315569520000)
+                })
+
                 return res.json({ success: true })
 
             } catch (error) {
@@ -119,10 +128,17 @@ class AuthController {
                     expires: new Date(Date.now() + expires),
                 });
 
+                //TODO:Change to user preferences
+                res.cookie('tvs', tvService.GetDefaults().map(tv => tv.id), {
+                    //10 years
+                    maxAge: 315569520000
+                })
+
+
                 return res.json({ success: true })
 
             } else {
-                return next(new new Errors.BadRequestError("Грешка в паролата"))
+                return next(new Errors.BadRequestError("Грешка в паролата"))
             }
         } catch (error) {
             next(new Errors.InternalError('Неизвестна грешка', error))

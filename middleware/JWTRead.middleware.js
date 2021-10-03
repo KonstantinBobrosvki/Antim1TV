@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const loggerService = require('../services/logger.service');
-
+const Actions=require('../models/Actions.enum')
 function JWTRead(req, res, next) {
     let token = req.cookies['access']
     res.locals.loggedin = false;
@@ -16,6 +16,7 @@ function JWTRead(req, res, next) {
             } else {
                 res.locals.user = decoded.user
                 res.locals.loggedin = true;
+                res.locals.Actions=Actions;
             }
 
             next();

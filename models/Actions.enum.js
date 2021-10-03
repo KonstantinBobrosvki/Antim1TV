@@ -10,7 +10,9 @@ const Actions = {
     ControllPlayer: '32',
     //Change rights of some user
     ChangeRight: '64',
-    AllowQuote: '128'
+    AllowQuote: '128',
+    //add or remove tv
+    ChangeTv:'256'
 }
 
 Object.freeze(Actions);

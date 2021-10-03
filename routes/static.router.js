@@ -10,5 +10,7 @@ router.all('/403', static.GetUserErrorPage(403));
 router.all('/401', static.GetUserErrorPage(401));
 router.all('/404', static.GetUserErrorPage(404));
 router.all('/500', static.GetBackendErrorPage);
+router.all('/*', static.GetUserErrorPage(404))
+
 
 module.exports = router;

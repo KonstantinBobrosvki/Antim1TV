@@ -13,11 +13,11 @@ module.exports = function(sequelize, DataTypes) {
             defaultValue: 0,
             allowNull: false
         },
+        //This is about position in que
         played: {
             field: 'played',
-            type: DataTypes.BOOLEAN,
-            defaultValue: false,
-            allowNull: false
+            type: DataTypes.INTEGER,
+            allowNull: true
         }
 
     });

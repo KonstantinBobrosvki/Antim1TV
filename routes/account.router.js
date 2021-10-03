@@ -18,4 +18,6 @@ router.post('/changePriorityDown', account.ChangePriority(-1))
 router.post('/deleteRight', account.DeleteRight)
 router.post('/addRight', account.AddRight)
 
+router.post('/setTvCookies',account.SetTvCookies)
+
 module.exports = router;

@@ -71,10 +71,10 @@ $(function () {
 function LoadAllowedVideos() {
     $.ajax({
         type: "GET",
-        url: '/videos/getVideos',
+        url: '/videos/getAllowedVideos',
         success: function (data) {
             let html = ''
-            data.forEach(el => {
+            data.allowedVideos.forEach(el => {
                 html += `<div class="card col-sm-5 col-md-4 col-lg-2 mx-1 mx-md-5 mt-2 h-fit" >
                 <img src="https://img.youtube.com/vi/${el.video.videoLink}/hqdefault.jpg" loading="lazy" class="card-img-top w-100" alt="Preview">
                 <div class="card-body h-fit">

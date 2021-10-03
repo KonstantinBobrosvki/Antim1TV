@@ -4,6 +4,7 @@ const { Op } = require('sequelize')
 const Errors = require('../Errors/index.error');
 
 const Actions = require('../models/Actions.enum');
+const tvService = require('../services/tv.service');
 
 class AccountController {
 
@@ -12,6 +13,7 @@ class AccountController {
 
             const myVideos = await Videos.findAll({ where: { SuggesterId: res.locals.user.id } })
             const myRights = res.locals.user.rights;
+            const tvs = tvService.GetTvs();
             res.render('account/me', {
                 title: "Мой аккаунт",
                 active: { account: true },
@@ -19,6 +21,8 @@ class AccountController {
                 js: ['account.js'],
                 myVideos,
                 myRights,
+                tvs,
+                myTvs: req.cookies.tvs,
                 myPriority: res.locals.user.priority
             });
 
@@ -31,7 +35,7 @@ class AccountController {
         res.clearCookie('access', {
             secure: true,
             httpOnly: true,
-            expires: new Date(Date.now() + 6 * 60 * 60000),
+            expires: new Date(Date.now() - 2),
         });
         res.redirect('/')
     }
@@ -41,31 +45,18 @@ class AccountController {
             let user = res.locals.user;
 
             if (user.rights.includes(Actions.AllowVideo)) {
-                const [videosToAllow, allowedVideos] = await Promise.all([
-                    Videos.findAll({
-                        where: { verified: null }
-                    }),
-                    AllowedVideos.findAll({
-                        where: { },
-                        attributes: ['id', 'votes', 'createdAt'],
-                        include: {
-                            model: Videos,
-                            attributes: ['videoLink','id']
-                        },
-                        order: [
-                            ["createdAt", "DESC"]
-                        ],
-                        limit: 40
+                const tvs = tvService.GetTvs();
 
-                    })
-                ]);
+                const videosToAllow = await Videos.findAll({
+                    where: { verified: null }
+                });
                 res.render('account/allow', {
                     title: "Одобри контент",
                     active: { account: true },
                     css: ['account.css'],
                     js: ['account.js'],
                     videosToAllow,
-                    allowedVideos
+                    tvs,
                 });
             } else {
                 next(new Errors.ForbiddenError())
@@ -89,7 +80,6 @@ class AccountController {
             active: { account: true },
             css: ['account.css'],
             js: ['users.js'],
-            externalJS: ['https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.min.js']
         });
         /* let user = await Users.findOne({
              where,
@@ -124,9 +114,6 @@ class AccountController {
             model: Priorities,
             as: 'Prioritiy',
             attributes: ['priority', 'GiverId', 'id'],
-            where: {
-                priority: { [Op.lt]: parseInt(me.priority) }
-            }
         }];
 
 
@@ -353,6 +340,16 @@ class AccountController {
         } catch (error) {
             return next(new Errors.InternalError('Грешка', error))
         }
+    }
+
+    async SetTvCookies(req, res, next) {
+
+        const tvIds = [].concat(req.body.tvIds).filter(el=>!isNaN(el)).map(el=>parseInt(el));
+        res.cookie('tvs', tvIds, {
+            //10 years
+            expires: new Date(Date.now() + 315569520000)
+        })
+        res.json({ success: true, tvIds })
     }
 
 }

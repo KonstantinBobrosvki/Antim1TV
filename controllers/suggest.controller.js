@@ -16,25 +16,34 @@ class SuggestController {
 
     async SuggestVideo(req, res, next) {
         let videoLink = req.body.link;
+        const tvs = req.cookies.tvs;
 
-        if (!videoLink) {
+        if (!videoLink || !tvs) {
             return next(new Errors.BadRequestError());
         }
+
         if (!(/^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$/.test(videoLink))) {
             return next(new Errors.BadRequestError("Грешен линк"));
         }
+
         let suggesterDto = res.locals.user;
 
         if (!res.locals.user.rights.includes(actions.Suggest))
             return next(new Errors.ForbiddenError("Нямате право да предлагате видео:)"));
 
+        const t = await sequelize.transaction();
         try {
             let videoid = /^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$/.exec(videoLink)[5]
 
-            await Videos.create({ videoLink: videoid, SuggesterId: suggesterDto.id })
+            await Videos.bulkCreate(
+                tvs.map(tvId => {
+                    return { videoLink: videoid, SuggesterId: suggesterDto.id, tvId }
+                }), { transaction: t })
+            await t.commit();
             return res.json({ success: true })
         } catch (error) {
-            next(new Errors.InternalError('Неизвестна грешка',error))
+            await t.rollback();
+            next(new Errors.InternalError('Неизвестна грешка', error))
         }
 
     }

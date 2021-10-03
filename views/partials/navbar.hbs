@@ -20,10 +20,19 @@
 
             {{#if loggedin}}
 
+            {{#HaveRight user.rights Actions.Suggest}}
             <li class="nav-item">
-                <a class="nav-link {{#if active.suggest}}active{{/if}}" href="/suggest"><i class="bi bi-film"></i>
+                <a class="nav-link {{#if active.suggest}}active{{/if}}" href="/suggest"><i class="bi bi-cloud-arrow-up"></i>
                     Предложи</a>
             </li>
+            {{/HaveRight}}
+
+            {{#HaveRight user.rights Actions.ControllPlayer}}
+            <li class="nav-item">
+                <a class="nav-link {{#if active.tv}}active{{/if}}" href="/tv/"><i class="bi bi-tv"></i>
+                    Гледай</a>
+            </li>
+            {{/HaveRight}}
 
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle {{#if active.account}}active{{/if}}" id="account-dropdown"
@@ -46,21 +55,9 @@
                 <a class="nav-link {{#if active.account}}active{{/if}}" href="/enter"><i class="bi bi-person"></i>
                     Вход</a>
             </li>
-
             {{/if}}
 
         </ul>
     </div>
-
-    <script>
-        function buttonCollapseClick() {
-            if ($('#navbar-menu').hasClass('collapse')) {
-                $('#navbar-menu').removeClass("collapse");
-            }
-            else {
-                $('#navbar-menu').addClass("collapse");
-            }
-        }
-    </script>
 
 </nav>
