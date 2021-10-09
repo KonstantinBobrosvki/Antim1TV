@@ -3,7 +3,7 @@ const { sequelize, Users, Rights, Priorities, Videos, AllowedVideos } = require(
 const { Op } = require('sequelize')
 const Errors = require('../Errors/index.error');
 
-const Actions = require('../models/Actions.enum');
+const Actions = require('../models/enums/Actions.enum');
 const tvService = require('../services/tv.service');
 
 class AccountController {
@@ -18,7 +18,7 @@ class AccountController {
                 title: "Мой аккаунт",
                 active: { account: true },
                 css: ['account.css'],
-                js: ['account.js'],
+                js: ['account/account.js'],
                 myVideos,
                 myRights,
                 tvs,
@@ -54,7 +54,7 @@ class AccountController {
                     title: "Одобри контент",
                     active: { account: true },
                     css: ['account.css'],
-                    js: ['account.js'],
+                    js: ['account/allow.js'],
                     videosToAllow,
                     tvs,
                 });
@@ -79,21 +79,8 @@ class AccountController {
             title: "Потребители",
             active: { account: true },
             css: ['account.css'],
-            js: ['users.js'],
+            js: ['account/users.js'],
         });
-        /* let user = await Users.findOne({
-             where,
-             include: [{
-                 model: Rights,
-                 as: 'Rights'
-             },
-             {
-                 model: Priorities,
-                 as: 'Prioritiy'
-             }
-             ]
-         });
-        */
 
 
     }
@@ -126,35 +113,44 @@ class AccountController {
             })
         }
 
+        const order = [[{ model: Priorities, as: 'Prioritiy' }, 'priority', 'ASC']]
+
         let users;
 
-        if (/^id=/.test(req.query.username)) {
-            users = await Users.findAll({
-                where: {
-                    id: req.query.username.slice(3)
-                },
-                include,
-                attributes: ['username', 'id']
-
-            })
-            if (users.length == 0)
-                return next(new Errors.NotFoundError('Този потребител не е намерен.Може би има по-висок от вас приоритет'))
+        try {
+            if (/^id=/.test(req.query.username)) {
+                users = await Users.findAll({
+                    where: {
+                        id: req.query.username.slice(3)
+                    },
+                    include,
+                    order,
+                    attributes: ['username', 'id']
+    
+                })
+                if (users.length == 0)
+                    return next(new Errors.NotFoundError('Този потребител не е намерен.Може би има по-висок от вас приоритет'))
+            }
+            else {
+                users = await Users.findAll({
+                    where: {
+                        username: {
+                            [Op.like]: req.query.username + '%'
+                        }
+                    },
+                    order,
+                    include,
+                    attributes: ['username', 'id']
+    
+                })
+            }
+    
+    
+            res.json(users)
+        } catch (error) {
+            next(new Errors.InternalError('',error))
         }
-        else {
-            users = await Users.findAll({
-                where: {
-                    username: {
-                        [Op.like]: req.query.username + '%'
-                    }
-                },
-                include,
-                attributes: ['username', 'id']
-
-            })
-        }
-
-
-        res.json(users)
+       
 
     }
 
@@ -344,7 +340,7 @@ class AccountController {
 
     async SetTvCookies(req, res, next) {
 
-        const tvIds = [].concat(req.body.tvIds).filter(el=>!isNaN(el)).map(el=>parseInt(el));
+        const tvIds = [].concat(req.body.tvIds).filter(el => !isNaN(el)).map(el => parseInt(el));
         res.cookie('tvs', tvIds, {
             //10 years
             expires: new Date(Date.now() + 315569520000)

@@ -91,12 +91,19 @@
                     <p class="card-text">Линк: <a
                             href="https://www.youtube.com/watch?v={{this.video.videoLink}}">Изгледай
                             клипчето</a></p>
+                    <p class="card-text">Показано:{{#notNull this.played}}
+                        {{this.played}}
+                        {{else}}
+                        Не
+                        {{/notNull}}</p>
+
+                    <p class="card-text">Гласове: {{this.votes}}</p>
                     <div class="row">
                         <div class="col mx-auto">
                             <form action="/videos/reject" method="post"
                                 onsubmit="SendForm(this,HideCard(this));return false">
-                                <input name='id' type="hidden" value="{{this.video.id}}">
-                                <button type="submit" class=" btn btn-outline-danger mx-auto">Изтрий</button>
+                                <input name='id' type="hidden" value="{{this.id}}">
+                                <button type="submit" class="btn btn-outline-danger mx-auto">Изтрий</button>
                             </form>
                         </div>
                     </div>

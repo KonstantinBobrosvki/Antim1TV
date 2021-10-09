@@ -1,3 +1,7 @@
+const VideosTemplate = Handlebars.compile($('#video-cards').html())
+
+
+
 $(function () {
 
     ClearStorage();
@@ -71,18 +75,16 @@ $(function () {
 function LoadAllowedVideos() {
     $.ajax({
         type: "GET",
-        url: '/videos/getAllowedVideos',
+        url: '/videos/getAllowedVideos?played=null',
         success: function (data) {
-            let html = ''
-            data.allowedVideos.forEach(el => {
-                html += `<div class="card col-sm-5 col-md-4 col-lg-2 mx-1 mx-md-5 mt-2 h-fit" >
-                <img src="https://img.youtube.com/vi/${el.video.videoLink}/hqdefault.jpg" loading="lazy" class="card-img-top w-100" alt="Preview">
-                <div class="card-body h-fit">
-                  <span data-youtubeId='${el.video.videoLink}' data-videoId='${el.id}' class="card-title">Card title</span>
-                  <button href="#" class="btn btn-primary" data-videoId='${el.id}' onclick='SendVote(this)'>Гласувай</button>
-                </div>
-                </div>`
-            })
+
+            console.log(data.allowedVideos);
+
+
+            const html = VideosTemplate({ allowedVideos: data.allowedVideos })
+
+            console.log(html);
+
             $('#VideosForVote').html(html);
 
             $('#VideosForVote .card .card-body .card-title').each(SpanLoad)
@@ -101,7 +103,7 @@ function LoadAllowedVideos() {
                         $(this).text(title)
                     }).catch(console.log)
                 else {
-                    $(this).closest('.card').remove();
+                   $(this).closest('.card').parent().remove();
                 }
             }
         }
@@ -133,7 +135,7 @@ function SendVote(button) {
                 votedVids.push({ videoId: $(button).attr('data-videoId'), remove: someDate })
                 localStorage.setItem('votedVids', JSON.stringify(votedVids));
 
-                $(button).closest('.card').remove();
+                $(button).closest('.card').parent().remove();
                 AddMessages(['Успешно добавено'])
             }
 

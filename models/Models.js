@@ -1,22 +1,6 @@
 const { Sequelize, DataTypes } = require('sequelize');
-const { AllowVideo } = require('./Actions.enum');
 
-const sequelize = new Sequelize(process.env.DATABASE_URL, {
-    dialect: 'postgres',
-    protocol: 'postgres',
-    dialectOptions: {
-        ssl: {
-            rejectUnauthorized: false
-        }
-    },
-    pool: {
-        max: 19,
-        min: 5,
-        acquire: 5000,
-        idle: 2000
-    },
-    logging: false
-});
+const { sequelize } = require('./sequlize')
 
 let Users = require('./Users.model')(sequelize, DataTypes);
 let Rights = require('./Rights.model')(sequelize, DataTypes);
@@ -62,14 +46,6 @@ AllowedVideos.belongsTo(Videos, { onDelete: 'CASCADE' })
 UserVideoVotes.belongsTo(AllowedVideos, { foreignKey: 'videoId', onDelete: 'CASCADE' })
 UserVideoVotes.belongsTo(Users, { foreignKey: 'userId', onDelete: 'CASCADE' })
 
-Sync();
-async function Sync() {
-
-    await sequelize.sync({ alter: true })
-
-    console.log('Synced');
-
-}
 console.log('Imported sequalize');
 
 module.exports = { sequelize, Users, Rights, Priorities, Videos, AllowedVideos, UserVideoVotes, Tvs };

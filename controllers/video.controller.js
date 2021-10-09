@@ -1,9 +1,8 @@
-const Actions = require('../models/Actions.enum');
+const Actions = require('../models/enums/Actions.enum');
 const { sequelize, Users, Rights, Priorities, Videos, AllowedVideos, UserVideoVotes } = require('../models/Models')
-const Verified = require("../models/Verified.enum");
+const Verified = require("../models/enums/Verified.enum");
 
 const Errors = require('../Errors/index.error');
-const { AllowVideo } = require('../models/Actions.enum');
 const { Op } = require('sequelize')
 
 
@@ -62,7 +61,7 @@ class VideoController {
             }
             else {
                 //if video verifed is true
-                //TODO: IMPROVE HERE!!!!
+                //TODO: Maybe error test here!!!!
                 const allowedVideo = await AllowedVideos.findOne({
                     where: {
                         videoId: id
@@ -72,7 +71,7 @@ class VideoController {
                         as: 'Allower',
                         attributes: ['id'],
                         include: [{
-                            //priority of giver of right
+                            //priorit
                             model: Priorities,
                             as: 'Prioritiy',
                             attributes: ['priority', 'GiverId', 'id']
@@ -140,12 +139,21 @@ class VideoController {
 
             const tvIds = queryTv.length == 0 ? req.cookies.tvs : queryTv
 
+            const condition = {
+                ...time_where,
+            }
+
+            if (req.query.hasOwnProperty('played')) {
+                const played = req.query['played'];
+                if (isNaN(played) && played !== 'null')
+                    return next(new Errors.BadRequestError())
+                condition.played = JSON.parse(req.query['played'])
+            }
+
             const allowedVideos = await AllowedVideos.findAll(
                 {
-                    where: {
-                        ...time_where
-                    },
-                    attributes: ['id', 'votes', 'createdAt'],
+                    where: condition,
+                    attributes: ['id', 'votes', 'createdAt', 'played'],
                     include: {
                         model: Videos,
                         attributes: ['videoLink'],

@@ -4,20 +4,17 @@ const exphbs = require('express-handlebars');
 const cookieParser = require('cookie-parser')
 const cors = require('cors')
 const redirectToHTTPS = require('express-http-to-https').redirectToHTTPS
+const nocache = require("nocache");
 
-//Inits db
-const db = require('./models/Models');
+const { Sync, sequelize } = require('./models/sequlize')
+
 const rolesService = require('./services/roles.service');
 
-setTimeout(() => {
-    StartApp();
-    //time for initing db 6000 ms is good
-}, 100)
-
-
-
+StartApp();
 
 async function StartApp() {
+
+    await Sync()
 
     if (process.env.NODE_ENV == 'dev') {
         await DevFill();
@@ -41,6 +38,7 @@ async function StartApp() {
 
     app.use(express.static('public'));
 
+    app.use(nocache());
     app.use(cookieParser())
     app.use(cors())
 
@@ -58,22 +56,23 @@ async function StartApp() {
 }
 
 //Inits db for dev purposes
-async function DevFill(resolve, reject) {
+async function DevFill() {
 
     try {
         console.log('Filling db')
         //password is password =)
-        let admin = await db.Users.create({ username: "admin", password: '$2a$10$VPL4JZHtdjpYIW81H4j/u.oFq3GOqxI0jVjvqB0pNeVujWzhI2sGa', email: 'admin@gmail.com' })
+        let admin = await sequelize.models.user.create({ username: "admin", password: '$2a$10$VPL4JZHtdjpYIW81H4j/u.oFq3GOqxI0jVjvqB0pNeVujWzhI2sGa', email: 'admin@gmail.com' })
         await rolesService.SetGodRole(admin)
 
         //password is Notpassword
-        let notAdmin = await db.Users.create({ username: "notAdmin", password: '$2a$10$$2a$10$glMOBcHyAFVxW2RYx2hiU.oGAh8.QhobQIKCB9hmd53DbtcEHBIZC/u.oFq3GOqxI0jVjvqB0pNeVujWzhI2sGa', email: 'notadmin@gmail.com' })
+        let notAdmin = await sequelize.models.user.create({ username: "notAdmin", password: '$2a$10$$2a$10$glMOBcHyAFVxW2RYx2hiU.oGAh8.QhobQIKCB9hmd53DbtcEHBIZC/u.oFq3GOqxI0jVjvqB0pNeVujWzhI2sGa', email: 'notadmin@gmail.com' })
         await rolesService.SetNewbieRole(notAdmin)
 
-        await db.Tvs.create({ name: "Главен" })
-        await db.Tvs.create({ name: "4 етаж" })
-    } catch (error) {
+        await sequelize.models.tv.bulkCreate([{ name: 'Главен' },
+        { name: '4 етаж' }])
 
+    } catch (error) {
+        console.log(error);
     }
 
 

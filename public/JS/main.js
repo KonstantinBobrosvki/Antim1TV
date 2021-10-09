@@ -55,18 +55,7 @@ function GetYoutubeMetadata(id) {
 }
 
 function GetRights() {
-    return {
-        '1': "Предложи контент",
-        '2': 'Одобри видео' ,
-        '4': 'Одобри реклама' ,
-        '8': 'Промени приоритет' ,
-        '16': 'Изтрий потребител',
-        //That means control youtube frame with websockets
-        '32': 'Контролирай опашката' ,
-        //Change rights of some user
-        '64': 'Промени права' ,
-        '128': 'Одобри цитат'
-    }
+    return Shared.rightsTranslated
 }
 
 function buttonCollapseClick() {
@@ -76,4 +65,23 @@ function buttonCollapseClick() {
     else {
         $('#navbar-menu').addClass("collapse");
     }
+}
+
+function SendForm(form, callback) {
+    let url = $(form).attr('action');
+
+    $.ajax({
+        type: $(form).attr('method') ?? "POST",
+        url: url,
+        data: $(form).serialize(), // serializes the form's elements.
+        success: function (data) {
+            if (data.Messages) {
+                AddMessages(data.Messages);
+            }
+            if (data.success === true) {
+                AddMessages(['Успешно']);
+                callback(data)
+            }
+        }
+    });
 }

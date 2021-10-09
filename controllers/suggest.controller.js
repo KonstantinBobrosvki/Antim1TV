@@ -1,5 +1,5 @@
 const { sequelize, Users, Rights, Priorities, Videos, AllowedVideos } = require('../models/Models')
-const actions = require('../models/Actions.enum');
+const actions = require('../models/enums/Actions.enum');
 
 const Errors = require('../Errors/index.error');
 
@@ -9,7 +9,7 @@ class SuggestController {
             title: "Видеа",
             active: { suggest: true },
             css: ['videos.css'],
-            js: ['videos.js'],
+            js: ['suggest/videos.js'],
             externalJS: ['https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.min.js']
         });
     }

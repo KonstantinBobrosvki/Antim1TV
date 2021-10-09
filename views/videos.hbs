@@ -1,8 +1,8 @@
 <div id='VideosForVoteWrapper' class="col-sm-12">
     <div id='VideosForVote' class="row w-100 d-flex justify-content-evenly">
-       
+
     </div>
-    <div id='showingToggleWrapper' class='col-12 d-flex flex-column justify-content-center' >
+    <div id='showingToggleWrapper' class='col-12 d-flex flex-column justify-content-center'>
         <button id='showingToggle' onclick="ToogleShowing(this)" class="btn btn-light w-100">Покажи повече</button>
     </div>
 </div>
@@ -22,3 +22,21 @@
 
     </div>
 </form>
+
+
+{{{{Raw}}}}
+<script id='video-cards' type="text/x-handlebars-template">
+{{#each allowedVideos}}
+{{log this}}
+       <div class="col-sm-6 col-md-4 col-lg-3 mt-2 h-fit" >
+           <div class="card">
+            <img src="https://img.youtube.com/vi/{{this.video.videoLink}}/hqdefault.jpg" loading="lazy" class="card-img-top w-100" alt="Preview">
+                <div class="card-body h-fit">
+                  <span data-youtubeId='{{this.video.videoLink}}' data-videoId='{{this.id}}' class="card-title">Card title</span>
+                  <button href="#" class="btn btn-primary" data-videoId='{{this.id}}' onclick='SendVote(this)'>Гласувай</button>
+                </div>
+           </div> 
+        </div>
+{{/each}}
+</script>
+{{{{/Raw}}}}

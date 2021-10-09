@@ -1,5 +1,5 @@
 const { sequelize, Users, Rights, Priorities } = require('../models/Models');
-const ActionsEnum = require('../models/Actions.enum');
+const ActionsEnum = require('../models/enums/Actions.enum');
 
 class RolesService {
 

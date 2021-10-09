@@ -1,4 +1,4 @@
-const actions = require('./Actions.enum');
+const actions = require('./enums/Actions.enum');
 const myenum = Object.values(actions);
 module.exports = function(sequelize, DataTypes) {
     let Rights = sequelize.define('right', {

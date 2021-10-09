@@ -8,7 +8,7 @@ const rolesService = require('../services/roles.service');
 const tvService = require('../services/tv.service');
 
 const Errors = require('../Errors/index.error');
-const Actions = require('../models/Actions.enum');
+const Actions = require('../models/enums/Actions.enum');
 
 
 class AuthController {

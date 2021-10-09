@@ -4,13 +4,13 @@
 </div>
 <hr style="height: 3px;" class="mb-5">
 
-<div class="col-sm-12">
+<div class="col-sm-12 overflow-auto">
     <h2 class="w-100 text-center">Вашите права</h2>
-    <ul class="d-flex justify-content-evenly mb-4">
+    <ul class="row mb-4 w-100">
         {{#each myRights}}
 
-        <li class="list-group-item bg-dark text-light  me-2">
-            <span>{{RightToText this}}</span>
+        <li class="col list-group-item bg-dark text-light me-2 mb-3">
+            <span class="d-flex align-items-center justify-content-center h-100 w-100">{{RightToText this}}</span>
         </li>
 
         {{/each}}
@@ -31,10 +31,10 @@
 
 <div class="col-sm-12">
     <h2 class="w-100 text-center">Вашите стандартни телевизори</h2>
-    <ul id='my-tvs' class="d-flex justify-content-evenly mb-4">
+    <ul id='my-tvs' class="d-flex justify-content-evenly mb-4 overflow-auto">
         {{#each myTvs}}
 
-        <li class="list-group-item bg-dark text-light  me-2">
+        <li class="list-group-item bg-dark text-light me-2 ">
             <span>{{GetTVname ../tvs this}}</span>
         </li>
 

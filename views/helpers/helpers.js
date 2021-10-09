@@ -1,4 +1,4 @@
-const Actions = require('../../models/Actions.enum');
+const Actions = require('../../models/enums/Actions.enum');
 
 module.exports = {
     Equals: function (v1, v2, options) {

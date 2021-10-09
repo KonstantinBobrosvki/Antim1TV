@@ -1,4 +1,4 @@
-const Verified = require("./Verified.enum");
+const Verified = require("./enums/Verified.enum");
 const VerifiedValues = Object.values(Verified);
 
 module.exports = function(sequelize, DataTypes) {
