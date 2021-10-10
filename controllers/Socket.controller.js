@@ -11,28 +11,37 @@ const JWTService = require('../services/JWT.service');
 class SocketController {
 
     async SocketHandling(client) {
-        //TODO: check which tv should be controlled
         const cookies = parseCookies(client.handshake)
 
         try {
             const token = await JWTService.ReadToken(cookies.access)
             if (!token.user.rights.includes(Actions.ControllPlayer)) {
-                console.log('ne manqk');
                 return client.disconnect()
             }
 
         } catch (error) {
-            console.log('ne manqk');
             return client.disconnect()
         }
+
+        const addres = client.handshake.headers.referer;
+        const regex = new RegExp('\/tv\/([0-9]*)')
+
+        const match = addres.match(regex)
+        if (!match || (!match[1] || isNaN(match[1]))){
+            return client.disconnect()
+        }
+
+        const tvId=match[1]
+
+        client.join(tvId)
 
         console.log('Golqm manqk');
 
         client.on('sendAction', function (action) {
-            client.broadcast.emit('receiveAction', { action })
+            client.to(tvId).emit('receiveAction', { action })
         });
 
-        
+
     }
 }
 
