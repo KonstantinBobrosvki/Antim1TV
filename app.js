@@ -49,9 +49,14 @@ async function StartApp() {
 
     app.use(require('./routes/main.router'));
 
-    app.listen(process.env.PORT, () => {
+    const server = app.listen(process.env.PORT, () => {
         console.log(`I WORK. Example app listening at http://localhost:${process.env.PORT}`)
     });
+
+    const io = require('socket.io')(server);
+
+    io.on('connection', require('./controllers/Socket.controller').SocketHandling);
+
 
 }
 

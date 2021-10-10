@@ -1,4 +1,5 @@
 const rights = GetRights();
+console.log(rights);
 const RightBlock = Handlebars.compile($('#right-show-element').html())
 const usersTemplate = Handlebars.compile($('#user-table-row').html())
 

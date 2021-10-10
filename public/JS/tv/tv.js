@@ -1,5 +1,7 @@
 const tvId = +$('#tvId').val();
 
+const socket = io();
+
 $(document).off('ajaxError');
 
 const Player = {
@@ -66,7 +68,7 @@ const Player = {
             },
             error: function (error) {
                 if (error.responseJSON.Errors.includes('Няма видеа в опашката')) {
-                    AddErrors(['Няма нови видеа'])
+                 
                     me.AttempsWithError++;
                 }
                 me.Work(error)
@@ -110,6 +112,7 @@ const Player = {
         if (this.AttempsWithError > 10 && !this.isFetchingNew)
             this.isFetchingNew = true
         else if (this.AttempsWithError > 10) {
+            AddErrors(['Няма нови видеа']);
             return;
         }
 
@@ -144,7 +147,11 @@ const Player = {
 
     TooglePlayerState() {
         if (this.YoutubePlayer.getPlayerState() == 1)
+        {
+            console.log('pause');
             return this.Pause()
+        }
+            
 
         this.Play();
     },
@@ -156,6 +163,7 @@ const Player = {
         console.log(video);
         this.CurrentVideo.position = video.played
         this.YoutubePlayer.loadVideoById(video.video.videoLink)
+        this.Play();
     },
 
     async Bootstrap() {
@@ -169,6 +177,59 @@ const Player = {
 
 
 $(window).on('load', function () {
+    const onPlayerReady = (event) => {
+        console.log('ready player');
+        Player.Bootstrap();
+    }
+
+    const onStateChange = (event) => {
+
+        switch (event.data) {
+            /*
+    -1 (unstarted)
+    0 (ended)
+    1 (playing)
+    2 (paused)
+    3 (buffering)
+    5 (video cued)
+            */
+
+            //On finish
+            case 0:
+                console.log('video ended');
+                Player.Work();
+                break;
+
+            default:
+                // console.log(event)
+                break;
+        }
+
+    }
+
+    const onError = (event) => {
+        switch (event.data) {
+            case 2:
+                console.log('request contains an invalid parameter value')
+                break
+            case 5:
+                console.log('The requested content cannot be played in an HTML5 player or another error related to the HTML5 player has occurred.')
+                break
+            case 100:
+                console.log('The video requested was not found. This error occurs when a video has been removed (for any reason) or has been marked as private.')
+                break
+            case 101:
+                break;
+            case 150:
+                console.log('Uploader has blocked this content from embedded playback')
+                break
+            default:
+                console.log('error code: ' + event.data)
+
+        }
+    }
+
+
     Player.YoutubePlayer = new YT.Player('player', {
         height: '240',
         width: '300',
@@ -183,72 +244,29 @@ $(window).on('load', function () {
             'disablekb': 1,
             'autoplay': 1
         },
-
+        videoId:'d5zqQtlbSJI'
     });
+
+    StartUpSocket()
+
+
 });
 
-function onPlayerReady(event) {
-    Player.Bootstrap();
-}
+function StartUpSocket() {
 
-function onStateChange(event) {
-
-    switch (event.data) {
-        /*
--1 (unstarted)
-0 (ended)
-1 (playing)
-2 (paused)
-3 (buffering)
-5 (video cued)
-        */
-
-        //On finish
-        case 0:
-            console.log('video ended');
-            Player.Work();
-            break;
-
-        default:
-            // console.log(event)
-            break;
-    }
+    socket.on('receiveAction', ({action}) => {
+            Player.YoutubePlayer.unMute();
+        console.log(action);
+        Player[action]();
+    })
 
 }
 
-function onError(event) {
-    switch (event.data) {
-        case 2:
-            console.log('request contains an invalid parameter value')
-            break
-        case 5:
-            console.log('The requested content cannot be played in an HTML5 player or another error related to the HTML5 player has occurred.')
-            break
-        case 100:
-            console.log('The video requested was not found. This error occurs when a video has been removed (for any reason) or has been marked as private.')
-            break
-        case 101:
-            break;
-        case 150:
-            console.log('Uploader has blocked this content from embedded playback')
-            break
-        default:
-            console.log('error code: ' + event.data)
-
-    }
-}
 
 function ButtonControllClick(button) {
     const act = $(button).attr('data-action')
-
-    switch (act) {
-        case 'Stop':
-            console.log('pause');
-            break;
-
-        default:
-            Player[act]();
-            break;
-    }
+    socket.emit('sendAction',act)
+    Player[act]();
+   
 }
 

@@ -55,7 +55,7 @@ function GetYoutubeMetadata(id) {
 }
 
 function GetRights() {
-    return Shared.rightsTranslated
+    return Shared.rightsTranslated()
 }
 
 function buttonCollapseClick() {

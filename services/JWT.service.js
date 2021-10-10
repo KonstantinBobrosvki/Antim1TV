@@ -24,6 +24,19 @@ class JwtService {
         });
 
     }
+
+    async ReadToken(string){
+        return new Promise((resolve,reject)=>{
+            jwt.verify(string, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
+                if (err) {
+                   reject(err)
+                } else {
+                   resolve(decoded)
+                }
+            });
+        })
+       
+    }
 }
 
 module.exports = new JwtService();

@@ -6,6 +6,7 @@ const { Op } = require('sequelize')
 const Errors = require('../Errors/index.error');
 const tvService = require('../services/tv.service');
 
+
 class QueueController {
 
     async GetChoosePage(req, res, next) {
@@ -27,7 +28,7 @@ class QueueController {
                 active: { tv: true },
                 js: ['tv/tv.js'],
                 css: ['tv.css'],
-                externalJS: ['https://www.youtube.com/player_api'],
+                externalJS: ['https://cdn.socket.io/4.2.0/socket.io.min.js','https://www.youtube.com/player_api'],
                 tv
             });
         else {
