@@ -9,6 +9,7 @@ const tvService = require('../services/tv.service');
 
 const Errors = require('../Errors/index.error');
 const Actions = require('../models/enums/Actions.enum');
+const MailService = require('../services/Mail.service');
 
 
 class AuthController {
@@ -58,7 +59,10 @@ class AuthController {
                     expires: new Date(Date.now() + 315569520000)
                 })
 
-                return res.json({ success: true })
+                MailService.SendWelcomeMail({ to: user.email, username: user.username }).catch(err=>console.log(err)).finally(() => {
+                    return res.json({ success: true })
+                })
+
 
             } catch (error) {
                 console.error(error)
