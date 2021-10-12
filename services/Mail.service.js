@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
 
+//TODO: CHANGE TO NORMAL MAIL IN ENV FILE, NOT PERSONAL.
 const transporter = nodemailer.createTransport({
     host: process.env.MAIL_HOST,
     port: 465,

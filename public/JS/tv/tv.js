@@ -145,6 +145,21 @@ const Player = {
         this.YoutubePlayer.setVolume(value)
     },
 
+    ToogleMute(){
+        //Yes checks have logic, trust me
+        if (this.YoutubePlayer.isMuted()) {
+            this.YoutubePlayer.unMute();
+            $('#ToogleMuteButton span:nth-child(1)').text('Изключи звук')
+            $('#ToogleMuteButton span:nth-child(3)').addClass('d-none')
+            $('#ToogleMuteButton span:nth-child(4)').removeClass('d-none')
+        }else if(!this.YoutubePlayer.isMuted()){
+            this.YoutubePlayer.mute();
+            $('#ToogleMuteButton span:nth-child(1)').text('Включи звук')
+            $('#ToogleMuteButton span:nth-child(3)').removeClass('d-none')
+            $('#ToogleMuteButton span:nth-child(4)').addClass('d-none')
+        }
+    },
+
     TooglePlayerState() {
         if (this.YoutubePlayer.getPlayerState() == 1)
         {
