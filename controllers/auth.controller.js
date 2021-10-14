@@ -1,7 +1,8 @@
-const { sequelize, Users, Rights, Priorities } = require('../models/Models');
+const { sequelize, Users, Rights, Priorities, RestoreLink } = require('../models/Models');
 const { Sequelize } = require('sequelize');
 
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 
 const JwtService = require('../services/JWT.service');
 const rolesService = require('../services/roles.service');
@@ -15,7 +16,7 @@ const MailService = require('../services/Mail.service');
 class AuthController {
 
     async GetAuthPage(req, res) {
-        res.render('enter', {
+        res.render('auth/enter', {
             title: "Влезни",
             active: { account: true },
             css: ['enter.css'],
@@ -41,6 +42,7 @@ class AuthController {
 
         let new_psw = await bcrypt.hash(user.password, 10)
         user.password = new_psw;
+        user.email = user.email.toLowerCase()
         try {
             let new_user = await Users.create(user);
             try {
@@ -59,7 +61,7 @@ class AuthController {
                     expires: new Date(Date.now() + 315569520000)
                 })
 
-                MailService.SendWelcomeMail({ to: user.email, username: user.username }).catch(err=>console.log(err)).finally(() => {
+                MailService.SendWelcomeMail({ to: user.email, username: user.username }).catch(err => console.log(err)).finally(() => {
                     return res.json({ success: true })
                 })
 
@@ -89,7 +91,8 @@ class AuthController {
         let where = {}
 
         if (IsAllowedEmail(body.usernameOrEmail)) {
-            where.email = body.usernameOrEmail
+            where.email = body.usernameOrEmail.toLowerCase();
+
         } else {
             where.username = body.usernameOrEmail
         }
@@ -148,6 +151,136 @@ class AuthController {
             next(new Errors.InternalError('Неизвестна грешка', error))
         }
 
+    }
+
+    async SendSecretMail(req, res, next) {
+
+        const mail = req.query['email']?.toLowerCase();
+        if (!mail)
+            return next(new Errors.BadRequestError());
+
+        if (!IsAllowedEmail(mail))
+            return next(new Errors.BadRequestError());
+
+
+        try {
+            const user = await Users.findOne({
+                where: {
+                    email: mail
+                }
+            })
+            if (user) {
+                const address = req.protocol + '://' + req.get('host');
+
+                const cryptoPromise = new Promise((resolve, reject) => {
+                    crypto.randomBytes(64, (err, buffer) => {
+                        if (err) {
+                            reject(err)
+                        }
+                        else
+                            resolve(buffer)
+                    })
+                })
+
+                const secret = (await cryptoPromise).toString("hex");
+
+                const [restor, created] = await RestoreLink.findOrCreate({
+                    where: {
+                        userId: user.id
+                    },
+                    defaults: {
+                        relativeLink: secret
+                    }
+                })
+
+                if (!created) {
+                    const ress = await RestoreLink.update({ relativeLink: secret }, {
+                        where: {
+                            userId: user.id
+                        }
+                    });
+                }
+
+                const secretLink = address + '/enter/secretCode?value=' + secret
+
+                await MailService.SendRestorePasswordmail({ to: user.email, name: user.username, link: secretLink })
+                return res.json({ success: true })
+            }
+            return next(new Errors.NotFoundError('Няма такъв потребител'))
+
+        } catch (error) {
+            return next(new Errors.InternalError('', error))
+        }
+
+    }
+
+    async GetRestorePasswordPage(req, res, next) {
+        const link = req.query['value'];
+        if (!link)
+            return next(new Errors.BadRequestError());
+
+        try {
+            const restore = await RestoreLink.findOne({
+                where: {
+                    relativeLink: link
+                }
+            })
+
+            if (!restore)
+                return next(new Errors.NotFoundError());
+
+            const newDateObj = restore.updatedAt.getTime() + 10 * 60000;
+
+            if (newDateObj < Date.now())
+                return next(new Errors.ForbiddenError('Закъсняхте. Опитайте отново'));
+
+            const user = await Users.findOne({
+                where: {
+                    id: restore.userId
+                },
+                include: [{
+                    model: Rights,
+                    as: 'Rights'
+                },
+                {
+                    model: Priorities,
+                    as: 'Prioritiy'
+                }
+                ]
+            });
+
+            if (!user)
+                return next(new Errors.NotFoundError('Не намерихме такъв потрбител... Странно'))
+
+            const rights_mapped = user.Rights.map(item => item.actionCode)
+            let expires=10 * 60000;
+
+            let access = await JwtService.CreateAccessToken({ user: user, rights: rights_mapped, priority: user.Prioritiy.priority }, expires);
+            res.cookie('access', access, {
+                secure: true,
+                httpOnly: true,
+                //60000 for one minute 60 for one hour 48 for two days
+                expires: new Date(Date.now() + expires),
+            });
+
+            //TODO:Change to user preferences
+            res.cookie('tvs', tvService.GetDefaults().map(tv => tv.id), {
+                //10 years
+                maxAge: 315569520000
+            })
+
+            await restore.destroy();
+
+            res.render('auth/restorePassword', {
+                title: "Here we go again",
+                active: { account: true },
+                css: ['enter.css'],
+                js: ['auth/restoreAccount.js'],
+               
+            });
+        } catch (error) {
+            return next(new Errors.InternalError('', error))
+        }
     }
 }
 

@@ -3,6 +3,8 @@ const { sequelize, Users, Rights, Priorities, Videos, AllowedVideos } = require(
 const { Op } = require('sequelize')
 const Errors = require('../Errors/index.error');
 
+const bcrypt = require('bcrypt');
+
 const Actions = require('../models/enums/Actions.enum');
 const tvService = require('../services/tv.service');
 
@@ -126,7 +128,7 @@ class AccountController {
                     include,
                     order,
                     attributes: ['username', 'id']
-    
+
                 })
                 if (users.length == 0)
                     return next(new Errors.NotFoundError('Този потребител не е намерен.Може би има по-висок от вас приоритет'))
@@ -141,16 +143,16 @@ class AccountController {
                     order,
                     include,
                     attributes: ['username', 'id']
-    
+
                 })
             }
-    
-    
+
+
             res.json(users)
         } catch (error) {
-            next(new Errors.InternalError('',error))
+            next(new Errors.InternalError('', error))
         }
-       
+
 
     }
 
@@ -346,6 +348,80 @@ class AccountController {
             expires: new Date(Date.now() + 315569520000)
         })
         res.json({ success: true, tvIds })
+    }
+
+    async ChangePassword(req, res, next) {
+        const me = res.locals.user;
+
+
+        const newPassword = req.body['parolaBatiii']
+        if (!newPassword)
+            return next(new Errors.BadRequestError());
+
+        try {
+            let new_psw = await bcrypt.hash(newPassword, 10)
+            await Users.update({ password: new_psw }, {
+                where: {
+                    id: me.id
+                }
+            });
+            res.json({ success: true })
+        } catch (error) {
+            return next(new Errors.InternalError('', error))
+        }
+
+    }
+
+    async DeleteAccount(req, res, next) {
+        const deleteID = req.body['deleteID']
+
+        const me = res.locals.user;
+        try {
+            if (deleteID == me.id) {
+                await Users.destroy({
+                    where: {
+                        id: deleteID
+                    }
+                })
+                return res.redirect(req.baseUrl + '/logout')
+
+            } else {
+                const myRights = me.rights;
+
+                if (!myRights.includes(Actions.BanUser)) {
+                    return next(new Errors.ForbiddenError('Нямате правo да триете потребители'))
+                }
+
+                const receiver = await Users.findByPk(deleteID, {
+                    include: [{
+                        model: Priorities,
+                        as: 'Prioritiy',
+                        attributes: ['priority', 'GiverId', 'id']
+                    }]
+                });
+
+                if (!receiver)
+                    return next(new Errors.NotFoundError('Нямате потребител с това право'))
+
+                if (receiver.Prioritiy.priority >= me.priority)
+                    return next(new Errors.ForbiddenError('Нямате правo да променяте правата на този потребител'))
+
+                await Users.destroy({
+                    where: {
+                        id: deleteID
+                    }
+                })
+
+                return res.json({ success: true })
+
+
+            }
+        } catch (error) {
+            return next(new Errors.InternalError('', error))
+
+        }
+
+
     }
 
 }

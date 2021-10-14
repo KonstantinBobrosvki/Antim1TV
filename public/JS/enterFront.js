@@ -109,7 +109,7 @@ $(function () {
                 type: "POST",
                 url: url,
                 data: form.serialize(), // serializes the form's elements.
-                success: function (data) {        
+                success: function (data) {
                     if (data.Messages) {
                         AddMessages(data.Messages);
                     }
@@ -127,4 +127,35 @@ $(function () {
 
     });
 
+    $("form[name='restorePassword']").validate({
+        // Specify validation rules
+        rules: {
+           
+        },
+        // Specify validation error messages
+        messages: {
+          
+        }, submitHandler: function (form) {
+            form = $(form);
+            let url = form.attr('action');
+
+            $.ajax({
+                type: "GET",
+                url: url,
+                data: form.serialize(), // serializes the form's elements.
+                success: function (data) {
+                    if (data.Messages) {
+                        AddMessages(data.Messages);
+                    }
+                    if (data.success) {
+                        AddMessages('Успешно изпратено писмо.')
+                    }
+                }
+            });
+
+
+        }
+
+
+    });
 });

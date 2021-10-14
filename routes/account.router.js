@@ -20,4 +20,7 @@ router.post('/addRight', account.AddRight)
 
 router.post('/setTvCookies',account.SetTvCookies)
 
+router.post('/changePassword',account.ChangePassword)
+router.post('/deleteUser',account.DeleteAccount)
+
 module.exports = router;

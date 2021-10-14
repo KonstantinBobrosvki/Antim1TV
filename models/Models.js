@@ -9,7 +9,7 @@ let Videos = require('./Videos.model')(sequelize, DataTypes);
 let AllowedVideos = require('./AllowedVideos.model')(sequelize, DataTypes);
 let UserVideoVotes = require('./UserVideoVotes.model')(sequelize, DataTypes);
 let Tvs = require('./tv.model')(sequelize, DataTypes);
-
+let RestoreLink = require('./RestoreLink.model')(sequelize, DataTypes)
 Rights.belongsTo(Users, {
     as: "Receiver",
     onDelete: 'CASCADE',
@@ -46,6 +46,11 @@ AllowedVideos.belongsTo(Videos, { onDelete: 'CASCADE' })
 UserVideoVotes.belongsTo(AllowedVideos, { foreignKey: 'videoId', onDelete: 'CASCADE' })
 UserVideoVotes.belongsTo(Users, { foreignKey: 'userId', onDelete: 'CASCADE' })
 
+RestoreLink.belongsTo(Users, {
+    foreignKey: 'userId'
+    ,onDelete: 'CASCADE'
+})
+
 console.log('Imported sequalize');
 
-module.exports = { sequelize, Users, Rights, Priorities, Videos, AllowedVideos, UserVideoVotes, Tvs };
+module.exports = { sequelize, Users, Rights, Priorities, Videos, AllowedVideos, UserVideoVotes, Tvs, RestoreLink };

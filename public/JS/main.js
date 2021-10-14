@@ -80,7 +80,8 @@ function SendForm(form, callback) {
             }
             if (data.success === true) {
                 AddMessages(['Успешно']);
-                callback(data)
+                if (typeof callback === 'function')
+                    callback(data)
             }
         }
     });
