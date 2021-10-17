@@ -35,12 +35,16 @@ class SocketController {
 
         client.join(tvId)
 
-        console.log('Golqm manqk');
 
         client.on('sendAction', function (action) {
             client.to(tvId).emit('receiveAction', { action })
         });
 
+        client.on('sendState', function (state) {
+            client.to(tvId).emit('ReceiveState', { state })
+        });
+
+        
 
     }
 }

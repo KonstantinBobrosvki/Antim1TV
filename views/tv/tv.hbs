@@ -1,3 +1,5 @@
+<input id='tvId' type="hidden" name="tvId" value="{{tv.Id}}">
+
 <h1 class="text-center">{{tv.name}}</h1>
 
 <div class="player-wrapper">
@@ -7,6 +9,15 @@
         </div>
     </div>
     <div id="player"></div>
+
+
+</div>
+
+<hr>
+
+<div class="col-sm-12 mx-auto mt-3 d-none d-lg-flex justify-content-center">
+    <input class="w-50 mx-auto" type="text" name="tvName"
+        placeholder="Оставете празно ако това е не е устройство за показване">
 </div>
 
 <hr>
@@ -73,9 +84,46 @@
             </button>
         </div>
 
+        <div class="col-sm-6 d-flex justify-content-evenly">
+            <button id="RefreshPageButton" class="btn btn-dark w-100" onclick="ButtonControllClick(this)"
+                data-action='RefreshPage'>
+                <span>Поднови страницата</span>
+                <br>
+                <div class="bi bi-arrow-clockwise d-block"></div>
+            </button>
+        </div>
+
+        <div class="col-sm-6 d-flex justify-content-evenly">
+            <button id="GetStatesButton" class="btn btn-dark w-100" onclick="ButtonControllClick(this)"
+                data-action='GetStates'>
+                <span>Получи състояния</span>
+                <br>
+                <i class="bi bi-arrow-down-circle"></i>
+            </button>
+        </div>
+
+    </div>
+    <div class="col-sm-12" id='StatesReults'>
+
     </div>
 </div>
 
+{{{{Raw}}}}
+<script id='tv-state-cards' type="text/x-handlebars-template">
+{{#each states}}
+{{log this}}
+       <div class="col-sm-6 col-md-4 col-lg-3 mt-2 h-fit" >
+           <div class="card">
+            <img src="https://img.youtube.com/vi/{{this.CurrentVideoID}}/hqdefault.jpg" loading="lazy" class="card-img-top w-100" alt="Preview">
+                <div class="card-body h-fit">
+                  <div class="card-title">Екран: {{this.Name}}</div>
 
+                  <div>Сила на звук е {{Volume}} и той е {{#if IsMuted}}изключен{{else}}включен{{/if}}.</div>
+                  <div>Показва се {{CurrentVideoPosition}} в опашката и то e {{PlayerStateToText PlayerState}} на {{Seconds}} секунда.</div>
 
-<input id='tvId' type="hidden" name="tvId" value="{{tv.Id}}">
+                </div>
+           </div> 
+        </div>
+{{/each}}
+</script>
+{{{{/Raw}}}}

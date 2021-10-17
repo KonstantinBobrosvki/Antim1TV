@@ -2,6 +2,15 @@ const tvId = +$('#tvId').val();
 
 const socket = io();
 
+Handlebars.registerHelper('PlayerStateToText', function (value) {
+
+    const translate = ['не започнало', 'приключило', 'вървящо', 'паузирано', 'буферизация', 'в опашка']
+
+    return translate[value + 1]
+});
+
+const statesTemplate = Handlebars.compile($('#tv-state-cards').html())
+
 $(document).off('ajaxError');
 
 const Player = {
@@ -68,7 +77,7 @@ const Player = {
             },
             error: function (error) {
                 if (error.responseJSON.Errors.includes('Няма видеа в опашката')) {
-                 
+
                     me.AttempsWithError++;
                 }
                 me.Work(error)
@@ -145,14 +154,14 @@ const Player = {
         this.YoutubePlayer.setVolume(value)
     },
 
-    ToogleMute(){
+    ToogleMute() {
         //Yes checks have logic, trust me
         if (this.YoutubePlayer.isMuted()) {
             this.YoutubePlayer.unMute();
             $('#ToogleMuteButton span:nth-child(1)').text('Изключи звук')
             $('#ToogleMuteButton span:nth-child(3)').addClass('d-none')
             $('#ToogleMuteButton span:nth-child(4)').removeClass('d-none')
-        }else if(!this.YoutubePlayer.isMuted()){
+        } else if (!this.YoutubePlayer.isMuted()) {
             this.YoutubePlayer.mute();
             $('#ToogleMuteButton span:nth-child(1)').text('Включи звук')
             $('#ToogleMuteButton span:nth-child(3)').removeClass('d-none')
@@ -161,12 +170,11 @@ const Player = {
     },
 
     TooglePlayerState() {
-        if (this.YoutubePlayer.getPlayerState() == 1)
-        {
+        if (this.YoutubePlayer.getPlayerState() == 1) {
             console.log('pause');
             return this.Pause()
         }
-            
+
 
         this.Play();
     },
@@ -177,12 +185,25 @@ const Player = {
         this.AttempsWithError = 0;
         console.log(video);
         this.CurrentVideo.position = video.played
+        this.CurrentVideo.url = video.video.videoLink
         this.YoutubePlayer.loadVideoById(video.video.videoLink)
         this.Play();
     },
 
     async Bootstrap() {
         this.LoadFirst()
+    },
+
+    GetState() {
+        return {
+            Volume: this.YoutubePlayer.getVolume(),
+            IsMuted: this.YoutubePlayer.isMuted(),
+            CurrentVideoID: this.CurrentVideo.url,
+            CurrentVideoPosition: this.CurrentVideo.position,
+            PlayerState: this.YoutubePlayer.getPlayerState(),
+            Seconds: this.YoutubePlayer.getCurrentTime(),
+            Name: $('input[name="tvName"]').val()
+        }
     }
 
 
@@ -259,7 +280,7 @@ $(window).on('load', function () {
             'disablekb': 1,
             'autoplay': 1
         },
-        videoId:'d5zqQtlbSJI'
+        videoId: 'd5zqQtlbSJI'
     });
 
     StartUpSocket()
@@ -269,19 +290,72 @@ $(window).on('load', function () {
 
 function StartUpSocket() {
 
-    socket.on('receiveAction', ({action}) => {
-            Player.YoutubePlayer.unMute();
+    socket.on('receiveAction', ({ action }) => {
+        // 
         console.log(action);
-        Player[action]();
+
+        DoAction(true, action)
+
+
     })
+    let states = []
+    socket.on('ReceiveState', ({ state }) => {
+        states.push(state)
+
+        states.reverse()
+
+
+        states = states.filter((value, index, self) => {
+            return self.findIndex(v => v.Name === value.Name) === index;
+        })
+
+        const html = statesTemplate({ states });
+        console.log(html);
+        $('#StatesReults').html(html)
+
+
+
+    })
+
+
 
 }
 
 
 function ButtonControllClick(button) {
     const act = $(button).attr('data-action')
-    socket.emit('sendAction',act)
-    Player[act]();
-   
+    socket.emit('sendAction', act)
+
+    DoAction(false, act)
+
 }
 
+function DoAction(isRemovedCommand, action) {
+
+    switch (action) {
+        case 'RefreshPage':
+            if (isRemovedCommand)
+                window.location.reload(true);
+            else {
+                $('#RefreshPageButton div.bi').toggleClass('rotate-360')
+            }
+            break;
+        case 'GetStates':
+            if (isRemovedCommand)
+                socket.emit('sendState', Player.GetState())
+            else {
+
+            }
+            break;
+
+        default:
+            if (Player[action]) {
+                Player.YoutubePlayer.unMute();
+                Player[action]();
+            }
+            else
+                console.log('SHTO NE BACHKASH KUFTE OT PLUH');
+            break;
+    }
+
+}

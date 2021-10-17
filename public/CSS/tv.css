@@ -28,10 +28,19 @@
   }
 }
 
-#controls-row button{
-    width: auto;
+#controls-row button {
+  width: auto;
 }
 
-#controls-row > div{
-   margin-bottom: 20px;
+#controls-row > div {
+  margin-bottom: 20px;
+}
+
+#RefreshPageButton div {
+  transition-duration: 3s;
+  transition-property: transform;
+}
+
+.rotate-360{
+  transform: rotate(359deg);
 }
