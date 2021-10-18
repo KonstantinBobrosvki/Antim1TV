@@ -77,11 +77,14 @@ class AccountController {
             return next(new Errors.ForbiddenError('Нямате права да контролирате акаунтите'))
         }
 
+        const defaultSearch = req.query['search-pattern']?.slice(1, -1)
+
         res.render('account/users', {
             title: "Потребители",
             active: { account: true },
             css: ['account.css'],
             js: ['account/users.js'],
+            defaultSearch
         });
 
 
@@ -121,9 +124,14 @@ class AccountController {
 
         try {
             if (/^id=/.test(req.query.username)) {
+                const id = req.query.username.slice(3)
+
+                if (!id || isNaN(id))
+                    return next(new Errors.BadRequestError())
+
                 users = await Users.findAll({
                     where: {
-                        id: req.query.username.slice(3)
+                        id: id
                     },
                     include,
                     order,

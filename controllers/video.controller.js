@@ -153,7 +153,7 @@ class VideoController {
             const allowedVideos = await AllowedVideos.findAll(
                 {
                     where: condition,
-                    attributes: ['id', 'votes', 'createdAt', 'played'],
+                    attributes: ['id', 'votes', 'createdAt', 'played', 'AllowerId'],
                     include: {
                         model: Videos,
                         attributes: ['videoLink'],
