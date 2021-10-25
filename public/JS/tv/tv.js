@@ -114,14 +114,20 @@ const Player = {
     },
 
     Work() {
-
+        console.log(this.AttempsWithError);
         if (arguments.length != 0) {
             this.AttempsWithError++;
         }
-        if (this.AttempsWithError > 10 && !this.isFetchingNew)
+        if (this.AttempsWithError == 10 && !this.isFetchingNew)
             this.isFetchingNew = true
-        else if (this.AttempsWithError > 10) {
-            AddErrors(['Няма нови видеа']);
+        else if (this.AttempsWithError == 12) {
+            console.log('11 bati');
+            AddErrors(['Няма нови видеа. Otiwam kum purwoto']);
+            this.isFetchingNew = false
+            this.LoadFirst()
+            return;
+        } else if (this.AttempsWithError > 12) {
+            AddErrors(['Спирам да работя.']);
             return;
         }
 
@@ -152,6 +158,9 @@ const Player = {
     },
     SetVolume(value) {
         this.YoutubePlayer.setVolume(value)
+    },
+    GetVolume() {
+        return this.YoutubePlayer.getVolume()
     },
 
     ToogleMute() {
@@ -285,6 +294,12 @@ $(window).on('load', function () {
 
     StartUpSocket()
 
+    console.log('Before');
+
+    StartSchedule();
+    //one day
+    setInterval(StartSchedule, 1000 * 60 * 60 * 24);
+
 
 });
 
@@ -357,5 +372,73 @@ function DoAction(isRemovedCommand, action) {
                 console.log('SHTO NE BACHKASH KUFTE OT PLUH');
             break;
     }
+
+}
+
+
+function StartSchedule() {
+    console.log('Started schedule ');
+    const OnStartOfLesson = () => {
+        console.log('start of lesson');
+        if (Player.GetVolume() >= 10)
+            Player.SetVolume(10)
+    }
+
+    const OnEndOfLesson = () => {
+        console.log('end of lesson');
+
+        if (Player.GetVolume() <= 60)
+            Player.SetVolume(60)
+    }
+
+    const schedule = new Shared.Schedule();
+
+
+    const lessonsTime = [
+        { start: '8:00', end: '8:40' },
+        { start: '8:50', end: '9:30' },
+        { start: '9:40', end: '10:20' },
+        { start: '10:40', end: '11:20' },
+        { start: '11:30', end: '12:10' },
+        { start: '12:20', end: '13:00' },
+        { start: '13:10', end: '13:50' }
+    ]
+
+    /* lessonsTime.forEach(el => {
+         el.start = Number(el.start.split(':')[0]) + 11 + `:${el.start.split(':')[1]}`
+         el.end = Number(el.end.split(':')[0]) + 11 + `:${el.end.split(':')[1]}`
+     })
+    */
+    console.log(lessonsTime);
+
+    const lessonsDates = lessonsTime.map(el => {
+        const start = new Date();
+        start.setHours(el.start.split(':')[0])
+        start.setMinutes(el.start.split(':')[1])
+
+        const end = new Date();
+        end.setHours(el.end.split(':')[0])
+        end.setMinutes(el.end.split(':')[1])
+
+        return { start, end }
+    })
+
+    lessonsDates.forEach(lesson => {
+        try {
+
+            schedule.AddTimer(lesson.start, OnStartOfLesson)
+
+        } catch (error) {
+            console.log(error.message);
+        }
+        try {
+            schedule.AddTimer(lesson.end, OnEndOfLesson)
+
+        } catch (error) {
+            console.log(error.message);
+        }
+
+
+    });
 
 }

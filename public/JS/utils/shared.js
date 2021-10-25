@@ -19,4 +19,33 @@
         }
     };
 
+    exports.Schedule = class {
+        constructor() {
+            console.log('its me');
+            this.timeouts = [];
+        }
+
+        AddTimer(date, callback) {
+            const delay = date.getTime() - Date.now();
+
+            if (delay < 0)
+                throw new Error('Error in delay. It is ' + delay)
+
+            console.log('added timer. will fire after '+delay );
+            const timer = setTimeout(() => {
+                console.log('Timer fired');
+                this.timeouts = this.timeouts.filter(el => el !== timer)
+                callback();
+            }, delay)
+
+            this.timeouts.push(timer)
+        }
+
+        GetTimers() {
+            return this.timeouts
+        }
+
+
+    }
+
 })(typeof exports === 'undefined' ? this['Shared'] = {} : exports);
