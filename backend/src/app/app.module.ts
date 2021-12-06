@@ -1,7 +1,8 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '../auth/auth.module';
+import { ReadJwtMiddleware } from '../auth/readJwt.middleware';
 import { UsersModule } from '../users/users.module';
 
 @Module({
@@ -20,11 +21,14 @@ import { UsersModule } from '../users/users.module';
       autoLoadEntities: true,
       logging: process.env.NODE_ENV == 'DEV'
     }),
-
     UsersModule,
     AuthModule,
   ],
 })
 export class AppModule {
-
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(ReadJwtMiddleware)
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
+  }
 }

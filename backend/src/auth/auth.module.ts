@@ -4,9 +4,13 @@ import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 
+//needed because i use it in app module too (readjwtmiddleware)
+const jwtModule = JwtModule.register({ secret: process.env.SECRET_ACCSESS + '' })
+
 @Module({
-  imports: [UsersModule, JwtModule.register({ secret: process.env.SECRET_ACCSESS+''})],
+  imports: [UsersModule, jwtModule],
   controllers: [AuthController],
-  providers: [AuthService]
+  providers: [AuthService],
+  exports: [jwtModule]
 })
 export class AuthModule { }

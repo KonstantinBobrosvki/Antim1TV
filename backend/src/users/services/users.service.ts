@@ -28,8 +28,6 @@ export class UsersService {
     return user;
   }
 
-
-
   findAll() {
     return this.usersRepository.find({ select: ['id', 'username'] })
   }
@@ -54,4 +52,5 @@ export class UsersService {
       throw new Error('NOT IMPLEMTED');
     }
   }
+  
 }
