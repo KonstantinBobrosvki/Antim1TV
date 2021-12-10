@@ -10,8 +10,10 @@ import { LoginUserDto } from './dto/login-user.dto';
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService,
-    private readonly jwtService: JwtService) { }
+  constructor(
+    private readonly authService: AuthService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   @Post('register')
   @ApiCreatedResponse({
@@ -19,15 +21,15 @@ export class AuthController {
     type: UserDto,
   })
   async Register(@Body() createUserDto: CreateUserDto) {
-    const userDto = await this.authService.register(createUserDto)
-    console.log(process.env.SECRET_ACCSESS);
-
+    const userDto = await this.authService.register(createUserDto);
 
     //Temporary while there is no refresh token 36 hours or 5 years
-    const expiresIn = userDto.rights.includes(RightsEnum.ControllPlayer) ? 129600000 : 157784760000
-    const token = this.jwtService.sign({ ...userDto }, { expiresIn })
+    const expiresIn = userDto.rights.includes(RightsEnum.ControllPlayer)
+      ? 129600000
+      : 157784760000;
+    const token = this.jwtService.sign({ ...userDto }, { expiresIn });
 
-    return { user: userDto, accees: token }
+    return { user: userDto, accees: token };
   }
 
   @Post('login')
@@ -36,12 +38,14 @@ export class AuthController {
     type: UserDto,
   })
   async Login(@Body() loginUserDto: LoginUserDto) {
-    const userDto = await this.authService.login(loginUserDto)
+    const userDto = await this.authService.login(loginUserDto);
 
     //Temporary while there is no refresh token 36 hours or 5 years
-    const expiresIn = userDto.rights.includes(RightsEnum.ControllPlayer) ? 129600000 : 157784760000
-    const token = this.jwtService.sign({ ...userDto }, { expiresIn })
+    const expiresIn = userDto.rights.includes(RightsEnum.ControllPlayer)
+      ? 129600000
+      : 157784760000;
+    const token = this.jwtService.sign({ ...userDto }, { expiresIn });
 
-    return { user: userDto, accees: token }
+    return { user: userDto, accees: token };
   }
 }
