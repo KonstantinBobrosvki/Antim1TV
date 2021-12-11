@@ -67,4 +67,12 @@ export class VideosController {
   async disallow(@Param('id', ParseIntPipe) id: number, @User() user: UserDto) {
     return await this.videosService.disallow(id, user);
   }
+
+  @Put('/allowed/:id/vote')
+  @ApiResponse({
+    description: 'returns created vote if operation was sucsedd',
+  })
+  async vote(@Param('id', ParseIntPipe) id: number, @User() user: UserDto) {
+    return await this.videosService.vote(id, user);
+  }
 }

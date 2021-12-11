@@ -9,6 +9,7 @@ import { CreateVideoDto } from './dto/create-video.dto';
 import { VideoDto } from './dto/video.dto';
 import { AllowedVideo } from './entities/allowedVideo.entity';
 import { Video } from './entities/video.entity';
+import { Vote } from './entities/vote.entity';
 
 @Injectable()
 export class VideosService {
@@ -16,6 +17,8 @@ export class VideosService {
     @InjectRepository(Video) private videosRepository: Repository<Video>,
     @InjectRepository(AllowedVideo)
     private allowedVideosRepository: Repository<AllowedVideo>,
+    @InjectRepository(Vote)
+    private votesRepository: Repository<Vote>,
     private usersService: UsersService,
   ) {}
 
@@ -127,5 +130,32 @@ export class VideosService {
     );
 
     return true;
+  }
+
+  async vote(allowedVideoId: number, voter: UserDto) {
+    const [allowedVideo, vote] = await Promise.all([
+      this.allowedVideosRepository.findOne({ id: allowedVideoId }),
+      this.votesRepository.findOne({
+        where: {
+          videoId: allowedVideoId,
+          voterId: voter.id,
+        },
+      }),
+    ]);
+
+    if (!allowedVideo)
+      throw new HttpException('Няма видео с това id', HttpStatus.NOT_FOUND);
+
+    if (vote)
+      throw new HttpException('Вече гласувахте', HttpStatus.BAD_REQUEST);
+
+    const toDbVote = this.votesRepository.create({
+      videoId: allowedVideoId,
+      voterId: voter.id,
+    });
+
+    await this.votesRepository.save(toDbVote);
+
+    return toDbVote;
   }
 }

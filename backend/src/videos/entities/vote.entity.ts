@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, OneToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, OneToOne, Column } from 'typeorm';
 import { User } from '../../users/Models/user.entity';
 import { AllowedVideo } from './allowedVideo.entity';
 
@@ -17,6 +17,9 @@ export class Vote {
   })
   video: AllowedVideo;
 
+  @Column({ nullable: false })
+  videoId: number;
+
   //Voter of video
   @OneToOne(() => User, (_) => _, {
     cascade: true,
@@ -25,4 +28,7 @@ export class Vote {
     orphanedRowAction: 'delete',
   })
   voter: User;
+
+  @Column({ nullable: false })
+  voterId: number;
 }
