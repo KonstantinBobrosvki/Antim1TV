@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { VideosService } from './videos.service';
 import { VideosController } from './videos.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -12,10 +12,11 @@ import { UsersModule } from '../users/users.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Video, Queue, AllowedVideo, Vote]),
-    QueuesModule,
+    forwardRef(() => QueuesModule),
     UsersModule,
   ],
   controllers: [VideosController],
   providers: [VideosService],
+  exports: [TypeOrmModule],
 })
 export class VideosModule {}

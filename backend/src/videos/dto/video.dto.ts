@@ -10,9 +10,9 @@ export class VideoDto {
   @ApiProperty({ example: false })
   isAllowed?: boolean;
 
-  @ApiProperty({ example: 1 })
-  suggesterId: number;
-
   @ApiProperty({ example: 5, description: 'On which screen should be played' })
   queueId: number;
+
+  @ApiProperty({ description: 'suggest date' })
+  createdDate: Date;
 }

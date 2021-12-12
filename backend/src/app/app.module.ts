@@ -8,6 +8,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '../auth/auth.module';
 import { ReadJwtMiddleware } from '../auth/readJwt.middleware';
+import { PlayersModule } from '../players/players.module';
 import { QueuesModule } from '../queues/queues.module';
 import { QueuesService } from '../queues/queues.service';
 import { PriorityService } from '../users/services/priority.service';
@@ -36,6 +37,7 @@ import { VideosModule } from '../videos/videos.module';
     AuthModule,
     VideosModule,
     QueuesModule,
+    PlayersModule,
   ],
 })
 export class AppModule implements OnModuleInit {

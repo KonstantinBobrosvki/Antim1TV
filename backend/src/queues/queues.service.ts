@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { AllowedVideo } from '../videos/entities/allowedVideo.entity';
 import { CreateQueueDto } from './dto/create-queue.dto';
+import { GetVideoDto } from '../players/dto/get-video.dto';
 import { Queue } from './entities/queue.entity';
 
 @Injectable()

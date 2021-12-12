@@ -4,6 +4,7 @@ import {
   Column,
   OneToOne,
   ManyToOne,
+  CreateDateColumn,
 } from 'typeorm';
 import { User } from '../../users/Models/user.entity';
 import { VideoDto } from '../dto/video.dto';
@@ -42,13 +43,16 @@ export class Video {
   @Column()
   queueId: number;
 
+  @CreateDateColumn()
+  createdDate: Date;
+
   toDTO(): VideoDto {
     const dto = new VideoDto();
     dto.id = this?.id;
     dto.isAllowed = this?.isAllowed;
     dto.link = this?.link;
-    dto.suggesterId = this.suggesterId;
     dto.queueId = this.queueId;
+    dto.createdDate = this.createdDate;
     return dto;
   }
 }

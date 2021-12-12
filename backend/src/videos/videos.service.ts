@@ -154,7 +154,15 @@ export class VideosService {
       voterId: voter.id,
     });
 
-    await this.votesRepository.save(toDbVote);
+    await getManager().transaction(
+      'READ UNCOMMITTED',
+      async (entityManager) => {
+        await entityManager.save(toDbVote);
+        await entityManager
+          .getRepository(AllowedVideo)
+          .increment(allowedVideo, 'votes', 1);
+      },
+    );
 
     return toDbVote;
   }

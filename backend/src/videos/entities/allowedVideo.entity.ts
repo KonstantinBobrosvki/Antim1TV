@@ -6,6 +6,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { User } from '../../users/Models/user.entity';
+import { AllowedVideoDto } from '../dto/allowedVideo.dto';
 import { Video } from './video.entity';
 
 @Entity()
@@ -38,4 +39,13 @@ export class AllowedVideo {
 
   @Column({ nullable: false })
   allowerId: number;
+
+  toDto() {
+    const dto = new AllowedVideoDto();
+    dto.video = this.video?.toDTO();
+    dto.id = this.id;
+    dto.queuePositon = this.queuePositon;
+    dto.votes = this.votes;
+    return dto;
+  }
 }
