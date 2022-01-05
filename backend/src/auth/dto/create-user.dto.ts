@@ -1,17 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, Matches, MinLength, MaxLength, ValidateIf } from 'class-validator';
-export class LoginUserDto {
-    @ValidateIf((o) => !o.email)
+import { IsEmail, IsNotEmpty, Matches, MinLength, MaxLength } from 'class-validator';
+export class CreateUserDto {
     @MinLength(5)
     @MaxLength(30)
+    @IsNotEmpty()
     @ApiProperty({ example: 'username' })
     username: string;
 
-    @ValidateIf((o) => !o.username)
     @IsEmail()
-    @Matches(/.*@(abv\.bg|gmail\.com|yandex\.ru)$/i, {
-        message: 'Пощата трябва да е abv.bg, gmail.com или yandex.ru',
-    })
+    @Matches(/.*@(abv\.bg|gmail\.com|yandex\.ru)$/i)
     @MaxLength(72)
     @ApiProperty({
         example: 'email@gmail.com',

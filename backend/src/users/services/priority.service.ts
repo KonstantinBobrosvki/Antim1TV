@@ -8,38 +8,37 @@ import { UserDto } from '../dto/user.dto';
 
 @Injectable()
 export class PriorityService {
-  constructor(
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
-    @InjectRepository(Priority)
-    private priorityRepository: Repository<Priority>,
-  ) {}
+    constructor(
+        @InjectRepository(User)
+        private usersRepository: Repository<User>,
+        @InjectRepository(Priority)
+        private priorityRepository: Repository<Priority>,
+    ) {}
 
-  async setPriority(
-    value: number,
-    targetId: number,
-    giver?: UserDto,
-    manager?: EntityManager,
-  ): Promise<Priority> {
-    const repository =
-      manager?.getRepository<Priority>(Priority) ?? this.priorityRepository;
+    async setPriority(
+        value: number,
+        targetId: number,
+        giver?: UserDto,
+        manager?: EntityManager,
+    ): Promise<Priority> {
+        const repository = manager?.getRepository<Priority>(Priority) ?? this.priorityRepository;
 
-    const prior = await repository.findOne({
-      relations: ['receiver'],
-      where: { receiver: { id: targetId } as User },
-    });
+        const prior = await repository.findOne({
+            relations: ['receiver'],
+            where: { receiver: { id: targetId } as User },
+        });
 
-    if (!prior) {
-      //This can be if only user is registred or user doesnt exists
-      const forInsert = {
-        value,
-        receiver: { id: targetId } as User,
-      } as unknown as Priority;
-      await repository.insert(forInsert);
-      return forInsert;
-    } else {
-      throw new Error('ALREADY ID WTF BRO');
-      //TODO: IMPLEMENT CHANGING REAL USER
+        if (!prior) {
+            //This can be if only user is registred or user doesnt exists
+            const forInsert = {
+                value,
+                receiver: { id: targetId } as User,
+            } as unknown as Priority;
+            await repository.insert(forInsert);
+            return forInsert;
+        } else {
+            throw new Error('ALREADY ID WTF BRO');
+            //TODO: IMPLEMENT CHANGING REAL USER
+        }
     }
-  }
 }

@@ -6,13 +6,13 @@ import { JwtModule } from '@nestjs/jwt';
 
 //needed because i use it in app module too (readjwtmiddleware)
 const jwtModule = JwtModule.register({
-  secret: process.env.SECRET_ACCSESS + '',
+    secret: process.env.SECRET_ACCSESS + '',
 });
 
 @Module({
-  imports: [UsersModule, jwtModule],
-  controllers: [AuthController],
-  providers: [AuthService],
-  exports: [jwtModule],
+    imports: [UsersModule, jwtModule],
+    controllers: [AuthController],
+    providers: [AuthService],
+    exports: [jwtModule],
 })
 export class AuthModule {}

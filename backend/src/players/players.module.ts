@@ -5,8 +5,8 @@ import { VideosModule } from '../videos/videos.module';
 import { QueuesModule } from '../queues/queues.module';
 
 @Module({
-  imports: [VideosModule, QueuesModule],
-  controllers: [PlayersController],
-  providers: [PlayersService],
+    imports: [VideosModule, QueuesModule],
+    controllers: [PlayersController],
+    providers: [PlayersService],
 })
 export class PlayersModule {}

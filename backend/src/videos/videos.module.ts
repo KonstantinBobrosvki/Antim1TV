@@ -10,13 +10,13 @@ import { QueuesModule } from '../queues/queues.module';
 import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Video, Queue, AllowedVideo, Vote]),
-    forwardRef(() => QueuesModule),
-    UsersModule,
-  ],
-  controllers: [VideosController],
-  providers: [VideosService],
-  exports: [TypeOrmModule],
+    imports: [
+        TypeOrmModule.forFeature([Video, Queue, AllowedVideo, Vote]),
+        forwardRef(() => QueuesModule),
+        UsersModule,
+    ],
+    controllers: [VideosController],
+    providers: [VideosService],
+    exports: [TypeOrmModule],
 })
 export class VideosModule {}

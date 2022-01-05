@@ -12,21 +12,21 @@ import { Queue } from './entities/queue.entity';
 @Controller('queues')
 @UseGuards(AuthGuard)
 export class QueuesController {
-  constructor(private readonly queuesService: QueuesService) {}
+    constructor(private readonly queuesService: QueuesService) {}
 
-  @Post()
-  @Rights([RightsEnum.ChangeTv])
-  @UseGuards(RightsGuard)
-  async create(@Body() createQueueDto: CreateQueueDto) {
-    return await this.queuesService.create(createQueueDto);
-  }
+    @Post()
+    @Rights([RightsEnum.ChangeTv])
+    @UseGuards(RightsGuard)
+    async create(@Body() createQueueDto: CreateQueueDto) {
+        return await this.queuesService.create(createQueueDto);
+    }
 
-  @Get()
-  @ApiResponse({
-    type: [Queue],
-    description: 'Get all queues',
-  })
-  async findAll() {
-    return await this.queuesService.findAll();
-  }
+    @Get()
+    @ApiResponse({
+        type: [Queue],
+        description: 'Get all queues',
+    })
+    async findAll() {
+        return await this.queuesService.findAll();
+    }
 }
