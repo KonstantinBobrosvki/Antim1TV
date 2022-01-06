@@ -11,13 +11,22 @@ module.exports = async () => {
     });
 
     await client.connect();
-    const result = await client.query(`DO $$ DECLARE
+
+    //wait 10 seconds for viewing db
+    // await new Promise((resolve) => setTimeout(resolve, 10000))
+    //Clear all tables except user, save only first user
+    /* const result = await client.query(`DO $$ DECLARE
     r RECORD;
 BEGIN
     FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = current_schema()) LOOP
-        EXECUTE 'TRUNCATE TABLE ' || quote_ident(r.tablename) || ' RESTART IDENTITY CASCADE';
+   
+   		EXECUTE 'DROP TABLE ' || quote_ident(r.tablename) || ' CASCADE';
+
     END LOOP;
-END $$;`);
+
+END $$;
+`);
+*/
 
     await client.end();
 

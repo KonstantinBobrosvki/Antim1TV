@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { getManager, Repository } from 'typeorm';
+import { getManager, QueryFailedError, Repository } from 'typeorm';
+import { PG_FOREIGN_KEY_VIOLATION } from '../common/const/db';
 import BaseError from '../common/errors/BaseError.error';
 import { UserDto } from '../users/dto/user.dto';
 import { User } from '../users/Models/user.entity';
@@ -40,10 +41,18 @@ export class VideosService {
             suggester: suggester as unknown as User,
             queue: { id: createVideoDto.queueId },
         });
+        try {
+            await this.videosRepository.insert(video);
 
-        await this.videosRepository.insert(video);
-
-        return video.toDTO();
+            return video.toDTO();
+        } catch (error) {
+            if (error instanceof QueryFailedError) {
+                if (error.driverError.code === PG_FOREIGN_KEY_VIOLATION) {
+                    throw BaseError.NotFound('Няма такъв телевизор');
+                }
+            }
+            throw error;
+        }
     }
 
     async Allow(videoId: number, allower: UserDto) {

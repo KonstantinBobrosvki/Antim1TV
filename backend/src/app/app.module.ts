@@ -68,7 +68,7 @@ export class AppModule implements OnModuleInit {
     ) {}
 
     async onModuleInit() {
-        if (process.env.NODE_ENV != 'DEV') return;
+        if (process.env.NODE_ENV != 'DEV' && process.env.NODE_ENV != 'test') return;
         //CREate admin
         try {
             //password is password
@@ -80,7 +80,7 @@ export class AppModule implements OnModuleInit {
             await this.rightService.AddAll(admin.id);
             await this.priorityService.setPriority(10000, admin.id, admin.toDTO());
         } catch (error) {
-            console.log(error);
+            if (process.env.NODE_ENV == 'DEV') console.log(error);
             //there will be errors, be calm everything is ok
         }
 
@@ -89,7 +89,7 @@ export class AppModule implements OnModuleInit {
             await this.queuesService.create({ name: 'Main' });
             await this.queuesService.create({ name: 'Second floor' });
         } catch (error) {
-            console.log(error);
+            if (process.env.NODE_ENV == 'DEV') console.log(error);
         }
     }
 

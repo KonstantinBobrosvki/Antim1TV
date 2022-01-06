@@ -4,7 +4,14 @@ import { AppModule } from '../src/app/app.module';
 
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import BaseError from '../src/common/errors/BaseError.error';
-import { checkSignature, createUserFactory, requestFactory, UserResponse } from './helpers';
+import {
+    checkSignature,
+    createUserFactory,
+    generateUser,
+    requestFactory,
+    UserResponse,
+} from './helpers';
+import { CreateUserDto } from '../src/auth/dto/create-user.dto';
 
 describe('Auth module e2e', () => {
     let app: INestApplication;
@@ -52,12 +59,12 @@ describe('Auth module e2e', () => {
         });
 
         it(`signup good domain input`, async () => {
-            const res = await createUser({
-                username: 'normalName',
-                password: 'fdsfasdasdassd',
-                email: 'ValidEmail@gmail.com',
-            });
-            expect(res.status === HttpStatus.CREATED).toBe(true);
+            const fds = generateUser();
+
+            const res = await createUser(fds);
+
+            expect(res.status).toBe(HttpStatus.CREATED);
+            expect(checkSignature(UserResponse, res.body)).toBeTruthy();
         });
 
         it(`signup bad domain input`, async () => {
@@ -70,42 +77,22 @@ describe('Auth module e2e', () => {
         });
 
         it(`signup for used username`, async () => {
-            const goodRes = await createUser({
-                username: 'normalName1',
-                password: 'fdsfasdasdassd',
-                email: 'ValidEmail2@gmail.com',
-            });
-            const badRes = await createUser({
-                username: 'normalName1',
-                password: 'fdsfasdasdassd',
-                email: 'ValidEmail2@gmail.com',
-            });
-            expect(badRes.status === HttpStatus.CREATED).toBe(false);
+            const user = generateUser();
+            const goodRes = await createUser(user);
+            const badRes = await createUser(user);
+
             expect(BaseError.Duplicate().Equal(badRes.status)).toBe(true);
-            expect(goodRes.status === HttpStatus.CREATED).toBe(true);
+
+            expect(goodRes.status).toBe(HttpStatus.CREATED);
+            expect(checkSignature(UserResponse, goodRes.body)).toBeTruthy();
         });
     });
 
     describe('signin tests', () => {
-        const users = [
-            {
-                username: 'NormalNamefsdfsd',
-                password: 'hardPassword',
-                email: 'email@gmail.com',
-            },
-            {
-                username: 'CoolNameBro',
-                password: '1hardPassword22',
-                email: 'EmAil@yandex.ru',
-            },
-            {
-                username: 'CoolNameSister',
-                password: 'ParolaBati',
-                email: 'POSHTA11@abv.bg',
-            },
-        ];
+        const users = Array(5).map(() => generateUser());
+
         beforeAll(async () => {
-            await Promise.all(users.map(createUser));
+            await Promise.all(users.map((user) => createUser(user)));
         });
 
         it('bad input', async () =>

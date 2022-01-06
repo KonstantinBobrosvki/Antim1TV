@@ -48,8 +48,6 @@ export class RightsService {
         if (isSettedAdmin) throw new Error('ВЕЧЕ ИМА АДМИНИСТРАТОР');
 
         for (const item in RightsEnum) {
-            console.log(item);
-
             if (!isNaN(Number(item))) {
                 const name = RightsEnum[item];
                 const forDb = {

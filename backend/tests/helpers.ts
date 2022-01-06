@@ -1,8 +1,8 @@
 import { ApiResponse } from '@nestjs/swagger';
-import { type } from 'os';
 import * as request from 'supertest';
 import { CreateUserDto } from '../src/auth/dto/create-user.dto';
 import { UserDto } from '../src/users/dto/user.dto';
+import { randomUUID } from 'crypto';
 
 export type ApiResponse = {
     status: number;
@@ -13,6 +13,7 @@ export type Request = {
     url: string;
     data: any;
     method: 'post' | 'get' | 'delete' | 'put';
+    bearer?: string;
 };
 
 export class UserResponse {
@@ -32,7 +33,13 @@ export const requestFactory =
                     result = result.get(req.url);
                     break;
                 default:
-                    result = result[req.method](req.url).send(req.data);
+                    //  console.log(req.bearer ? req.bearer : 'no bearer');
+
+                    result = result[req.method](req.url);
+                    result = req.bearer
+                        ? result.set('authorization', 'Bearer ' + req.bearer)
+                        : result;
+                    result = result.send(req.data);
                     break;
             }
             result.end((err, res) => {
@@ -64,7 +71,10 @@ export const getAdminUser = (server: any): Promise<UserResponse> =>
         },
         method: 'post',
         url: '/auth/signin',
-    }).then((res) => res.body);
+    }).then((res) => {
+        if (res.status == 201) return res.body;
+        throw new Error('No admin account');
+    });
 
 export const checkSignature = (className: new () => any, object: {}): boolean => {
     const res = Object.keys(new className()).reduce(
@@ -74,6 +84,38 @@ export const checkSignature = (className: new () => any, object: {}): boolean =>
                 : object.hasOwnProperty(curr) && acc,
         null,
     );
-
     return res;
 };
+
+export const generateUser = (): CreateUserDto => {
+    const usernames = [
+        ['Good', 'Bad', 'BOLD', 'High', 'White', 'Dark'],
+        ['Human', 'Elf', 'Orc', 'Dog', 'Cow', 'Knight'],
+    ];
+
+    return {
+        username: RandomCombiner(usernames[0], usernames[1], '-' + randomUUID().substring(0, 10)),
+        email: RandomCombiner(
+            usernames[0],
+            usernames[1],
+            randomUUID().substring(0, 5) +
+                (Math.random() > 0.6
+                    ? '@yandex.ru'
+                    : Math.random() > 0.5
+                    ? '@abv.bg'
+                    : '@gmail.com'),
+        ),
+        password: randomUUID().substring(0, 20),
+    };
+};
+
+function RandomCombiner(
+    array1: string[],
+    array2: string[],
+    salt?: string,
+    separator: string = '',
+): string {
+    const rA = Math.floor(Math.random() * array1.length);
+    const rB = Math.floor(Math.random() * array2.length);
+    return [array1[rA], array2[rB], salt].join(separator);
+}

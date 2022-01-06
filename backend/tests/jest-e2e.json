@@ -13,6 +13,6 @@
   "globals": {
     "NODE_ENV": "test"
   },
-  "globalSetup": "<rootDir>/testsSetup.ts",
+  "globalTeardown": "<rootDir>/testsSetup.ts",
   "preset": "ts-jest"
 }
