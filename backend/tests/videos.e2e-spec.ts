@@ -1,16 +1,17 @@
 import { Test } from '@nestjs/testing';
-import { AppModule } from '../src/app/app.module';
-
 import { HttpStatus, INestApplication } from '@nestjs/common';
+
+import { AppModule } from '../src/app/app.module';
 import BaseError from '../src/common/errors/BaseError.error';
 import {
-    checkSignature,
     createUserFactory,
     generateUser,
     getAdminUser,
     requestFactory,
     UserResponse,
 } from './helpers';
+
+import * as _ from './extends';
 
 describe('Videos module e2e', () => {
     let app: INestApplication;
@@ -67,7 +68,7 @@ describe('Videos module e2e', () => {
                 },
             });
 
-            expect(BaseError.NotFound().Equal(res.status)).toBeTruthy();
+            expect(res.status).toBe(HttpStatus.NOT_FOUND);
         });
 
         it('no right', async () => {
@@ -99,17 +100,14 @@ describe('Videos module e2e', () => {
                 },
             });
 
-            expect(
-                checkSignature(
-                    class {
-                        id = 2;
-                        link = 'f';
-                        queueId = 1;
-                        createdDate = 'f';
-                    },
-                    res.body,
-                ),
-            ).toBeTruthy();
+            expect(res.body).CheckSignature(
+                class {
+                    id = 2;
+                    link = 'f';
+                    queueId = 1;
+                    createdDate = 'f';
+                },
+            );
         });
     });
     //TODO: FINISH AFTER finishing user rights logic

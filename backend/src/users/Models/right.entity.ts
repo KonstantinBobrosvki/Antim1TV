@@ -24,8 +24,11 @@ export class Right {
     @ManyToOne(() => User, (_) => _, {
         cascade: true,
         onDelete: 'CASCADE',
-        nullable: false,
+        nullable: true,
         orphanedRowAction: 'delete',
     })
     giver: User;
+
+    @Column({ nullable: true })
+    giverId: number;
 }

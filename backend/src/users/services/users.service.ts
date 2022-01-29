@@ -37,12 +37,18 @@ export class UsersService {
         }
     }
 
-    findAll() {
-        return this.usersRepository.find({ select: ['id', 'username'] });
+    findAll(skip: number, take: number = 30) {
+        return this.usersRepository.find({ select: ['id', 'username'], skip, take });
     }
 
-    find(where: FindConditions<User>, relations: UserRelations[] = []) {
-        return this.usersRepository.find({ where, relations });
+    async find(
+        select: (keyof User)[] = ['id', 'username'],
+        where: FindConditions<User>,
+        relations: UserRelations[] = [],
+    ) {
+        const res = await this.usersRepository.find({ select, where, relations });
+        if (res) return res;
+        throw BaseError.NotFound('Няма такъв потребител');
     }
 
     async remove(targetId: number, performer: UserDto): Promise<UserDto> {

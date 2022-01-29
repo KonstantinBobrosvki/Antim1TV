@@ -7,6 +7,7 @@ import { Right } from '../Models/right.entity';
 import { RightsEnum } from '../Models/Enums/rights.enum';
 import { UserDto } from '../dto/user.dto';
 import BaseError from '../../common/errors/BaseError.error';
+import { Priority } from '../Models/priority.entity';
 
 let isSettedAdmin = false;
 
@@ -17,9 +18,11 @@ export class RightsService {
         private usersRepository: Repository<User>,
         @InjectRepository(Right)
         private rightsRepository: Repository<Right>,
+        @InjectRepository(Priority)
+        private priorityRepository: Repository<Right>,
     ) {}
 
-    async GiveRight(right: RightsEnum, targetId: number, performer: UserDto): Promise<Right> {
+    async GiveRight(right: RightsEnum, targetId: number, performer: UserDto): Promise<RightsEnum> {
         if (!performer.rights.includes(right))
             throw BaseError.Forbidden('За да дадете право, трябва да го имате');
 
@@ -28,7 +31,7 @@ export class RightsService {
 
         const isExisting = !!(await this.rightsRepository.findOne({
             where: {
-                receiver: { id: targetId },
+                receiver: target,
                 value: right,
             },
         }));
@@ -36,12 +39,42 @@ export class RightsService {
         if (isExisting) throw BaseError.Duplicate('Потребителят вече има това право');
 
         const forDb = {
-            receiver: { id: targetId },
+            receiver: target,
             giver: performer,
             value: right,
         } as unknown as Right;
-        await this.rightsRepository.save(forDb);
-        return forDb;
+        await this.rightsRepository.insert(forDb);
+        return right;
+    }
+
+    async RemoveRight(
+        right: RightsEnum,
+        targetId: number,
+        performer: UserDto,
+    ): Promise<RightsEnum[]> {
+        const target = await this.usersRepository.findOne({
+            where: { id: targetId },
+            relations: ['rights', 'priority'],
+        });
+        if (!target) throw BaseError.NotFound('Не е намерен потребител с това id');
+
+        if (target.priority.value >= performer.priority)
+            throw BaseError.Forbidden('Трябва да имате по-висок приоритет от целта');
+
+        const rightToDelete = target.rights.find((r) => r.value == right);
+
+        if (!rightToDelete) throw BaseError.NotFound('Потребителя няма това право');
+        const giverOfRightId = rightToDelete.giverId;
+        if (giverOfRightId != performer.id && giverOfRightId) {
+            const priorityOfGiver = await this.priorityRepository.findOne({
+                where: { receiver: { id: giverOfRightId } },
+            });
+            if (priorityOfGiver && priorityOfGiver.value >= performer.priority)
+                throw BaseError.Forbidden('Трябва да имате по-висок приоритет');
+        }
+        await this.rightsRepository.delete(rightToDelete);
+
+        return target.rights.filter((r) => r != rightToDelete).map((r) => r.value);
     }
 
     async AddAll(targetId: number) {
@@ -55,7 +88,7 @@ export class RightsService {
                     giver: targetId,
                     value: RightsEnum[name],
                 } as unknown as Right;
-                await this.rightsRepository.save(forDb);
+                await this.rightsRepository.insert(forDb);
             }
         }
 

@@ -23,9 +23,9 @@ export class Priority {
 
     @ManyToOne(() => User, (_) => _, {
         cascade: true,
-        onDelete: 'CASCADE',
+        onDelete: 'SET NULL',
         nullable: true,
-        orphanedRowAction: 'delete',
+        orphanedRowAction: 'nullify',
     })
     giver: User;
 }

@@ -99,10 +99,11 @@ export class VideosService {
         });
         const lastAllower = (
             await this.usersService.find(
+                ['id'],
                 {
                     id: allowedVideo.allowerId,
                 },
-                ['rights'],
+                ['priority'],
             )
         )[0];
 

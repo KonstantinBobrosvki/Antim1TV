@@ -14,7 +14,7 @@ module.exports = async () => {
 
     //wait 10 seconds for viewing db
     // await new Promise((resolve) => setTimeout(resolve, 10000))
-    //Clear all tables except user, save only first user
+    //Clear all tables
     /* const result = await client.query(`DO $$ DECLARE
     r RECORD;
 BEGIN
@@ -23,6 +23,18 @@ BEGIN
    		EXECUTE 'DROP TABLE ' || quote_ident(r.tablename) || ' CASCADE';
 
     END LOOP;
+
+END $$;
+
+DO $$ DECLARE
+    r right_value_enum;
+BEGIN
+    FOR r IN
+        SELECT  unnest(enum_range(NULL::public.right_value_enum))
+    LOOP
+        INSERT INTO public.right(value, "receiverId") VALUES (r,1);
+    END LOOP;
+
 
 END $$;
 `);

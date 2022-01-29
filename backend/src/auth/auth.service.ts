@@ -20,7 +20,7 @@ export class AuthService {
         return new Promise(async (resolve, reject) => {
             try {
                 createUserDto.password = await bcrypt.hash(createUserDto.password, 10);
-
+                let dto: UserDto;
                 await getManager().transaction('READ UNCOMMITTED', async (entityManager) => {
                     const user = await this.usersService.create(createUserDto, entityManager);
 
@@ -33,8 +33,10 @@ export class AuthService {
 
                     user.priority = priority;
 
-                    resolve(user.toDTO());
+                    dto = user.toDTO();
                 });
+
+                resolve(dto);
             } catch (error) {
                 if (error instanceof QueryFailedError) {
                     if (error.driverError.code === PG_UNIQUE_CONSTRAINT_VIOLATION) {
@@ -49,6 +51,7 @@ export class AuthService {
     async login(loginUserDto: LoginUserDto): Promise<UserDto> {
         const pretendent = (
             await this.usersService.find(
+                ['id', 'password', 'email', 'username'],
                 {
                     ...(loginUserDto.username && {
                         username: loginUserDto.username,

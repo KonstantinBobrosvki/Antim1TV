@@ -1,17 +1,11 @@
-import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { AppModule } from '../src/app/app.module';
-
 import { HttpStatus, INestApplication } from '@nestjs/common';
+
 import BaseError from '../src/common/errors/BaseError.error';
-import {
-    checkSignature,
-    createUserFactory,
-    generateUser,
-    requestFactory,
-    UserResponse,
-} from './helpers';
-import { CreateUserDto } from '../src/auth/dto/create-user.dto';
+import { AppModule } from '../src/app/app.module';
+import { createUserFactory, generateUser, requestFactory, UserResponse } from './helpers';
+
+import * as _ from './extends';
 
 describe('Auth module e2e', () => {
     let app: INestApplication;
@@ -64,7 +58,7 @@ describe('Auth module e2e', () => {
             const res = await createUser(fds);
 
             expect(res.status).toBe(HttpStatus.CREATED);
-            expect(checkSignature(UserResponse, res.body)).toBeTruthy();
+            expect(res.body).CheckSignature(UserResponse);
         });
 
         it(`signup bad domain input`, async () => {
@@ -84,7 +78,7 @@ describe('Auth module e2e', () => {
             expect(BaseError.Duplicate().Equal(badRes.status)).toBe(true);
 
             expect(goodRes.status).toBe(HttpStatus.CREATED);
-            expect(checkSignature(UserResponse, goodRes.body)).toBeTruthy();
+            expect(goodRes.body).CheckSignature(UserResponse);
         });
     });
 
@@ -143,7 +137,7 @@ describe('Auth module e2e', () => {
                     },
                 }).then((res) => {
                     expect(res.status).toBe(HttpStatus.CREATED);
-                    expect(checkSignature(UserResponse, res.body)).toBeTruthy();
+                    expect(res.body).CheckSignature(UserResponse);
                 }));
         });
 
@@ -158,7 +152,7 @@ describe('Auth module e2e', () => {
                     },
                 }).then((res) => {
                     expect(res.status).toBe(HttpStatus.CREATED);
-                    expect(checkSignature(UserResponse, res.body)).toBeTruthy();
+                    expect(res.body).CheckSignature(UserResponse);
                 }));
         });
 
@@ -180,8 +174,7 @@ describe('Auth module e2e', () => {
                     },
                 }).then((res) => {
                     expect(res.status).toBe(HttpStatus.CREATED);
-                    expect(checkSignature(UserResponse, res.body)).toBeTruthy();
-                    expect(checkSignature(UserResponse, { foo: 'bar' })).toBeFalsy();
+                    expect(res.body).CheckSignature(UserResponse);
                 }));
         });
 
