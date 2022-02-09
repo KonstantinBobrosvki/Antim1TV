@@ -25,6 +25,7 @@ import { RightsService } from './services/rights.service';
 import { PriorityService } from './services/priority.service';
 import { ChangePriorityDto } from './dto/changePriority.dto';
 import BaseError from '../common/errors/BaseError.error';
+import { RangePipe } from '../common/pipes/range.pipe';
 
 @ApiTags('Users')
 @Controller('users')
@@ -34,7 +35,7 @@ export class UsersController {
         private readonly usersService: UsersService,
         private readonly rightsService: RightsService,
         private readonly priorityService: PriorityService,
-    ) {}
+    ) { }
 
     @Get()
     @Rights([[RightsEnum.BanUser], [RightsEnum.ChangePriority], [RightsEnum.ChangeRight]])
@@ -44,7 +45,7 @@ export class UsersController {
         type: [UserDto],
     })
     findAll(
-        @Query('take', ParseIntPipe, PositivePipe) take: number,
+        @Query('take', ParseIntPipe, new RangePipe(1, 100)) take: number,
         @Query('skip', ParseIntPipe, PositivePipe) skip: number,
     ) {
         return this.usersService.findAll(take, skip);

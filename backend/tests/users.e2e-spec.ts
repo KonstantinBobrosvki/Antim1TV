@@ -547,7 +547,7 @@ describe('Users module e2e', () => {
         });
     });
 
-    describe('user', () => {
+    describe('user getting', () => {
         it('no auth', async () => {
             const res = await createUser(generateUser());
             const res2 = await makeRequest({
@@ -588,7 +588,89 @@ describe('Users module e2e', () => {
             expect(newData.body.priority).toBe(541);
             expect(newData.body.email).toBeUndefined();
         });
+
+        it('normal case', async () => {
+            const result = await makeRequest<UserDto[]>({ url: '/users?skip=0&take=99', method: 'get', data: {}, bearer: admin.access })
+            expect(result.status).toBe(HttpStatus.OK);
+            result.body.reduce((prev, curr) => { 
+                expect(curr.id).toBeGreaterThan(prev.id);
+                expect(curr.email).toBeFalsy()
+                expect(curr.priority).toBeGreaterThanOrEqual(0);
+                return curr
+            }, { id: -100 });
+
+            const result2 = await makeRequest<UserDto[]>({ url: '/users?skip=0&take=1', method: 'get', data: {}, bearer: admin.access })
+            expect(result2.status).toBe(HttpStatus.OK);
+
+            const result3 = await makeRequest<UserDto[]>({ url: '/users?skip=-1&take=10', method: 'get', data: {}, bearer: admin.access })
+            expect(result3.status).toBe(HttpStatus.BAD_REQUEST);
+        })
     });
+
+    describe('banning', () => {
+        const deleteRequest = (id: number, access: string) => makeRequest<UserDto>({ url: '/users/' + id, method: 'delete', data: {}, bearer: access })
+        it('no right', async () => {
+            const normalUser = await createUser(generateUser())
+
+            const secondDude = generateUser();
+            const secondDudeLogin = await createUser(secondDude)
+            await setPriority(100, secondDudeLogin.body.user.id, admin.access);
+            const newData = await makeRequest<UserResponse>({
+                url: '/auth/signin',
+                method: 'post',
+                data: secondDude,
+            });
+
+            const result = await deleteRequest(normalUser.body.user.id, newData.body.access);
+            expect(result.status).toBe(HttpStatus.FORBIDDEN);
+        })
+
+        it('normal case', async () => {
+            const normalUser = await createUser(generateUser())
+
+            const secondDude = generateUser();
+            const secondDudeLogin = await createUser(secondDude)
+            await setPriority(100, secondDudeLogin.body.user.id, admin.access);
+            await giveRightRequest(RightsEnum.BanUser, secondDudeLogin.body.user.id, admin.access)
+            const newData = await makeRequest<UserResponse>({
+                url: '/auth/signin',
+                method: 'post',
+                data: secondDude,
+            });
+
+            const result = await deleteRequest(normalUser.body.user.id, newData.body.access);
+            expect(result.status).toBe(HttpStatus.OK);
+            expect({ ...result.body, rights: undefined, priority: undefined }).FullEqual({ username: normalUser.body.user.username, id: normalUser.body.user.id })
+        })
+
+        it('no priority', async () => {
+            const normalUser = await createUser(generateUser())
+
+            const secondDude = generateUser();
+            const secondDudeLogin = await createUser(secondDude)
+            await setPriority(100, secondDudeLogin.body.user.id, admin.access);
+            await giveRightRequest(RightsEnum.BanUser, secondDudeLogin.body.user.id, admin.access)
+
+            await setPriority(100, normalUser.body.user.id, admin.access);
+
+            const newData = await makeRequest<UserResponse>({
+                url: '/auth/signin',
+                method: 'post',
+                data: secondDude,
+            });
+
+            const result = await deleteRequest(normalUser.body.user.id, newData.body.access);
+            expect(result.status).toBe(HttpStatus.FORBIDDEN);
+        })
+
+        it('self delete', async () => {
+            const normalUser = await createUser(generateUser())
+
+            const newData = await deleteRequest(normalUser.body.user.id, normalUser.body.access)
+
+            expect(newData.status).toBe(HttpStatus.OK);
+        })
+    })
 
     afterAll(async () => {
         await app.close();
