@@ -18,12 +18,12 @@ export type Request = {
 };
 
 export type PriorityResponse = {
-    value: number
-}
+    value: number;
+};
 
 export type RightResponse = {
-    right: RightsEnum
-}
+    right: RightsEnum;
+};
 
 export type SenderFunc<T, ApiResponseType = any> = (
     value: T,
@@ -31,7 +31,9 @@ export type SenderFunc<T, ApiResponseType = any> = (
     accsess?: string,
 ) => Promise<ApiResponse<ApiResponseType>>;
 
-type SenderFuncFactory<DataType, ApiResponseType> = (app: any) => SenderFunc<DataType, ApiResponseType>
+type SenderFuncFactory<DataType, ApiResponseType> = (
+    app: any,
+) => SenderFunc<DataType, ApiResponseType>;
 
 export class UserResponse {
     //for normal logic in check signature dont touch
@@ -41,47 +43,45 @@ export class UserResponse {
 
 export const requestFactory =
     (server: any): (<T = any>(req: Request) => Promise<ApiResponse<T>>) =>
-        <T = any>(req: Request): Promise<ApiResponse<T>> =>
-            new Promise((resolve, reject) => {
-                const sender = request(server);
-                let final: request.Test;
-                switch (req.method) {
-                    case 'get':
-                        final = sender.get(req.url);
-                        final = req.bearer
-                            ? final.set('authorization', 'Bearer ' + req.bearer)
-                            : final;
-                        break;
-                    default:
-                        //  console.log(req.bearer ? req.bearer : 'no bearer');
+    <T = any>(req: Request): Promise<ApiResponse<T>> =>
+        new Promise((resolve, reject) => {
+            const sender = request(server);
+            let final: request.Test;
+            switch (req.method) {
+                case 'get':
+                    final = sender.get(req.url);
+                    final = req.bearer ? final.set('authorization', 'Bearer ' + req.bearer) : final;
+                    break;
+                default:
+                    //  console.log(req.bearer ? req.bearer : 'no bearer');
 
-                        let request = sender[req.method](req.url);
-                        request = req.bearer
-                            ? request.set('authorization', 'Bearer ' + req.bearer)
-                            : request;
-                        final = request.send(req.data);
-                        break;
-                }
-                final.end((err, res) => {
-                    if (err) reject(err);
-                    resolve(res);
-                });
+                    let request = sender[req.method](req.url);
+                    request = req.bearer
+                        ? request.set('authorization', 'Bearer ' + req.bearer)
+                        : request;
+                    final = request.send(req.data);
+                    break;
+            }
+            final.end((err, res) => {
+                if (err) reject(err);
+                resolve(res);
             });
+        });
 
 export const createUserFactory =
     (server: any): ((user: CreateUserDto) => Promise<ApiResponse<UserResponse>>) =>
-        (user: CreateUserDto): Promise<ApiResponse<UserResponse>> =>
-            new Promise((resolve, reject) => {
-                request(server)
-                    .post('/auth/signup')
-                    .send({
-                        ...user,
-                    })
-                    .end((err, res) => {
-                        if (err) reject(err);
-                        resolve(res);
-                    });
-            });
+    (user: CreateUserDto): Promise<ApiResponse<UserResponse>> =>
+        new Promise((resolve, reject) => {
+            request(server)
+                .post('/auth/signup')
+                .send({
+                    ...user,
+                })
+                .end((err, res) => {
+                    if (err) reject(err);
+                    resolve(res);
+                });
+        });
 
 export const getAdminUser = (server: any): Promise<UserResponse> =>
     requestFactory(server)({
@@ -137,9 +137,9 @@ export const generateUser = (): CreateUserDto => {
             usernames[0],
             usernames[1],
             randomUUID().substring(0, 5) +
-            (Math.random() > 0.6
-                ? '@yandex.ru'
-                : Math.random() > 0.5
+                (Math.random() > 0.6
+                    ? '@yandex.ru'
+                    : Math.random() > 0.5
                     ? '@abv.bg'
                     : '@gmail.com'),
         ),
@@ -147,32 +147,38 @@ export const generateUser = (): CreateUserDto => {
     };
 };
 
-export const setPriorityFactory: SenderFuncFactory<number, PriorityResponse> = (server) => (priority: number, id: number, accses?: string) => requestFactory(server)({
-    url: `/users/${id}/priority`,
-    method: 'put',
-    bearer: accses,
-    data: {
-        value: priority,
-    },
-})
+export const setPriorityFactory: SenderFuncFactory<number, PriorityResponse> =
+    (server) => (priority: number, id: number, accses?: string) =>
+        requestFactory(server)({
+            url: `/users/${id}/priority`,
+            method: 'put',
+            bearer: accses,
+            data: {
+                value: priority,
+            },
+        });
 
-export const giveRightRequestFactory: SenderFuncFactory<RightsEnum, RightResponse> = (server) => (right: RightsEnum, id: number, accses?: string) => requestFactory(server)({
-    url: `/users/${id}/rights`,
-    method: 'post',
-    bearer: accses,
-    data: {
-        right,
-    },
-});
+export const giveRightRequestFactory: SenderFuncFactory<RightsEnum, RightResponse> =
+    (server) => (right: RightsEnum, id: number, accses?: string) =>
+        requestFactory(server)({
+            url: `/users/${id}/rights`,
+            method: 'post',
+            bearer: accses,
+            data: {
+                right,
+            },
+        });
 
-export const deleteRightRequestFactory: SenderFuncFactory<RightsEnum, RightsEnum[]> = (server) => (right: RightsEnum, id: number, accses?: string) => requestFactory(server)({
-    url: `/users/${id}/rights`,
-    method: 'delete',
-    bearer: accses,
-    data: {
-        right,
-    },
-});
+export const deleteRightRequestFactory: SenderFuncFactory<RightsEnum, RightsEnum[]> =
+    (server) => (right: RightsEnum, id: number, accses?: string) =>
+        requestFactory(server)({
+            url: `/users/${id}/rights`,
+            method: 'delete',
+            bearer: accses,
+            data: {
+                right,
+            },
+        });
 
 function RandomCombiner(
     array1: string[],

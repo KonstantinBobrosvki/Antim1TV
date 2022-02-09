@@ -4,7 +4,6 @@ import { getManager, QueryFailedError, Repository } from 'typeorm';
 import { PG_FOREIGN_KEY_VIOLATION } from '../common/const/db';
 import BaseError from '../common/errors/BaseError.error';
 import { UserDto } from '../users/dto/user.dto';
-import { User } from '../users/Models/user.entity';
 import { UsersService } from '../users/services/users.service';
 
 import { CreateVideoDto } from './dto/create-video.dto';
@@ -24,21 +23,41 @@ export class VideosService {
         private usersService: UsersService,
     ) {}
 
-    async getForvote(max: number): Promise<VideoDto[]> {
-        const videos = await this.videosRepository.find({
-            select: ['id', 'link', 'queue'],
-            where: {
-                isAllowed: null,
-            },
-            take: max,
-        });
-        return videos.map((video) => video.toDTO());
+    async getForvote(max: number, user: UserDto): Promise<VideoDto[]> {
+        const userVotes = this.votesRepository
+            .createQueryBuilder('vote')
+            .select(['"videoId"'])
+            .where('vote.voterId = :userId');
+
+        const allowedVideos = this.allowedVideosRepository
+            .createQueryBuilder('allowedVideo')
+            .select([
+                'allowedVideo.id',
+                'video.createdDate',
+                'video.id',
+                'video.link',
+                'video.queueId',
+            ])
+            .where(
+                'allowedVideo.queuePositon IS NULL AND ' +
+                    `allowedVideo.id NOT IN (${userVotes.getSql()})`,
+                { userId: user.id },
+            )
+            .leftJoin('allowedVideo.video', 'video')
+            .orderBy('video.createdDate', 'ASC')
+            .take(max);
+
+        // console.log(allowedVideos.getSql());
+
+        return allowedVideos
+            .getMany()
+            .then((result) => result.map((allowedVideo) => allowedVideo.video.toDTO()));
     }
 
-    async suggest(createVideoDto: CreateVideoDto, suggester: UserDto) {
+    async suggest(createVideoDto: CreateVideoDto, suggester: UserDto): Promise<VideoDto> {
         const video = this.videosRepository.create({
             link: createVideoDto.videoLink,
-            suggester: suggester as unknown as User,
+            suggesterId: suggester.id,
             queue: { id: createVideoDto.queueId },
         });
         try {
@@ -61,7 +80,7 @@ export class VideosService {
         if (!video) {
             throw BaseError.NotFound('Няма видео с това id');
         }
-        if (video.isAllowed !== null) {
+        if (video.isAllowed === true || video.isAllowed === false) {
             throw BaseError.BadData('Някой друг вече модерира това видео');
         }
 
@@ -71,14 +90,14 @@ export class VideosService {
             allowerId: allower.id,
         });
         await getManager().transaction('READ UNCOMMITTED', async (entityManager) => {
-            await entityManager.save(allowedVideo);
-            await entityManager.save(video);
+            await entityManager.insert(AllowedVideo, allowedVideo);
+            await entityManager.getRepository(Video).update({ id: video.id }, video);
         });
 
-        return allowedVideo;
+        return allowedVideo.toDto();
     }
 
-    async disallow(videoId: number, disAllower: UserDto): Promise<boolean> {
+    async disallow(videoId: number, disAllower: UserDto): Promise<{ deleted: boolean }> {
         const video = await this.videosRepository.findOne(videoId);
 
         if (!video) {
@@ -88,10 +107,11 @@ export class VideosService {
         if (video.isAllowed === false)
             throw BaseError.BadData('Някой друг вече модерира това видео');
 
-        if (video.isAllowed === null) {
+        //null case
+        if (video.isAllowed === null || video.isAllowed === undefined) {
             video.isAllowed = false;
-            await this.videosRepository.save(video);
-            return true;
+            await this.videosRepository.update({ id: video.id }, video);
+            return { deleted: true };
         }
         //If we are here video is allowed by someone
         const allowedVideo = await this.allowedVideosRepository.findOne({
@@ -119,18 +139,23 @@ export class VideosService {
         await getManager().transaction('READ UNCOMMITTED', async (entityManager) => {
             video.isAllowed = false;
             await entityManager.getRepository<AllowedVideo>(AllowedVideo).delete(allowedVideo);
-            await entityManager.save(video);
+            await entityManager.getRepository(Video).update({ id: video.id }, video);
         });
 
-        return true;
+        return { deleted: true };
     }
 
-    async vote(allowedVideoId: number, voter: UserDto) {
+    async vote(videoId: number, voter: UserDto) {
         const [allowedVideo, vote] = await Promise.all([
-            this.allowedVideosRepository.findOne({ id: allowedVideoId }),
+            this.allowedVideosRepository
+                .find({
+                    where: { id: videoId },
+                    relations: ['video'],
+                })
+                .then((result) => result[0]),
             this.votesRepository.findOne({
                 where: {
-                    videoId: allowedVideoId,
+                    videoId: videoId,
                     voterId: voter.id,
                 },
             }),
@@ -141,15 +166,24 @@ export class VideosService {
         if (vote) throw BaseError.Duplicate('Вече гласувахте');
 
         const toDbVote = this.votesRepository.create({
-            videoId: allowedVideoId,
+            videoId: videoId,
             voterId: voter.id,
         });
 
         await getManager().transaction('READ UNCOMMITTED', async (entityManager) => {
-            await entityManager.save(toDbVote);
-            await entityManager.getRepository(AllowedVideo).increment(allowedVideo, 'votes', 1);
+            await entityManager.insert(Vote, toDbVote);
+            await entityManager.getRepository(AllowedVideo).increment({ id: videoId }, 'votes', 1);
         });
 
         return toDbVote;
+    }
+
+    async getUnmoderated(max: number): Promise<VideoDto[]> {
+        return this.videosRepository.find({
+            where: { isAllowed: null },
+            take: max,
+            select: ['id', 'queueId', 'link'],
+            order: { id: 'ASC' },
+        });
     }
 }

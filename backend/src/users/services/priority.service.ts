@@ -14,7 +14,7 @@ export class PriorityService {
         private usersRepository: Repository<User>,
         @InjectRepository(Priority)
         private priorityRepository: Repository<Priority>,
-    ) { }
+    ) {}
 
     async setPriority(
         value: number,
@@ -44,7 +44,7 @@ export class PriorityService {
             return forInsert;
         } else {
             //so we are changing existing priority
-            if (giver.priority <= value )
+            if (giver.priority <= value)
                 throw BaseError.Forbidden('Трябва да имате по-висок приоритет');
             if (giver.priority <= prior.receiver.priority.value)
                 throw BaseError.Forbidden('Целта има по-висок от вас приоритет');
@@ -52,18 +52,18 @@ export class PriorityService {
             if (prior.receiver.priority.giver)
                 if (giver.id != prior.receiver.priority.giver.id)
                     if (giver.priority <= prior.receiver.priority.giver.priority?.value)
-                        throw BaseError.Forbidden('Човека който последно е променял приоритета има повече приоритет от вас');
-
+                        throw BaseError.Forbidden(
+                            'Човека който последно е променял приоритета има повече приоритет от вас',
+                        );
 
             prior.value = value;
 
             prior.giver = giver as any as User;
 
-            await repository.update(prior.id, prior)
+            await repository.update(prior.id, prior);
             prior.receiver = null;
             prior.giver = null;
             return prior;
-
         }
     }
 }

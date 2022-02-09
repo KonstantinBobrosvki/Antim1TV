@@ -9,6 +9,7 @@ import { RightsGuard } from '../auth/guards/rights.guard';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { VideoDto } from './dto/video.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
+import { PositivePipe } from '../common/pipes/positive.pipe';
 
 @ApiTags('Videos')
 @UseGuards(AuthGuard)
@@ -26,15 +27,26 @@ export class VideosController {
         return this.videosService.suggest(createVideoDto, user);
     }
 
-    @Get()
+    @Get('/voting')
     @Rights([RightsEnum.Suggest])
     @UseGuards(RightsGuard)
     @ApiResponse({
-        description: 'Videos which should be reviewed',
+        description: 'Videos which should be able to vote from frontend',
         type: [VideoDto],
     })
-    getForVoting() {
-        return this.videosService.getForvote(30);
+    getForVoting(@User() user: UserDto) {
+        return this.videosService.getForvote(30, user);
+    }
+
+    @Get('/unmoderated')
+    @Rights([RightsEnum.Suggest])
+    @UseGuards(RightsGuard)
+    @ApiResponse({
+        description: 'Unmoderatted videos',
+        type: [VideoDto],
+    })
+    getForModerating() {
+        return this.videosService.getUnmoderated(30);
     }
 
     @Put('/:id/allow')
@@ -43,7 +55,7 @@ export class VideosController {
     @ApiResponse({
         type: VideoDto,
     })
-    async allow(@Param('id', ParseIntPipe) id: number, @User() user: UserDto) {
+    async allow(@Param('id', ParseIntPipe, PositivePipe) id: number, @User() user: UserDto) {
         return await this.videosService.Allow(id, user);
     }
 
@@ -53,15 +65,15 @@ export class VideosController {
     @ApiResponse({
         type: VideoDto,
     })
-    async disallow(@Param('id', ParseIntPipe) id: number, @User() user: UserDto) {
+    async disallow(@Param('id', ParseIntPipe, PositivePipe) id: number, @User() user: UserDto) {
         return await this.videosService.disallow(id, user);
     }
 
     @Put('/allowed/:id/vote')
     @ApiResponse({
-        description: 'returns created vote if operation was sucsedd',
+        description: 'returns created vote if operation was sucsedd.',
     })
-    async vote(@Param('id', ParseIntPipe) id: number, @User() user: UserDto) {
+    async vote(@Param('id', ParseIntPipe, PositivePipe) id: number, @User() user: UserDto) {
         return await this.videosService.vote(id, user);
     }
 }

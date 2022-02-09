@@ -17,14 +17,10 @@ import {
     RightResponse,
     setPriorityFactory,
     deleteRightRequestFactory,
-    giveRightRequestFactory
+    giveRightRequestFactory,
 } from './helpers';
 import { RightsEnum } from '../src/users/Models/Enums/rights.enum';
 import { UserDto } from '../src/users/dto/user.dto';
-
-
-
-
 
 describe('Users module e2e', () => {
     let app: INestApplication;
@@ -49,9 +45,9 @@ describe('Users module e2e', () => {
 
         setPriority = setPriorityFactory(app.getHttpServer());
 
-        giveRightRequest = giveRightRequestFactory(app.getHttpServer())
+        giveRightRequest = giveRightRequestFactory(app.getHttpServer());
 
-        deleteRightRequest = deleteRightRequestFactory(app.getHttpServer())
+        deleteRightRequest = deleteRightRequestFactory(app.getHttpServer());
     });
 
     describe('helper', () => {
@@ -399,17 +395,21 @@ describe('Users module e2e', () => {
             const user = await createUser(generateUser());
             const response = await setPriority(4, user.body.user.id, admin.access);
             expect(response.status).toBe(HttpStatus.OK);
-            expect(response.body.value).toBe(4)
-            expect(response.body).CheckSignature(class {
-                value = 5;
-            })
-            expect(Object.keys(response.body).filter(k => response.body[k] && k != 'id').length).toBe(1)
+            expect(response.body.value).toBe(4);
+            expect(response.body).CheckSignature(
+                class {
+                    value = 5;
+                },
+            );
+            expect(
+                Object.keys(response.body).filter((k) => response.body[k] && k != 'id').length,
+            ).toBe(1);
         });
 
         it('forbiden', async () => {
             const user = generateUser();
             const firstuser = await createUser(user);
-            await giveRightRequest(RightsEnum.ChangeRight, firstuser.body.user.id, admin.access)
+            await giveRightRequest(RightsEnum.ChangeRight, firstuser.body.user.id, admin.access);
 
             const user1Relogin = await makeRequest<UserResponse>({
                 url: '/auth/signin',
@@ -437,7 +437,7 @@ describe('Users module e2e', () => {
             const secondUser = await createUser(user2);
 
             await giveRightRequest(RightsEnum.ChangePriority, firstUser.body.user.id, admin.access);
-            await setPriority(600, firstUser.body.user.id, admin.access)
+            await setPriority(600, firstUser.body.user.id, admin.access);
 
             const firstRelogin = await makeRequest<UserResponse>({
                 url: '/auth/signin',
@@ -445,20 +445,24 @@ describe('Users module e2e', () => {
                 data: user1,
             });
 
-            expect(firstRelogin.body.user.priority).toBe(600)
-            expect(firstRelogin.body.user.rights).toContain(RightsEnum.ChangePriority)
+            expect(firstRelogin.body.user.priority).toBe(600);
+            expect(firstRelogin.body.user.rights).toContain(RightsEnum.ChangePriority);
 
             const prior = await setPriority(599, secondUser.body.user.id, firstRelogin.body.access);
             expect(prior.status).toBe(HttpStatus.OK);
-            expect(prior.body.value).toBe(599)
-            expect(prior.body).CheckSignature(class {
-                value = 5;
-            })
-            expect(Object.keys(prior.body).filter(k => prior.body[k] && k != 'id').length).toBe(1)
-        })
+            expect(prior.body.value).toBe(599);
+            expect(prior.body).CheckSignature(
+                class {
+                    value = 5;
+                },
+            );
+            expect(Object.keys(prior.body).filter((k) => prior.body[k] && k != 'id').length).toBe(
+                1,
+            );
+        });
 
         it('changing by same user', async () => {
-            const dto = generateUser()
+            const dto = generateUser();
             const user = await createUser(dto);
 
             const firstTry = await setPriority(100, user.body.user.id, admin.access);
@@ -470,16 +474,28 @@ describe('Users module e2e', () => {
             expect(secondTry.body.value).toBe(300);
 
             //we cant set prior higher than ours
-            const thirdTry: ApiResponse<any> = await setPriority(admin.user.priority + 1, user.body.user.id, admin.access);
+            const thirdTry: ApiResponse<any> = await setPriority(
+                admin.user.priority + 1,
+                user.body.user.id,
+                admin.access,
+            );
             expect(thirdTry.status).toBe(HttpStatus.FORBIDDEN);
             expect(thirdTry.body.message).toBe('Трябва да имате по-висок приоритет');
 
             //negative is not allowed too
-            const fourthTry: ApiResponse<any> = await setPriority(-10, user.body.user.id, admin.access);
+            const fourthTry: ApiResponse<any> = await setPriority(
+                -10,
+                user.body.user.id,
+                admin.access,
+            );
             expect(fourthTry.status).toBe(HttpStatus.BAD_REQUEST);
 
             //not rounded is not allowed too
-            const fifthTry: ApiResponse<any> = await setPriority(10.6, user.body.user.id, admin.access);
+            const fifthTry: ApiResponse<any> = await setPriority(
+                10.6,
+                user.body.user.id,
+                admin.access,
+            );
             expect(fifthTry.status).toBe(HttpStatus.BAD_REQUEST);
 
             const sixthTry = await setPriority(4, user.body.user.id, admin.access);
@@ -492,15 +508,14 @@ describe('Users module e2e', () => {
                 data: dto,
             });
 
-            expect(firstRelogin.body.user.priority).toBe(4)
-
-        })
+            expect(firstRelogin.body.user.priority).toBe(4);
+        });
 
         it('changing by higher user', async () => {
-            const dto = generateUser()
+            const dto = generateUser();
             const firstUser = await createUser(dto);
-            await giveRightRequest(RightsEnum.ChangePriority, firstUser.body.user.id, admin.access)
-            await setPriority(900, firstUser.body.user.id, admin.access)
+            await giveRightRequest(RightsEnum.ChangePriority, firstUser.body.user.id, admin.access);
+            await setPriority(900, firstUser.body.user.id, admin.access);
 
             const firstRelogin = await makeRequest<UserResponse>({
                 url: '/auth/signin',
@@ -508,20 +523,28 @@ describe('Users module e2e', () => {
                 data: dto,
             });
 
-            const dto2 = generateUser()
+            const dto2 = generateUser();
             const secondUser = await createUser(dto2);
 
-            const firstPriorChange = await setPriority(600, secondUser.body.user.id, firstRelogin.body.access);
+            const firstPriorChange = await setPriority(
+                600,
+                secondUser.body.user.id,
+                firstRelogin.body.access,
+            );
             expect(firstPriorChange.status).toBe(HttpStatus.OK);
-            expect(firstPriorChange.body.value).toBe(600)
+            expect(firstPriorChange.body.value).toBe(600);
 
             const secondPriorChange = await setPriority(500, secondUser.body.user.id, admin.access);
             expect(secondPriorChange.status).toBe(HttpStatus.OK);
-            expect(secondPriorChange.body.value).toBe(500)
+            expect(secondPriorChange.body.value).toBe(500);
 
-            const tridPriorChange = await setPriority(500, secondUser.body.user.id, firstRelogin.body.access);
+            const tridPriorChange = await setPriority(
+                500,
+                secondUser.body.user.id,
+                firstRelogin.body.access,
+            );
             expect(tridPriorChange.status).toBe(HttpStatus.FORBIDDEN);
-        })
+        });
     });
 
     describe('user', () => {
@@ -549,9 +572,9 @@ describe('Users module e2e', () => {
             const dto = generateUser();
             const user = await createUser(dto);
 
-            await giveRightRequest(RightsEnum.ChangePriority, user.body.user.id, admin.access)
-            await giveRightRequest(RightsEnum.AllowVideo, user.body.user.id, admin.access)
-            await setPriority(541, user.body.user.id, admin.access)
+            await giveRightRequest(RightsEnum.ChangePriority, user.body.user.id, admin.access);
+            await giveRightRequest(RightsEnum.AllowVideo, user.body.user.id, admin.access);
+            await setPriority(541, user.body.user.id, admin.access);
 
             const newData = await makeRequest<UserDto>({
                 url: `/users/${user.body.user.id}`,
@@ -560,11 +583,11 @@ describe('Users module e2e', () => {
                 data: {},
             });
             expect(newData.body.rights.length).toBe(2);
-            expect(newData.body.rights).toContain(RightsEnum.AllowVideo)
-            expect(newData.body.rights).toContain(RightsEnum.ChangePriority)
+            expect(newData.body.rights).toContain(RightsEnum.AllowVideo);
+            expect(newData.body.rights).toContain(RightsEnum.ChangePriority);
             expect(newData.body.priority).toBe(541);
-            expect(newData.body.email).toBeUndefined()
-        })
+            expect(newData.body.email).toBeUndefined();
+        });
     });
 
     afterAll(async () => {

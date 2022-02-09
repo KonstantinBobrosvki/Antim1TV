@@ -37,8 +37,10 @@ export class UsersService {
         }
     }
 
-    findAll(skip: number, take: number = 30) {
-        return this.usersRepository.find({ select: ['id', 'username'], skip, take });
+    findAll(skip: number, take = 30): Promise<UserDto[]> {
+        return this.usersRepository
+            .find({ select: ['id', 'username'], skip, take, relations: ['priority', 'rights'] })
+            .then((users) => users.map((user) => user.toDTO()));
     }
 
     async find(

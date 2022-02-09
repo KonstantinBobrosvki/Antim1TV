@@ -1,11 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, OneToOne, JoinColumn, PrimaryColumn } from 'typeorm';
 import { User } from '../../users/Models/user.entity';
 import { AllowedVideoDto } from '../dto/allowedVideo.dto';
 import { Video } from './video.entity';
 
 @Entity()
 export class AllowedVideo {
-    @PrimaryGeneratedColumn()
+    @PrimaryColumn({ nullable: false, name: 'id' })
     id: number;
 
     @OneToOne(() => Video, (_) => _, {
@@ -14,14 +14,14 @@ export class AllowedVideo {
         nullable: false,
         orphanedRowAction: 'delete',
     })
-    @JoinColumn()
+    @JoinColumn({ name: 'id' })
     video: Video;
 
     @Column('int', { default: 0 })
     votes: number;
 
     @Column('int', { nullable: true })
-    queuePositon: number;
+    queuePositon?: number;
 
     @OneToOne(() => User, (_) => _, {
         cascade: true,

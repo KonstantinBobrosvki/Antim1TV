@@ -34,7 +34,7 @@ export class UsersController {
         private readonly usersService: UsersService,
         private readonly rightsService: RightsService,
         private readonly priorityService: PriorityService,
-    ) { }
+    ) {}
 
     @Get()
     @Rights([[RightsEnum.BanUser], [RightsEnum.ChangePriority], [RightsEnum.ChangeRight]])
@@ -45,7 +45,7 @@ export class UsersController {
     })
     findAll(
         @Query('take', ParseIntPipe, PositivePipe) take: number,
-        @Query('skip', ParseIntPipe) skip: number,
+        @Query('skip', ParseIntPipe, PositivePipe) skip: number,
     ) {
         return this.usersService.findAll(take, skip);
     }
@@ -62,10 +62,8 @@ export class UsersController {
     @UseGuards(RightsGuard)
     async getInfo(@Param('id', ParseIntPipe, PositivePipe) id: number): Promise<UserDto> {
         const users = await this.usersService.find(undefined, { id }, ['priority', 'rights']);
-        if (users[0])
-            return users[0].toDTO();
-        else
-            throw BaseError.NotFound('Няма такъв потребител')
+        if (users[0]) return users[0].toDTO();
+        else throw BaseError.NotFound('Няма такъв потребител');
     }
 
     @Post(':id/rights')

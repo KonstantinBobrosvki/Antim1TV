@@ -6,6 +6,7 @@ dotenv.config({
 
 //clear db before test
 module.exports = async () => {
+    /*
     const client: Client = new Client({
         connectionString: `postgresql://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_DATABASE}`,
     });
@@ -15,7 +16,7 @@ module.exports = async () => {
     //wait 10 seconds for viewing db
     // await new Promise((resolve) => setTimeout(resolve, 10000))
     //Clear all tables
-    /* const result = await client.query(`DO $$ DECLARE
+     const result = await client.query(`DO $$ DECLARE
     r RECORD;
 BEGIN
     FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = current_schema()) LOOP
@@ -38,9 +39,9 @@ BEGIN
 
 END $$;
 `);
-*/
+
 
     await client.end();
-
+*/
     return true;
 };
