@@ -19,5 +19,6 @@
     }
   },
   "globalTeardown": "<rootDir>/testsSetup.ts",
-  "preset": "ts-jest"
+  "preset": "ts-jest",
+  "slowTestThreshold": 20
 }

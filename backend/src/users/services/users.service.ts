@@ -18,7 +18,7 @@ export class UsersService {
         @InjectRepository(User)
         private usersRepository: Repository<User>,
         @Inject(PriorityService) private priorityService: PriorityService,
-    ) { }
+    ) {}
 
     async create(createUserDto: CreateUserDto, manager?: EntityManager): Promise<User> {
         const repository = manager?.getRepository<User>(User) ?? this.usersRepository;
@@ -37,9 +37,14 @@ export class UsersService {
         }
     }
 
-    async findAll(skip: number = 0, take = 30): Promise<UserDto[]> {
-        const users = await this.usersRepository
-            .find({ select: ['id', 'username'], skip, take, relations: ['priority', 'rights'], order: { id: 'ASC' } });
+    async findAll(skip = 0, take = 30): Promise<UserDto[]> {
+        const users = await this.usersRepository.find({
+            select: ['id', 'username'],
+            skip,
+            take,
+            relations: ['priority', 'rights'],
+            order: { id: 'ASC' },
+        });
         return users.map((user) => user.toDTO());
     }
 
@@ -61,14 +66,16 @@ export class UsersService {
         } else {
             if (!performer.rights.includes(RightsEnum.BanUser))
                 throw BaseError.Forbidden('Нямате право да триете потребител');
-            const target = await this.usersRepository.findOne(targetId, { relations: ['priority'], select: ['id', 'username'] });
+            const target = await this.usersRepository.findOne(targetId, {
+                relations: ['priority'],
+                select: ['id', 'username'],
+            });
             if (target?.priority.value >= performer.priority)
                 throw BaseError.Forbidden('Потребителя има по-висок приоритет от вас.');
 
             await this.usersRepository.delete({ id: targetId });
 
             return target.toDTO();
-
         }
     }
 }

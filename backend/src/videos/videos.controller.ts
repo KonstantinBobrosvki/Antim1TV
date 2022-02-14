@@ -10,6 +10,7 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { VideoDto } from './dto/video.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { PositivePipe } from '../common/pipes/positive.pipe';
+import { VoteDTO } from './dto/vote.dto';
 
 @ApiTags('Videos')
 @UseGuards(AuthGuard)
@@ -72,8 +73,9 @@ export class VideosController {
     @Put('/allowed/:id/vote')
     @ApiResponse({
         description: 'returns created vote if operation was sucsedd.',
+        type: VoteDTO,
     })
     async vote(@Param('id', ParseIntPipe, PositivePipe) id: number, @User() user: UserDto) {
-        return await this.videosService.vote(id, user);
+        return await this.videosService.vote(id, user).then((res) => res.toDTO());
     }
 }

@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, OneToOne, Column } from 'typeorm';
 import { User } from '../../users/Models/user.entity';
+import { VoteDTO } from '../dto/vote.dto';
 import { AllowedVideo } from './allowedVideo.entity';
 
 @Entity()
@@ -31,4 +32,8 @@ export class Vote {
 
     @Column({ nullable: false })
     voterId: number;
+
+    toDTO(): VoteDTO {
+        return new VoteDTO(this);
+    }
 }

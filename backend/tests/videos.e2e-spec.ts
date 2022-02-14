@@ -22,12 +22,7 @@ import * as _ from './extends';
 import { RightsEnum } from '../src/users/Models/Enums/rights.enum';
 import { VideoDto } from '../src/videos/dto/video.dto';
 import { AllowedVideoDto } from '../src/videos/dto/allowedVideo.dto';
-
-type Vote = {
-    id: number;
-    voterId: number;
-    videoId: number;
-};
+import { VoteDTO } from '../src/videos/dto/vote.dto';
 
 describe('Videos module e2e', () => {
     let app: INestApplication;
@@ -528,7 +523,7 @@ describe('Videos module e2e', () => {
             expect(result.body.length).toBeLessThanOrEqual(30);
 
             const video = result.body[Math.floor(Math.random() * result.body.length)];
-            const firstTry = await makeRequest<Vote>({
+            const firstTry = await makeRequest<VoteDTO>({
                 url: `/videos/allowed/${video.id}/vote`,
                 method: 'put',
                 data: {},
@@ -537,9 +532,9 @@ describe('Videos module e2e', () => {
             expect(firstTry.status).toBe(HttpStatus.OK);
             expect(firstTry.body.videoId).toBe(video.id);
             expect(firstTry.body.voterId).toBe(admin.user.id);
-            expect(Object.keys(firstTry.body).length).toBe(3);
+            expect(Object.keys(firstTry.body).length).toBe(2);
 
-            const thirddTry = await makeRequest<Vote>({
+            const thirddTry = await makeRequest<VoteDTO>({
                 url: `/videos/allowed/${video.id}/vote`,
                 method: 'put',
                 data: {},
@@ -548,7 +543,7 @@ describe('Videos module e2e', () => {
             expect(thirddTry.status).toBe(HttpStatus.OK);
             expect(thirddTry.body.videoId).toBe(video.id);
             expect(thirddTry.body.voterId).toBe(dummy.body.user.id);
-            expect(Object.keys(thirddTry.body).length).toBe(3);
+            expect(Object.keys(thirddTry.body).length).toBe(2);
         });
     });
 

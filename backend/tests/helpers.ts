@@ -4,6 +4,7 @@ import { CreateUserDto } from '../src/auth/dto/create-user.dto';
 import { UserDto } from '../src/users/dto/user.dto';
 import { randomUUID } from 'crypto';
 import { RightsEnum } from '../src/users/Models/Enums/rights.enum';
+import { Client, Pool } from 'pg';
 
 export type ApiResponse<T = any> = {
     status: number;
@@ -179,6 +180,11 @@ export const deleteRightRequestFactory: SenderFuncFactory<RightsEnum, RightsEnum
                 right,
             },
         });
+
+export const DB_Client = new Pool({
+    max: 20,
+    connectionString: `postgresql://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_DATABASE}`,
+});
 
 function RandomCombiner(
     array1: string[],

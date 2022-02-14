@@ -17,6 +17,10 @@ export class QueuesController {
     @Post()
     @Rights([RightsEnum.ChangeTv])
     @UseGuards(RightsGuard)
+    @ApiResponse({
+        type: Queue,
+        description: 'Add new queue',
+    })
     async create(@Body() createQueueDto: CreateQueueDto) {
         return await this.queuesService.create(createQueueDto);
     }

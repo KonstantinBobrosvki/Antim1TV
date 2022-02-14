@@ -26,6 +26,7 @@ import { PriorityService } from './services/priority.service';
 import { ChangePriorityDto } from './dto/changePriority.dto';
 import BaseError from '../common/errors/BaseError.error';
 import { RangePipe } from '../common/pipes/range.pipe';
+import { Priority } from './Models/priority.entity';
 
 @ApiTags('Users')
 @Controller('users')
@@ -35,7 +36,7 @@ export class UsersController {
         private readonly usersService: UsersService,
         private readonly rightsService: RightsService,
         private readonly priorityService: PriorityService,
-    ) { }
+    ) {}
 
     @Get()
     @Rights([[RightsEnum.BanUser], [RightsEnum.ChangePriority], [RightsEnum.ChangeRight]])
@@ -54,6 +55,10 @@ export class UsersController {
     @Delete(':id')
     @Rights([[RightsEnum.BanUser], []])
     @UseGuards(RightsGuard)
+    @ApiResponse({
+        type: UserDto,
+        description: 'Return deleted user if operation was done',
+    })
     remove(@Param('id', ParseIntPipe, PositivePipe) id: number, @User() user: UserDto) {
         return this.usersService.remove(id, user);
     }
@@ -61,6 +66,10 @@ export class UsersController {
     @Get(':id')
     @Rights([[RightsEnum.BanUser], [RightsEnum.ChangePriority], [RightsEnum.ChangeRight]])
     @UseGuards(RightsGuard)
+    @ApiResponse({
+        description: 'Returns info about one user',
+        type: UserDto,
+    })
     async getInfo(@Param('id', ParseIntPipe, PositivePipe) id: number): Promise<UserDto> {
         const users = await this.usersService.find(undefined, { id }, ['priority', 'rights']);
         if (users[0]) return users[0].toDTO();
@@ -70,6 +79,10 @@ export class UsersController {
     @Post(':id/rights')
     @Rights([RightsEnum.ChangeRight])
     @UseGuards(RightsGuard)
+    @ApiResponse({
+        description: 'Adds right to user',
+        type: Number,
+    })
     async addRight(
         @Body() body: ChangeRightDto,
         @Param('id', ParseIntPipe, PositivePipe) targetid: number,
@@ -82,6 +95,10 @@ export class UsersController {
     @Delete(':id/rights')
     @Rights([RightsEnum.ChangeRight])
     @UseGuards(RightsGuard)
+    @ApiResponse({
+        description: 'Returns rights that user have after deleting',
+        type: [Number],
+    })
     deleteRight(
         @Body() body: ChangeRightDto,
         @Param('id', ParseIntPipe, PositivePipe) targetid: number,
@@ -93,6 +110,10 @@ export class UsersController {
     @Put(':id/priority')
     @Rights([RightsEnum.ChangePriority])
     @UseGuards(RightsGuard)
+    @ApiResponse({
+        description: 'Returns new priority',
+        type: Priority,
+    })
     changePriority(
         @Body() body: ChangePriorityDto,
         @Param('id', ParseIntPipe, PositivePipe) targetid: number,

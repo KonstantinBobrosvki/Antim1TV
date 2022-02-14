@@ -12,7 +12,7 @@ expect.extend({
         const check = (objectA: object, objectB: object) => {
             for (const key in objectA) {
                 if (objectA[key] == null || objectA[key] == undefined) continue;
-                if (!objectB[key])
+                if (!(key in objectB))
                     return {
                         message: () => `expected key ${key} in ${JSON.stringify(objectB)}`,
                         pass: false,
