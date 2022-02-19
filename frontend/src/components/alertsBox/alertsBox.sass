@@ -1,0 +1,27 @@
+#MessagesArea
+    position: fixed
+    width: 30vw
+    right: 0
+    bottom: 0
+    z-index: 10
+    pointer-events: none
+    div
+        z-index: inherit
+
+.error
+    color: red
+
+.flash
+    margin-top: 40px
+    opacity: 0.7
+
+.error-hide
+    animation: TextHideAnim 6s forwards
+
+.message-hide
+    animation: TextHideAnim 10s forwards
+
+@keyframes TextHideAnim
+    to
+        opacity: 0
+        display: none

@@ -14,7 +14,7 @@ export class AuthService {
     constructor(
         @Inject(UsersService) private usersService: UsersService,
         @Inject(PriorityService) private priorityService: PriorityService,
-    ) {}
+    ) { }
 
     async register(createUserDto: CreateUserDto): Promise<UserDto> {
         return new Promise(async (resolve, reject) => {
@@ -52,12 +52,10 @@ export class AuthService {
         const pretendent = (
             await this.usersService.find(
                 ['id', 'password', 'email', 'username'],
-                {
-                    ...(loginUserDto.username && {
-                        username: loginUserDto.username,
-                    }),
-                    ...(loginUserDto.email && { email: loginUserDto.email.toLowerCase() }),
-                },
+                [
+                    { username: loginUserDto.username },
+                    { email: loginUserDto.email?.toLowerCase() }
+                ],
                 ['rights', 'priority'],
             )
         )[0];

@@ -1,0 +1,75 @@
+.tab-name-auth
+    color: white !important
+    background: none !important
+    font-size: 2em !important
+    text-decoration: none!important
+
+.tab-name-auth.active
+    border-bottom: 5px solid #2ecc71 !important
+
+.forms-container
+    ul
+        white-space: nowrap 
+        text-overflow: ellipsi
+
+.forms-container
+    margin: 20px
+    border: none
+    border-radius: 10px
+    padding: 2px
+    background: #191919
+    text-align: center
+    transition: all 0.25s
+    margin-top: 100px
+    min-height: 50vh
+
+    a
+        text-decoration: none
+
+    form
+        padding: 40px
+        display: flex
+        flex-direction: column
+
+    input[type="text"],input[type="password"]
+        border: 0
+        background: none
+        display: block
+        margin: 20px auto
+        text-align: center
+        border: 2px solid #3498db
+        padding: 10px 10px
+        width: min(90%,250px)
+        outline: none
+        color: white
+        border-radius: 24px
+        transition: 0.25s
+
+    h1
+        color: white
+        text-decoration: none
+        font-weight: 500
+
+    input[type="text"]:focus,
+    input[type="password"]:focus
+        width: min(110%,300px)
+        border-color: #2ecc71
+        margin-left: auto
+        margin-right: auto
+
+    input[type="button"]
+        border: 0
+        background: none
+        display: block
+        margin: 20px auto
+        text-align: center
+        border: 2px solid #2ecc71
+        padding: 14px 40px
+        outline: none
+        color: white
+        border-radius: 24px
+        transition: 0.25s
+        cursor: pointer
+
+        &:hover
+            background: #2ecc71

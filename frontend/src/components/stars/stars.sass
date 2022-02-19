@@ -1,0 +1,35 @@
+@function box-shadow-random ($n, $sc)
+  $value: '#{random(2000)}px #{random(2000)}px #{$sc}'
+  @for $i from 2 through $n
+    $value: '#{$value} , #{random(2000)}px #{random(2000)}px #{$sc}'
+
+  @return unquote($value)
+  @return unquote($sc)
+
+#start-container
+  overflow: hidden
+  position: absolute
+  width: 100%
+  z-index: -1
+  height: 100%
+  width: 1.5px
+  height: 1.5px
+  background: transparent
+  box-shadow: box-shadow-random(500,"#fff")
+  animation: animStar 50s linear infinite
+
+#start-container:after
+  content: ' '
+  position: absolute
+  top: 2000px
+  width: 1px
+  height: 1px
+  background: transparent
+  box-shadow: box-shadow-random(200,"#fff")
+
+@keyframes animStar
+  from
+    transform: translateY(0px)
+
+  to
+    transform: translateY(-2000px)

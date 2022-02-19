@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, EntityManager, FindConditions } from 'typeorm';
+import { Repository, EntityManager, FindConditions, FindOneOptions, ObjectLiteral } from 'typeorm';
 
 import { CreateUserDto } from '../../auth/dto/create-user.dto';
 import { User } from '../Models/user.entity';
@@ -50,7 +50,7 @@ export class UsersService {
 
     async find(
         select: (keyof User)[] = ['id', 'username'],
-        where: FindConditions<User>,
+        where: string | ObjectLiteral | FindConditions<User> | FindConditions<User>[],
         relations: UserRelations[] = [],
     ) {
         const res = await this.usersRepository.find({ select, where, relations });

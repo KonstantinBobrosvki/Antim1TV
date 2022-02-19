@@ -3,3 +3,7 @@ backend/dist
 *.env
 backend/.eslintrc.js
 backend/.prettierrc
+
+
+frontend/node_modules/
+frontend/build/
