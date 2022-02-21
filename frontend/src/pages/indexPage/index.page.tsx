@@ -1,7 +1,7 @@
 import { IPage } from "../type"
 import { CatRandom } from "../../components/randomCat/randomCat";
 import './index.page.sass'
-
+import { HouseDoorFill } from 'react-bootstrap-icons'
 export const IndexPage: IPage = Object.assign(() => (<div className="index-page">
     <CatRandom />
 </div>)
@@ -9,7 +9,8 @@ export const IndexPage: IPage = Object.assign(() => (<div className="index-page"
     {
         checkAccess: () => true,
         path: '/',
-        pageName: 'Главна'
+        pageName: (<><HouseDoorFill /> Начало</>),
+        showable: true
     }
 
 )

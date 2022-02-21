@@ -9,16 +9,20 @@ export const AppRouter = () => {
     return (<Routes>
         {
             routes.map(route => {
-                if ((route as any).Page) {
+                if ('Page' in route) {
                     const Page: IPage = (route as any).Page;
                     return (<Route path={Page.path}
                         key={Page.path}
-                        element={<Page/>}
+                        element={<Page />}
                     />)
                 }
-
+                return route.subRoutes.map(SubRoute => (
+                    <Route path={route.baseUrl + SubRoute.path}
+                        key={route.baseUrl + SubRoute.path}
+                        element={<SubRoute />}
+                    />
+                ))
             })
-
         }
     </Routes>)
 }

@@ -27,7 +27,7 @@ export const alertsSlice = createSlice({
             state.alerts = [];
         },
         remove(state, action: PayloadAction<Alert>) {
-            state.alerts = state.alerts.filter(alert => alert.type == action.payload.type && alert.message == action.payload.message)
+            state.alerts = state.alerts.filter(alert => alert.type === action.payload.type && alert.message === action.payload.message)
         }
     }
 })

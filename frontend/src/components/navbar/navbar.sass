@@ -1,9 +1,33 @@
 .nav-link
     font-size: 1.2em
     font-weight: 500
+    display: flex
+    align-items: flex-end
 
 .nav-link.active
     border-bottom: 5px solid #84ff12
 
 .navbar-brand.active
-        border-bottom: none
+    border-bottom: none
+
+.nav-item.dropdown
+    padding-left: 0 !important
+
+.dropdown-toggle.nav-link
+    align-items: center
+
+.nav-item
+    .dropdown-menu
+        margin: 1em
+        .dropdown-item
+            .nav-link
+                display: block
+                width: 100%
+                padding: .25rem 1rem
+                clear: both
+                font-weight: 400
+                color: #212529
+                text-align: inherit
+                text-decoration: none
+                white-space: nowrap
+                background-color: transparent

@@ -1,10 +1,13 @@
+import React from "react";
 import { UserDto } from "../../../backend/src/users/dto/user.dto";
 import { IPage } from "../pages/type";
 
-export type route = { Page: IPage } | { baseUrl: string, name: string, subRoutes: IPage[] }
+export type SubRoute = { baseUrl: string, name: string | ReturnType<typeof React.createElement>, subRoutes: IPage[] }
+export type route = { Page: IPage } | SubRoute
 
 export type UserResponse = {
-    //for normal logic in check signature dont touch
     user: UserDto
     access: string
 }
+
+export type Awaited<T> = T extends PromiseLike<infer U> ? U : T

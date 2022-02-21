@@ -6,10 +6,12 @@ import './app.sass'
 function App() {
   return (
     <>
-      <AppNavbar/>
-      <AlertsBox/>
-      <Stars/>
-      <AppRouter />
+      <AppNavbar />
+      <AlertsBox />
+      <Stars />
+      <div className='page-wrapper'>
+        <AppRouter />
+      </div>
     </>
 
   );

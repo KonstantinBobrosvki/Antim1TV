@@ -65,10 +65,13 @@ export class AppModule implements OnModuleInit {
         private readonly rightService: RightsService,
         private readonly priorityService: PriorityService,
         private readonly queuesService: QueuesService,
-    ) {}
+    ) { }
 
     async onModuleInit() {
-        if (process.env.NODE_ENV != 'DEV' && process.env.NODE_ENV != 'test') return;
+        if (!((process.env.NODE_ENV == 'dev') || (process.env.NODE_ENV == 'test')))
+            return;
+        console.log('Filling db');
+
         //CREate admin
         try {
             //password is password
@@ -80,7 +83,7 @@ export class AppModule implements OnModuleInit {
             await this.rightService.AddAll(admin.id);
             await this.priorityService.setPriority(10000, admin.id, admin.toDTO());
         } catch (error) {
-            if (process.env.NODE_ENV == 'DEV') console.log(error);
+            if (process.env.NODE_ENV == 'dev') console.log(error);
             //there will be errors, be calm everything is ok
         }
 
@@ -89,7 +92,7 @@ export class AppModule implements OnModuleInit {
             await this.queuesService.create({ name: 'Main' });
             await this.queuesService.create({ name: 'Second floor' });
         } catch (error) {
-            if (process.env.NODE_ENV == 'DEV') console.log(error);
+            if (process.env.NODE_ENV == 'dev') console.log(error);
         }
     }
 
