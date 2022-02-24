@@ -40,9 +40,12 @@ import * as path from 'path';
             synchronize: true,
             autoLoadEntities: true,
             logging: process.env.NODE_ENV == 'DEV',
+            ssl: !process.env.DATABASE_URL ? false : {
+                rejectUnauthorized: false
+            }
         }),
         ServeStaticModule.forRoot({
-            rootPath: path.join(__dirname, '../../../../', 'frontend', 'build'),
+            rootPath: path.join(__dirname, '../../../', 'frontend', 'build'),
         }),
         UsersModule,
         AuthModule,
