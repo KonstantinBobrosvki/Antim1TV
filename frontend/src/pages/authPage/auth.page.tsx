@@ -1,5 +1,5 @@
 import { IPage } from "../type"
-import { AuthFrom } from "../../components/authForm/authForm";
+import { AuthFrom } from "./authForm/authForm";
 import { UserState } from "../../store/reducers/userSlice";
 import { Person } from "react-bootstrap-icons";
 

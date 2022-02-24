@@ -19,6 +19,8 @@ import { RightsService } from '../users/services/rights.service';
 import { UsersService } from '../users/services/users.service';
 import { UsersModule } from '../users/users.module';
 import { VideosModule } from '../videos/videos.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import * as path from 'path';
 
 @Module({
     imports: [
@@ -28,14 +30,19 @@ import { VideosModule } from '../videos/videos.module';
         }),
         TypeOrmModule.forRoot({
             type: 'postgres',
-            host: process.env.DB_HOST,
-            port: +process.env.DB_PORT,
-            username: process.env.DB_USERNAME,
-            password: process.env.DB_PASSWORD,
-            database: process.env.DB_DATABASE,
+            ...(process.env.DATABASE_URL ? { url: process.env.DATABASE_URL } : {
+                host: process.env.DB_HOST,
+                port: +process.env.DB_PORT,
+                username: process.env.DB_USERNAME,
+                password: process.env.DB_PASSWORD,
+                database: process.env.DB_DATABASE
+            }),
             synchronize: true,
             autoLoadEntities: true,
             logging: process.env.NODE_ENV == 'DEV',
+        }),
+        ServeStaticModule.forRoot({
+            rootPath: path.join(__dirname, '../../../../', 'frontend', 'build'),
         }),
         UsersModule,
         AuthModule,

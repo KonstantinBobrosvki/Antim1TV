@@ -1,10 +1,10 @@
 import { AxiosError } from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useState } from 'react';
-import { AuthApi } from '../../API/auth.api';
-import { useAppDispatch } from '../../hooks/redux';
-import { alertsSlice } from '../../store/reducers/alertsSlice';
-import { userSlice } from '../../store/reducers/userSlice';
+import { AuthApi } from '../../../API/auth.api';
+import { useAppDispatch } from '../../../hooks/redux';
+import { alertsSlice } from '../../../store/reducers/alertsSlice';
+import { userSlice } from '../../../store/reducers/userSlice';
 import './authForm.sass'
 
 export const SignInForm = () => {

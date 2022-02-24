@@ -2,11 +2,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { useState } from 'react';
 import './authForm.sass'
 
-import { AuthApi } from '../../API/auth.api';
+import { AuthApi } from '../../../API/auth.api';
 import { AxiosError } from 'axios';
-import { useAppDispatch } from '../../hooks/redux';
-import { userSlice } from '../../store/reducers/userSlice';
-import { alertsSlice } from '../../store/reducers/alertsSlice';
+import { useAppDispatch } from '../../../hooks/redux';
+import { userSlice } from '../../../store/reducers/userSlice';
+import { alertsSlice } from '../../../store/reducers/alertsSlice';
 
 export const SignUpForm = () => {
     const [password, setPassword] = useState<string>('');

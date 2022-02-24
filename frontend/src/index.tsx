@@ -6,7 +6,7 @@ import { BrowserRouter } from "react-router-dom";
 import App from './components/app/App';
 import { setupStore } from './store/store';
 
-axios.defaults.baseURL = 'http://localhost:5050/api/';
+axios.defaults.baseURL = process.env.REACT_APP_URL ?? '/';
 
 const store = setupStore()
 

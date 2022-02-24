@@ -19,6 +19,11 @@ export const usePageFilter = (): route[] => {
             if (filtedSubRoutes.length == 0)
                 return false;
 
+            if (filtedSubRoutes.length == 1) {
+                (routes[index] as any).Page = filtedSubRoutes[0]; 
+                return true
+            }
+
             (routes[index] as any).subRoutes = filtedSubRoutes;
 
             return true;
