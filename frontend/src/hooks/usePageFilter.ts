@@ -3,7 +3,6 @@ import { routes } from '../pages'
 import { IPage } from '../pages/type';
 import { route } from '../shared/types';
 import { useAppSelector } from './redux';
-let last: any;
 
 export const usePageFilter = (): route[] => {
 

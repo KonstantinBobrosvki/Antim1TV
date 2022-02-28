@@ -1,4 +1,5 @@
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
+import { BrokenImageURL } from "../shared/consts";
 
 export type VideoDto = {
     id: number;
@@ -13,19 +14,52 @@ export type YoutubeVideo = {
 }
 
 export class VideosApi {
-    static GetMine(bearer: string,skip:number=0): Promise<VideoDto[]> {
+    static GetMine(bearer: string, skip: number = 0): Promise<AxiosResponse<VideoDto[]>> {
 
-        return axios.get('/videos/mine?take=30&skip='+skip*30,
+        return axios.get('/videos/mine?take=30&skip=' + skip * 30,
             {
                 headers: {
                     authorization: 'Bearer ' + bearer
                 }
-            }).then((res) => {
-                return res.data
             })
     }
 
-    static GetYouTubeMetadata(videourl: string): Promise<YoutubeVideo> {
-        return fetch(`https://www.youtube.com/oembed?url=${videourl}&format=json`).then(res => res.json())
+    static GetForVote(bearer: string) {
+        return axios.get('/videos/voting',
+            {
+                headers: {
+                    authorization: 'Bearer ' + bearer
+                }
+            }).then(res => res.data as VideoDto[])
+    }
+
+    static async GetYouTubeMetadata(videourl: string): Promise<AxiosResponse<YoutubeVideo>> {
+       return await axios.get(`https://www.youtube.com/oembed?url=${videourl}&format=json`)
+    }
+
+    static Suggest(videoUrl: string, queueId: number, bearer: string) {
+        return axios.post('/videos/',
+            {
+
+                videoLink: videoUrl,
+                queueId
+
+
+            }, {
+            headers: {
+                authorization: 'Bearer ' + bearer
+            }
+        }).then(res => res.data as VideoDto)
+    }
+
+    static Vote(videoId: string, bearer: string): Promise<{
+        "videoId": number,
+        "voterId": number
+    }> {
+        return axios.put(`/videos/allowed/${videoId}/vote`, {}, {
+            headers: {
+                authorization: 'Bearer ' + bearer
+            }
+        }).then(res => res.data)
     }
 }

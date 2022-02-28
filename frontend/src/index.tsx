@@ -6,17 +6,15 @@ import { BrowserRouter } from "react-router-dom";
 import App from './components/app/App';
 import { setupStore } from './store/store';
 
-axios.defaults.baseURL = process.env.REACT_APP_URL ?? '/';
+axios.defaults.baseURL = process.env.REACT_APP_URL ?? '/api/';
 
 const store = setupStore()
 
 ReactDOM.render(
-  <React.StrictMode>
     <Provider store={store}>
       <BrowserRouter>
         <App />
       </BrowserRouter>
-    </Provider>
-  </React.StrictMode>,
+    </Provider>,
   document.getElementById('root')
 );

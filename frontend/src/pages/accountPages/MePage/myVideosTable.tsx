@@ -5,22 +5,16 @@ import { useAppSelector } from "../../../hooks/redux"
 import './mePage.sass'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import { TVApi } from "../../../API/TV.api";
+import { useTvs } from "../../../hooks/useTvs";
 
 export const MyVideosTable = () => {
     const userState = useAppSelector(state => state.userReducer);
     const [myVideos, setMyVideos] = useState<VideoDto[]>()
-    const [remoteTvs, setRemoteTvs] = useState<Awaited<ReturnType<typeof TVApi.GetTvs>>>();
     const [metadatas, setMetadatas] = useState<(YoutubeVideo & VideoDto)[]>();
     const [page, setPage] = useState(0);
 
-
-
     useEffect(() => {
-        TVApi.GetTvs(userState.user!.access).then(setRemoteTvs)
-    }, [])
-
-    useEffect(() => {
-        VideosApi.GetMine(userState.user!.access, page).then(setMyVideos);
+        VideosApi.GetMine(userState.user!.access, page).then(res => res.data).then(setMyVideos);
     }, [page])
 
     useEffect(() => {
@@ -40,12 +34,7 @@ export const MyVideosTable = () => {
 
     }, [myVideos])
 
-
-
-    const tvIdToName = useCallback((id: number) => {
-        return remoteTvs!.find(tv => tv.id === id)?.name || 'Изтрит телевизор'
-    }, [remoteTvs])
-
+    const { tvs, tvIdToName } = useTvs();
 
     if (typeof metadatas === 'undefined')
         return (
