@@ -10,7 +10,7 @@ export const usePageFilter = (): route[] => {
 
     const filtred = useMemo(() => {
         return routes.filter((route, index) => {
-            if ((route as any).Page) {
+            if ("Page" in route) {
                 return ((route as any).Page as IPage).checkAccess(userState)
             }
             //so it is sub domain
@@ -19,7 +19,8 @@ export const usePageFilter = (): route[] => {
                 return false;
 
             if (filtedSubRoutes.length == 1) {
-                (routes[index] as any).Page = filtedSubRoutes[0]; 
+                const page = filtedSubRoutes[0];
+                    (routes[index] as any).Page = Object.assign(page, { path: route.baseUrl + page.path });
                 return true
             }
 

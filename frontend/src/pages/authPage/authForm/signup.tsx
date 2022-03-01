@@ -7,6 +7,7 @@ import { AxiosError } from 'axios';
 import { useAppDispatch } from '../../../hooks/redux';
 import { userSlice } from '../../../store/reducers/userSlice';
 import { alertsSlice } from '../../../store/reducers/alertsSlice';
+import { useNavigate } from 'react-router-dom';
 
 export const SignUpForm = () => {
     const [password, setPassword] = useState<string>('');
@@ -14,7 +15,7 @@ export const SignUpForm = () => {
     const [email, setEmail] = useState<string>('')
     const [errors, setError] = useState<Set<string>>(new Set())
     const dispatch = useAppDispatch();
-
+    const navigate = useNavigate();
     const onUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const message = 'Потребителското име трябва да е от 6 до 29 символа'
         setUsername(event.target.value)
@@ -50,10 +51,11 @@ export const SignUpForm = () => {
         try {
             const user = await AuthApi.SignUp(username, email, password)
             dispatch(userSlice.actions.login(user))
+            setTimeout(() => navigate('/users/me'),10)
 
         } catch (error) {
             const status = (error as AxiosError).response?.status
-            const message: string = (error as AxiosError).response?.data.message
+            const message: string = (error as AxiosError).response?.data.message ?? (error as any).message
             dispatch(alertsSlice.actions.add({ type: 'danger', message }))
         }
     }

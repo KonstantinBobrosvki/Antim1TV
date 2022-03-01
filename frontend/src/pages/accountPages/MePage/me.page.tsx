@@ -1,22 +1,24 @@
-import { Col, Container, Row } from "react-bootstrap";
-import { useAppSelector } from "../../../hooks/redux";
+import { Col, Container, Row, Button } from "react-bootstrap";
+import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
 import { RightsEnumTranslated } from "../../../shared/RightEnum";
-import { UserState } from "../../../store/reducers/userSlice";
+import { userSlice, UserState } from "../../../store/reducers/userSlice";
 import 'bootstrap/dist/css/bootstrap.min.css'
 import { IPage } from "../../type";
 import './mePage.sass'
-import { TVApi } from "../../../API/TV.api";
-import { useEffect, useState } from "react";
-import { Awaited } from '../../../shared/types'
 import { TvSection } from "./tvSection";
 import { MyVideosTable } from "./myVideosTable";
+import { Center } from "../../../components/Center/Center";
+import { useNavigate } from "react-router-dom";
 export const MePage: IPage = Object.assign(
     () => {
-
+        const navigate = useNavigate();
         const userState = useAppSelector(state => state.userReducer);
         const user = userState.user!.user;
-
-
+        const dispatch = useAppDispatch();
+        const onLogoutClick = () => {
+            dispatch(userSlice.actions.logout(null));
+            navigate('/')
+        }
 
         return (<Container>
             <Col xs={12}>
@@ -24,6 +26,8 @@ export const MePage: IPage = Object.assign(
                     излезте и влезте в акаунта си отново.</h1>
             </Col>
             <hr className="splitter" />
+
+
 
             <Col xs={12}>
                 <h2 style={{ textAlign: 'center' }}>Вашите права</h2>
@@ -51,7 +55,16 @@ export const MePage: IPage = Object.assign(
             <hr className="splitter" />
 
             <MyVideosTable />
-            
+
+            <hr className="splitter" />
+
+            <Col xs={12}>
+                <Center>
+                    <Button size="lg" onClick={onLogoutClick} variant='danger'>Излез от акаунт</Button>
+                </Center>
+            </Col>
+
+
         </Container >)
     },
     {

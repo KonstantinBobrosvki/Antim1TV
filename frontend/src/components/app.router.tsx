@@ -1,5 +1,6 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { usePageFilter } from '../hooks/usePageFilter'
+import NotFoundPage from '../pages/NotFoundPage/NotFoundPage';
 import { IPage } from '../pages/type';
 
 export const AppRouter = () => {
@@ -24,5 +25,9 @@ export const AppRouter = () => {
                 ))
             })
         }
+
+        <Route path="/404" element={<NotFoundPage />} key='404' />
+        
+        <Route path="*" element={<Navigate to='/404'/>} key='navigate'/>
     </Routes>)
 }
