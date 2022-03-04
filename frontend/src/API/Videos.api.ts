@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from "axios";
 import { BrokenImageURL } from "../shared/consts";
-
+import { AllowedVideoDto } from '../../../backend/src/videos/dto/allowedVideo.dto'
 export type VideoDto = {
     id: number;
     link: string;
@@ -34,7 +34,7 @@ export class VideosApi {
     }
 
     static async GetYouTubeMetadata(videourl: string): Promise<AxiosResponse<YoutubeVideo>> {
-       return await axios.get(`https://www.youtube.com/oembed?url=${videourl}&format=json`)
+        return await axios.get(`https://www.youtube.com/oembed?url=${videourl}&format=json`)
     }
 
     static Suggest(videoUrl: string, queueId: number, bearer: string) {
@@ -61,5 +61,29 @@ export class VideosApi {
                 authorization: 'Bearer ' + bearer
             }
         }).then(res => res.data)
+    }
+
+    static GetUnmoderated(bearer: string): Promise<VideoDto[]> {
+        return axios.get(`/videos/unmoderated`, {
+            headers: {
+                authorization: 'Bearer ' + bearer
+            }
+        }).then(res => res.data as VideoDto[])
+    }
+
+    static RejectVideo(videoId: number, bearer: string): Promise<AllowedVideoDto> {
+        return axios.put(`/videos/${videoId}/disallow`, {}, {
+            headers: {
+                authorization: 'Bearer ' + bearer
+            }
+        }).then(res => res.data as AllowedVideoDto)
+    }
+
+    static AllowVideo(videoId: number, bearer: string): Promise<AllowedVideoDto> {
+        return axios.put(`/videos/${videoId}/allow`, {}, {
+            headers: {
+                authorization: 'Bearer ' + bearer
+            }
+        }).then(res => res.data as AllowedVideoDto)
     }
 }

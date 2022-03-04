@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import { FC,useEffect } from 'react'
 import { Card } from 'react-bootstrap';
 import { VideosApi, YoutubeVideo } from '../../API/Videos.api';
 import { useFetching } from '../../hooks/useFetching';
@@ -7,13 +7,17 @@ import { TextLoader } from '../Loaders/TextLoader/TextLoader';
 
 type VideoBoxProps = {
     videoUrl: string,
-    onFailLoad?: (videoUrl:string)=>any
+    onFailLoad?: (videoUrl: string) => any
 };
 
 
 export const VideoBox: FC<VideoBoxProps> = ({ children, videoUrl, onFailLoad = () => { } }) => {
 
     const { result, isLoading, error } = useFetching<YoutubeVideo>(VideosApi.GetYouTubeMetadata(videoUrl).then(res => res.data))
+    useEffect(() => {
+        onFailLoad(videoUrl);
+    }, [error])
+
     if (isLoading)
         return (<Card>
             <Card.Img variant="top" src={LoadingGifURL} />
@@ -22,7 +26,7 @@ export const VideoBox: FC<VideoBoxProps> = ({ children, videoUrl, onFailLoad = (
             </Card.Body>
         </Card>)
     if (error) {
-        onFailLoad(videoUrl);
+
         return (<Card>
             <Card.Img variant="top" src={BrokenImageURL} />
             <Card.Body>

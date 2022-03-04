@@ -6,12 +6,15 @@ import './mePage.sass'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import { TVApi } from "../../../API/TV.api";
 import { useTvs } from "../../../hooks/useTvs";
+import { useDispatch } from "react-redux";
+import { alertsSlice } from "../../../store/reducers/alertsSlice";
 
 export const MyVideosTable = () => {
     const userState = useAppSelector(state => state.userReducer);
     const [myVideos, setMyVideos] = useState<VideoDto[]>()
     const [metadatas, setMetadatas] = useState<(YoutubeVideo & VideoDto)[]>();
     const [page, setPage] = useState(0);
+    const dispatch = useDispatch();
 
     useEffect(() => {
         VideosApi.GetMine(userState.user!.access, page).then(res => res.data).then(setMyVideos);
@@ -22,7 +25,7 @@ export const MyVideosTable = () => {
             if (myVideos)
                 await Promise.all(myVideos?.map(async video => {
                     try {
-                        const metadata = await VideosApi.GetYouTubeMetadata(video.link)
+                        const metadata = await VideosApi.GetYouTubeMetadata(video.link).then(res => res.data)
                         return { ...video, ...metadata }
                     } catch (error) {
                         return video as any;
@@ -35,6 +38,20 @@ export const MyVideosTable = () => {
     }, [myVideos])
 
     const { tvs, tvIdToName } = useTvs();
+
+    const onNextPageClick = () => {
+        setPage((state) => state + 1)
+        dispatch(alertsSlice.actions.add({ type: 'info', message: `Сега сте на страница ${page + 2}` }))
+    }
+
+    const onPrevPageClick = () => {
+        if (page <= 0) {
+            dispatch(alertsSlice.actions.add({ type: 'warning', message: `Сега сте на първа страница` }))
+            return
+        }
+        setPage((state) => state - 1)
+        dispatch(alertsSlice.actions.add({ type: 'info', message: `Сега сте на ${page} страница` }))
+    }
 
     if (typeof metadatas === 'undefined')
         return (
@@ -85,11 +102,11 @@ export const MyVideosTable = () => {
 
             <Row className='justify-content-between'>
                 <Col xs={5} md={3}>
-                    <Button className="w-100" onClick={() => setPage((state) => state - 1 ?? 0)}>Предишни</Button>
+                    <Button className="w-100" onClick={onPrevPageClick}>Предишни</Button>
 
                 </Col>
                 <Col xs={5} md={3}>
-                    <Button className="w-100" onClick={() => setPage((state) => state + 1)}>Следващи</Button>
+                    <Button className="w-100" onClick={onNextPageClick}>Следващи</Button>
                 </Col>
             </Row>
         </Col>

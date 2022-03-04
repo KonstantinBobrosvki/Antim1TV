@@ -5,13 +5,14 @@ import { Center } from "../../../components/Center/Center"
 import { useAppDispatch, useAppSelector } from "../../../hooks/redux"
 import { useTvs } from "../../../hooks/useTvs"
 import { alertsSlice } from "../../../store/reducers/alertsSlice"
-import { AxiosError } from "axios";
 import './sendVideo.sass'
 
 export const SendVideoForm = () => {
     const token = useAppSelector(state => state.userReducer.user!.access)
+    const defaultTvs = useAppSelector(state => state.userReducer.TvsId)
+
     const [input, setInput] = useState('')
-    const [choosenTv, setChoosenTv] = useState<number>(0);
+    const [choosenTv, setChoosenTv] = useState<number>((defaultTvs && defaultTvs[0]) || 0);
     const dispatch = useAppDispatch();
     const { tvs, tvIdToName } = useTvs();
 
@@ -20,14 +21,12 @@ export const SendVideoForm = () => {
             dispatch(alertsSlice.actions.add({ type: 'warning', message: 'Приемат се само линкове от ютуб' }))
             return;
         }
-        if(choosenTv==0)
-        {
+        if (choosenTv == 0) {
             dispatch(alertsSlice.actions.add({ type: 'warning', message: 'Моля изберете телевизор' }))
             return;
         }
-        VideosApi.Suggest(input, choosenTv, token).then(() =>
-        {
-            dispatch(alertsSlice.actions.add({ type: 'info', message: 'Успешно изпратено' }))
+        VideosApi.Suggest(input, +choosenTv, token).then(() => {
+            dispatch(alertsSlice.actions.add({ type: 'info', message: 'Успешно изпратено за телевизор '+tvIdToName(+choosenTv) }))
             setInput('')
         }
         ).catch(err => {
@@ -54,7 +53,7 @@ export const SendVideoForm = () => {
                         <Form.Control value={input} onChange={(ev) => setInput(ev.target.value)} placeholder="Линк към видеото" />
                     </Col>
 
-                    <Col xs={3} className='mt-3'>
+                    <Col xs={3} id="tv-choose-select-wrapper" className='mt-3'>
                         <Form.Select onChange={(ev) => setChoosenTv(+ev.target.value)} >
                             <option value={0}>За телевизор</option>
                             {tvs?.map(tv => (

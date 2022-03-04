@@ -17,30 +17,30 @@ export const AppNavbar = () => {
         </Nav.Item>
         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
 
-        <Navbar.Collapse className="bg-secondary justify-content-end">
-            <Nav className="justify-content-end me-2 h3" style={{ width: "100%" }}>
-                    {routes.map(route => {
-                        if ('Page' in route) {
-                            const page: IPage = (route as any).Page;
-                            return (<Nav.Item key={page.path} as="li">
-                                <Nav.Link as={NavLink} to={page.path}>{page.pageName}</Nav.Link>
-                            </Nav.Item>)
+        <Navbar.Collapse className="bg-secondary">
+            <Nav className=" justify-content-end align-items-center me-2 h3" style={{ width: "100%" }}>
+                {routes.map(route => {
+                    if ('Page' in route) {
+                        const page: IPage = (route as any).Page;
+                        return (<Nav.Item key={page.path} as="li">
+                            <Nav.Link as={NavLink} to={page.path}>{page.pageName}</Nav.Link>
+                        </Nav.Item>)
+                    }
+
+                    return (<NavDropdown style={{ margin: '0' }} title={route.name} key={route.baseUrl} as='ul' active={location.pathname.startsWith(route.baseUrl)}>
+
+                        {
+                            route.subRoutes.map(subRoute => (
+                                <NavDropdown.Item key={route.baseUrl + subRoute.path} as='li'>
+                                    <Nav.Link as={NavLink} to={route.baseUrl + subRoute.path}>{subRoute.pageName}</Nav.Link>
+                                </NavDropdown.Item>
+                            ))
                         }
 
-                        return (<NavDropdown title={route.name} key={route.baseUrl} as='ul' active={location.pathname.startsWith(route.baseUrl)}>
 
-                            {
-                                route.subRoutes.map(subRoute => (
-                                    <NavDropdown.Item key={route.baseUrl + subRoute.path} as='li'>
-                                        <Nav.Link as={NavLink} to={route.baseUrl + subRoute.path}>{subRoute.pageName}</Nav.Link>
-                                    </NavDropdown.Item>
-                                ))
-                            }
+                    </NavDropdown>)
 
-
-                        </NavDropdown>)
-
-                    })}
+                })}
 
             </Nav>
         </Navbar.Collapse>

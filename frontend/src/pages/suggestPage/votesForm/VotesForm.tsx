@@ -40,6 +40,12 @@ export const VotesForm = memo(() => {
         }
     }
 
+    const onFailLoadFactory = (videoId: number) => {
+        return () => {
+           setBrokenIds([videoId, ...brokenIds]);
+        }
+    }
+
     if (isLoading)
         return <Container>
             <Col xs={12}>
@@ -54,7 +60,7 @@ export const VotesForm = memo(() => {
 
                     <Col xs={6} md={4} lg={3} key={video.id}>
                         <div style={{ padding: '10px', maxWidth: 'max(30vw,200px)' }}>
-                            <VideoBox videoUrl={video.link} onFailLoad={() => setBrokenIds([video.id, ...brokenIds])}>
+                            <VideoBox videoUrl={video.link} onFailLoad={onFailLoadFactory(video.id)}>
                                 <Center>За телевизор:{tvIdToName(video.queueId)}</Center>
                                 <Row>
                                     <Button data-video-id={video.id} onClick={onVoteClick(video)}>Гласувай</Button>
