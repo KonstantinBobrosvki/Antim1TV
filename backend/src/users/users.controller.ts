@@ -36,7 +36,7 @@ export class UsersController {
         private readonly usersService: UsersService,
         private readonly rightsService: RightsService,
         private readonly priorityService: PriorityService,
-    ) {}
+    ) { }
 
     @Get()
     @Rights([[RightsEnum.BanUser], [RightsEnum.ChangePriority], [RightsEnum.ChangeRight]])
@@ -48,8 +48,13 @@ export class UsersController {
     findAll(
         @Query('take', ParseIntPipe, new RangePipe(1, 100)) take: number,
         @Query('skip', ParseIntPipe, PositivePipe) skip: number,
+        @Query('namePattern') namePattern?: string,
+
     ) {
-        return this.usersService.findAll(take, skip);
+        if (!namePattern)
+            return this.usersService.findAll(skip, take);
+        else
+            return this.usersService.findByName(namePattern, skip, take)
     }
 
     @Delete(':id')

@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, EntityManager, FindConditions, FindOneOptions, ObjectLiteral } from 'typeorm';
+import { Repository, EntityManager, FindConditions, FindOneOptions, ObjectLiteral, Like } from 'typeorm';
 
 import { CreateUserDto } from '../../auth/dto/create-user.dto';
 import { User } from '../Models/user.entity';
@@ -18,7 +18,7 @@ export class UsersService {
         @InjectRepository(User)
         private usersRepository: Repository<User>,
         @Inject(PriorityService) private priorityService: PriorityService,
-    ) {}
+    ) { }
 
     async create(createUserDto: CreateUserDto, manager?: EntityManager): Promise<User> {
         const repository = manager?.getRepository<User>(User) ?? this.usersRepository;
@@ -77,5 +77,19 @@ export class UsersService {
 
             return target.toDTO();
         }
+    }
+
+    async findByName(namePattern: string, skip: number, take: number) {
+        const users = await this.usersRepository.find({
+            select: ['id', 'username'],
+            where: {
+                username: Like(namePattern)
+            },
+            skip,
+            take,
+            relations: ['priority', 'rights'],
+            order: { id: 'ASC' },
+        });
+        return users.map((user) => user.toDTO());
     }
 }
