@@ -34,7 +34,6 @@ export const SignInForm = () => {
             <p className="text-muted"> Моля въведете име или email и парола!</p>
             <input value={credit} onChange={(event) => setCredit(event.target.value)} type="text" name="usernameOrEmail" placeholder="Име или email" />
             <input type="password" value={password} onChange={(event) => setpassword(event.target.value)} name="password" placeholder="Парола" />
-            <a role="button" className="forgot text-muted" >Забравена парола?</a>
             <input onClick={onSubmit} type="button" name="" value="Login" />
         </form>
     )

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { Col, Row, Button } from "react-bootstrap"
 import { VideosApi } from "../../../API/Videos.api"
 import { Center } from "../../../components/Center/Center"
@@ -22,6 +22,10 @@ const ModerateVideosPage: IPage = Object.assign(() => {
     const [refreshCount, setRefreshCount] = useState(0)
     const { result, isLoading, error } = useFetching(VideosApi.GetUnmoderated(accses), [refreshCount])
     const [moderated, setModerated] = useState<number[]>([])
+
+    useEffect(() => {
+        window.document.title = 'Провери видеа'
+    }, [])
 
     const filtredResults = useMemo(() => {
         if (isLoading || error)

@@ -1,4 +1,4 @@
-import { useState, ChangeEvent } from "react"
+import { useState, ChangeEvent, useEffect } from "react"
 import { Col, Container, Form } from "react-bootstrap"
 import useDebounce from "../../../hooks/useDebounce"
 import { RightsEnum } from "../../../shared/RightEnum"
@@ -17,6 +17,10 @@ const ModerateUsersPage: IPage = Object.assign(() => {
         setValue(event.target.value)
 
     }
+
+    useEffect(() => {
+        window.document.title = 'Други потребители'
+    }, [])
 
     return (<Container>
         <Col xs={12} md={{ offset: 3, span: 6 }}>

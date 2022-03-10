@@ -1,4 +1,4 @@
-import { FC,useEffect } from 'react'
+import { FC, useEffect } from 'react'
 import { Card } from 'react-bootstrap';
 import { VideosApi, YoutubeVideo } from '../../API/Videos.api';
 import { useFetching } from '../../hooks/useFetching';
@@ -15,7 +15,8 @@ export const VideoBox: FC<VideoBoxProps> = ({ children, videoUrl, onFailLoad = (
 
     const { result, isLoading, error } = useFetching<YoutubeVideo>(VideosApi.GetYouTubeMetadata(videoUrl).then(res => res.data))
     useEffect(() => {
-        onFailLoad(videoUrl);
+        if (!!error)
+            onFailLoad(videoUrl);
     }, [error])
 
     if (isLoading)

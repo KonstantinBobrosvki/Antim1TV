@@ -42,8 +42,7 @@ const NotFoundPage = Object.assign(() => {
                 down: document.querySelector(paw.down)
             })
         })
-
-
+        window.document.title = 'Грешка'
 
         return () => {
             Object.keys(timeouts).map(key => {
@@ -54,7 +53,7 @@ const NotFoundPage = Object.assign(() => {
 
     return (
         <>
-            <Center><h1 style={{textAlign:'center' }}>Тази страница не съществува или нямате права да я видете </h1></Center>
+            <Center><h1 style={{ textAlign: 'center' }}>Тази страница не съществува или нямате права да я видете </h1></Center>
             <div className="wrapper">
                 <div className="container-error">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 783.55 354.91">

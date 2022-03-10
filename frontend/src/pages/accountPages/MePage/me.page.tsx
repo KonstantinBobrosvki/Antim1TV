@@ -9,6 +9,7 @@ import { TvSection } from "./tvSection";
 import { MyVideosTable } from "./myVideosTable";
 import { Center } from "../../../components/Center/Center";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 export const MePage: IPage = Object.assign(
     () => {
         const navigate = useNavigate();
@@ -19,6 +20,9 @@ export const MePage: IPage = Object.assign(
             dispatch(userSlice.actions.logout(null));
             navigate('/')
         }
+        useEffect(() => {
+            window.document.title = 'Мой профил'
+        }, [])
 
         return (<Container>
             <Col xs={12}>

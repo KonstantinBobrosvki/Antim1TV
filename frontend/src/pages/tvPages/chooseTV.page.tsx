@@ -13,6 +13,7 @@ import { useFetching } from "../../hooks/useFetching";
 import PlayerApi from "../../API/Player.api";
 import { VideosApi } from "../../API/Videos.api";
 import { BrokenImageURL } from "../../shared/consts";
+import { useEffect } from "react";
 const ChooseTvPage: IPage = Object.assign(
     () => {
         const bearer = useAppSelector(state => state.userReducer.user!.access)
@@ -25,7 +26,9 @@ const ChooseTvPage: IPage = Object.assign(
             return { ...video, ...metadata }
         })))
 
-
+        useEffect(() => {
+            window.document.title = 'Телевизори'
+        }, [])
 
         const { result, isLoading } = useFetching(lastVideosMetadata, [tvs])
 

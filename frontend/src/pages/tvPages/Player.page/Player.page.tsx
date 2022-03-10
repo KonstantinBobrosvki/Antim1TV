@@ -21,6 +21,9 @@ const PlayerPage: IPage = Object.assign(
                 navigate('/404')
                 return;
             }
+
+            window.document.title = 'Телевизор'
+
         }, [])
 
         return (<Container>
