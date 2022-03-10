@@ -75,7 +75,7 @@ export const MePage: IPage = Object.assign(
         checkAccess: (state: UserState): boolean => state.authed,
         path: '/me',
         pageName: 'Мой профил',
-        showable: false
+        showable: true
     }
 
 )
