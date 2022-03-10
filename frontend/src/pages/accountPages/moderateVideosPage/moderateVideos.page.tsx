@@ -81,7 +81,7 @@ const ModerateVideosPage: IPage = Object.assign(() => {
             }
             {filtredResults?.map(video => {
                 return (<Col sm={6} lg={4} className='my-3' key={video.id}>
-                    <VideoBox videoUrl={video.link} onFailLoad={() => RejectVideo(video.id)}>
+                    <VideoBox videoUrl={video.link} onFailLoad={() => setModerated([...moderated, video.id])}>
                         <p className="card-text">За екран:{tvIdToName(video.queueId)}</p>
                         <p className="card-text">Линк: <a target="_blank" rel="noreferrer" href={`${video.link}`}>Изгледай
                             клипчето</a></p>

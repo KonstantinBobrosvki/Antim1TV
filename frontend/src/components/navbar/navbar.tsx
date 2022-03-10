@@ -8,7 +8,13 @@ import { useLocation } from 'react-router-dom'
 
 export const AppNavbar = () => {
 
-    const routes = usePageFilter();
+    const routes = usePageFilter().filter(r => {
+        if ("Page" in r) {
+            return r.Page.showable
+        }
+        return true;
+    });
+
     const location = useLocation();
 
     return (<Navbar expand="md" bg='dark' variant='dark' >

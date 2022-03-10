@@ -3,6 +3,8 @@ import { AuthPage } from './authPage/auth.page'
 import { SuggestPage } from "./suggestPage/suggest.page";
 import { route } from "../shared/types";
 import { accountRoutes } from "./accountPages";
+import ChooseTvPage from "./tvPages/chooseTV.page";
+import PlayerPage from "./tvPages/Player.page/Player.page";
 
 
 export const routes: route[] = [
@@ -14,6 +16,12 @@ export const routes: route[] = [
     },
     {
         Page: SuggestPage,
+    },
+    {
+        Page: ChooseTvPage
+    },
+    {
+        Page:PlayerPage
     },
     accountRoutes
 ]

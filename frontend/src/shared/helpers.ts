@@ -11,8 +11,8 @@ export function ExcepionHandler(dispatch: ReturnType<typeof useAppDispatch>) {
     return (err: any) => {
         const error = err as AxiosError;
         if (error.response) {
-            console.log( error.response.data.message);
-            
+            console.log(error.response.data.message);
+
             dispatch(alertsSlice.actions.add({ type: 'warning', message: error.response.data.message }))
 
         } else if (error.request) {
@@ -28,4 +28,12 @@ export function ExcepionHandler(dispatch: ReturnType<typeof useAppDispatch>) {
             console.log('Error', error.message);
         }
     }
+}
+
+export const GetVideoId = (url: string) => {
+    const myRegexp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/gi;
+    const match = myRegexp.exec(url);
+    if (!match || match?.length < 2)
+        throw Error('Not youtube link ' + url)
+    return match[1]
 }

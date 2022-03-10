@@ -12,52 +12,67 @@ import { RightsEnum } from '../users/Models/Enums/rights.enum';
 import { ActionDto } from './dto/action.dto';
 import { StateDto } from './dto/state.dto';
 
-@WebSocketGateway({ transport: ['socket.io'] })
+@WebSocketGateway({ transport: ['socket.io'], cors: true })
 export class PlayersGateway implements OnGatewayConnection {
-    constructor(private readonly jwtService: JwtService) {}
+    constructor(private readonly jwtService: JwtService) { }
 
     handleConnection(client: Socket, ...args: any[]) {
+
         const close = () => {
-            client.emit('disconnect', 'Не сте влезли или нямате нужните права');
+            client.emit('logout', 'Не сте влезли или нямате нужните права');
             client.disconnect(true);
         };
         if (!client.handshake.headers.authorization) {
             close();
+            return
         }
         const authHeader = client.handshake.headers.authorization;
-        if (!authHeader) close();
+        if (!authHeader) {
+            close();
+            return
+        }
+
 
         try {
             const [bearer, token] = authHeader.split(' ');
 
             if (bearer == 'Bearer' && token) {
                 const user = this.jwtService.verify<UserDto>(token);
-                if (!user.rights.includes(RightsEnum.ControllPlayer)) close();
+                if (!user.rights.includes(RightsEnum.ControllPlayer)) {
+                    close();
+                    return
+                }
+
+            }
+            else{
+                close();
+                return
             }
         } catch (error) {
             close();
+            return
         }
 
-        const addres = client.handshake.headers.referer;
-        const regex = new RegExp('/tv/([0-9]*)');
-
-        const match = addres.match(regex);
-        if (!match || !match[1] || isNaN(match[1] as any as number)) {
-            return client.disconnect();
+        const tvId = +client.handshake.headers.tvid;
+        if (isNaN(tvId)) {
+            close();
+            return
         }
-
-        const tvId = match[1];
-
+        
         client.join(tvId.toString());
     }
 
     @SubscribeMessage('sendAction')
     sendAction(@MessageBody() data: ActionDto, @ConnectedSocket() client: Socket) {
+        console.log(data);
+        
         client.to(data.queueId.toString()).emit('receiveAction', data);
     }
 
     @SubscribeMessage('shareState')
     shareState(@MessageBody() data: StateDto, @ConnectedSocket() client: Socket) {
+        console.log(data);
+
         client.to(data.CurrentVideo.video.queueId.toString()).emit('receiveState', data);
     }
 }
