@@ -1,6 +1,0 @@
-{
-    "ignore": ["public/*"],
-    "env": {
-        "NODE_ENV": "dev"
-    }
-}

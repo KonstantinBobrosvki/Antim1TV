@@ -1,0 +1,24 @@
+{
+  "moduleFileExtensions": [
+    "js",
+    "json",
+    "ts"
+  ],
+  "rootDir": ".",
+  "testEnvironment": "node",
+  "testRegex": ".e2e-spec.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "globals": {
+    "NODE_ENV": "test",
+    "ts-jest": {
+      "tsconfig": {
+        "importsNotUsedAsValues": "preserve"
+      }
+    }
+  },
+  "globalTeardown": "<rootDir>/testsSetup.ts",
+  "preset": "ts-jest",
+  "slowTestThreshold": 20
+}

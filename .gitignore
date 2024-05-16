@@ -1,3 +1,9 @@
-node_modules/
-.env
-config.js
+*/node_modules/
+backend/dist
+*.env
+backend/.eslintrc.js
+backend/.prettierrc
+
+
+frontend/node_modules/
+frontend/build/

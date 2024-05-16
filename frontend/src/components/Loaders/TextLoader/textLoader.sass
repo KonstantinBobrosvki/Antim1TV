@@ -1,0 +1,12 @@
+.text-loader-dots:after
+    display: block
+    content: ""
+    animation: text-repeat 2s ease 0s infinite forwards
+
+@keyframes text-repeat
+    0%
+        content: var(--text)
+    33%
+        content: var(--text) var(--text)
+    66%
+        content: var(--text) var(--text) var(--text)

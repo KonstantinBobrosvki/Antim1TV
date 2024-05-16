@@ -4,8 +4,11 @@
     "description": "Project for tv's in school  'Antim I' ",
     "main": "app.js",
     "scripts": {
-        "dev": "nodemon app.js --config",
-        "start": "node app.js NODE_ENV=production"
+        "build": "npm --prefix frontend install && NODE_ENV=production npm --prefix frontend run build && npm --prefix backend install && NODE_ENV=production npm --prefix backend run build",
+        "heroku-postbuild": "npm run build && npm run deploy",
+        "heroku-prebuild": "npm --prefix frontend install && npm --prefix backend install ",
+        "deploy": "cp -a frontend/build/. public/",
+        "start":"cd backend && npm run start:prod"
     },
     "keywords": [
         "Antim",
@@ -14,24 +17,5 @@
         "Moderators"
     ],
     "author": "Konstantin Bobrovski",
-    "license": "ISC",
-    "dependencies": {
-        "bcrypt": "^5.0.1",
-        "body-parser": "^1.19.0",
-        "cookie-parser": "^1.4.5",
-        "cors": "^2.8.5",
-        "dotenv": "^10.0.0",
-        "express": "^4.17.1",
-        "express-handlebars": "^5.3.2",
-        "express-http-to-https": "^1.1.4",
-        "jsonwebtoken": "^8.5.1",
-        "nocache": "^3.0.1",
-        "nodemailer": "^6.6.5",
-        "pg": "^8.7.1",
-        "sequelize": "^6.6.5",
-        "socket.io": "^4.2.0"
-    },
-    "devDependencies": {
-        "nodemon": "^2.0.8"
-    }
+    "license": "ISC"
 }
