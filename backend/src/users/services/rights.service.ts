@@ -26,7 +26,11 @@ export class RightsService {
         if (!performer.rights.includes(right))
             throw BaseError.Forbidden('За да дадете право, трябва да го имате');
 
-        const target = await this.usersRepository.findOne(targetId);
+        const target = await this.usersRepository.findOne({
+            where: {
+                id: targetId,
+            },
+        });
         if (!target) throw BaseError.NotFound('Няма такъв потребител');
 
         const isExisting = !!(await this.rightsRepository.findOne({

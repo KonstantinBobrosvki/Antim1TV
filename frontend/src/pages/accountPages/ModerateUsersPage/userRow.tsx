@@ -1,5 +1,5 @@
 import { FC, LegacyRef, memo, useEffect, useRef, useState } from "react"
-import { UserDto } from "../../../../../backend/src/users/dto/user.dto"
+import { UserDto } from "../../../types/UserDto"
 import { RightsEnum, RightsEnumTranslated } from "../../../shared/RightEnum"
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button, Col, Tooltip, OverlayTrigger, Row, Modal } from "react-bootstrap";

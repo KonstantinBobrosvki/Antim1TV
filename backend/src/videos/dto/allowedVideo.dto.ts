@@ -21,3 +21,5 @@ export class AllowedVideoDto {
     })
     video: VideoDto;
 }
+
+type AllowedVideoDtoS = AllowedVideoDto;

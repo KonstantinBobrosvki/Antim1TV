@@ -1,6 +1,6 @@
 import { memo, FC, useState, useEffect } from "react"
 import { Button, Row, Table } from "react-bootstrap"
-import { UserDto } from "../../../../../backend/src/users/dto/user.dto"
+import { UserDto } from "../../../types/UserDto"
 import UsersApi from "../../../API/Users.api"
 import { SimpleLoader } from "../../../components/Loaders/SimpleLoader/simpleLoader"
 import { TextLoader } from "../../../components/Loaders/TextLoader/TextLoader"

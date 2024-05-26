@@ -1,4 +1,14 @@
-import { Controller, Get, Post, Body, Param, UseGuards, ParseIntPipe, Put, Query } from '@nestjs/common';
+import {
+    Controller,
+    Get,
+    Post,
+    Body,
+    Param,
+    UseGuards,
+    ParseIntPipe,
+    Put,
+    Query,
+} from '@nestjs/common';
 import { VideosService } from './videos.service';
 import { CreateVideoDto } from './dto/create-video.dto';
 import { Rights } from '../auth/decorators/Rights.decorator';
@@ -17,7 +27,7 @@ import { RangePipe } from '../common/pipes/range.pipe';
 @UseGuards(AuthGuard)
 @Controller('videos')
 export class VideosController {
-    constructor(private readonly videosService: VideosService) { }
+    constructor(private readonly videosService: VideosService) {}
 
     @Post()
     @Rights([RightsEnum.Suggest])
@@ -48,7 +58,7 @@ export class VideosController {
         type: [VideoDto],
     })
     getForModerating() {
-        return this.videosService.getUnmoderated(30);
+        return this.videosService.getUnmoderated(100);
     }
 
     @Put('/:id/allow')
@@ -84,9 +94,11 @@ export class VideosController {
     @ApiResponse({
         type: [VideoDto],
     })
-    async getMine(@Query('take', ParseIntPipe, new RangePipe(1, 30)) take: number,
+    async getMine(
+        @Query('take', ParseIntPipe, new RangePipe(1, 30)) take: number,
         @Query('skip', ParseIntPipe, PositivePipe) skip: number,
-        @User() user: UserDto) {
+        @User() user: UserDto,
+    ) {
         return await this.videosService.getMine(user.id, take, skip);
     }
 }

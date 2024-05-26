@@ -1,6 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, EntityManager, FindConditions, FindOneOptions, ObjectLiteral, Like } from 'typeorm';
+import {
+    Repository,
+    EntityManager,
+    FindOneOptions,
+    ObjectLiteral,
+    Like,
+    FindOptions,
+    FindOptionsWhere,
+} from 'typeorm';
 
 import { CreateUserDto } from '../../auth/dto/create-user.dto';
 import { User } from '../Models/user.entity';
@@ -18,7 +26,7 @@ export class UsersService {
         @InjectRepository(User)
         private usersRepository: Repository<User>,
         @Inject(PriorityService) private priorityService: PriorityService,
-    ) { }
+    ) {}
 
     async create(createUserDto: CreateUserDto, manager?: EntityManager): Promise<User> {
         const repository = manager?.getRepository<User>(User) ?? this.usersRepository;
@@ -50,7 +58,7 @@ export class UsersService {
 
     async find(
         select: (keyof User)[] = ['id', 'username'],
-        where: string | ObjectLiteral | FindConditions<User> | FindConditions<User>[],
+        where: FindOptionsWhere<User> | FindOptionsWhere<User>[],
         relations: UserRelations[] = [],
     ) {
         const res = await this.usersRepository.find({ select, where, relations });
@@ -66,7 +74,11 @@ export class UsersService {
         } else {
             if (!performer.rights.includes(RightsEnum.BanUser))
                 throw BaseError.Forbidden('Нямате право да триете потребител');
-            const target = await this.usersRepository.findOne(targetId, {
+            const target = await this.usersRepository.findOne({
+                where: {
+                    id: targetId,
+                },
+
                 relations: ['priority'],
                 select: ['id', 'username'],
             });
@@ -83,7 +95,7 @@ export class UsersService {
         const users = await this.usersRepository.find({
             select: ['id', 'username'],
             where: {
-                username: Like(namePattern)
+                username: Like(namePattern),
             },
             skip,
             take,

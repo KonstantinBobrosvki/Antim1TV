@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { getManager, QueryFailedError } from 'typeorm';
+import { DataSource, QueryFailedError } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserDto } from '../users/dto/user.dto';
@@ -14,14 +14,15 @@ export class AuthService {
     constructor(
         @Inject(UsersService) private usersService: UsersService,
         @Inject(PriorityService) private priorityService: PriorityService,
-    ) { }
+        private datasource: DataSource,
+    ) {}
 
     async register(createUserDto: CreateUserDto): Promise<UserDto> {
         return new Promise(async (resolve, reject) => {
             try {
                 createUserDto.password = await bcrypt.hash(createUserDto.password, 10);
                 let dto: UserDto;
-                await getManager().transaction('READ UNCOMMITTED', async (entityManager) => {
+                await this.datasource.transaction('READ UNCOMMITTED', async (entityManager) => {
                     const user = await this.usersService.create(createUserDto, entityManager);
 
                     const priority = await this.priorityService.setPriority(
@@ -52,10 +53,7 @@ export class AuthService {
         const pretendent = (
             await this.usersService.find(
                 ['id', 'password', 'email', 'username'],
-                [
-                    { username: loginUserDto.username },
-                    { email: loginUserDto.email?.toLowerCase() }
-                ],
+                [{ username: loginUserDto.username }, { email: loginUserDto.email?.toLowerCase() }],
                 ['rights', 'priority'],
             )
         )[0];

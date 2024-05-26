@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { getManager, QueryFailedError, Repository } from 'typeorm';
+import { DataSource, IsNull, QueryFailedError, Repository } from 'typeorm';
 import { PG_FOREIGN_KEY_VIOLATION } from '../common/const/db';
 import BaseError from '../common/errors/BaseError.error';
 import { UserDto } from '../users/dto/user.dto';
@@ -21,7 +21,8 @@ export class VideosService {
         @InjectRepository(Vote)
         private votesRepository: Repository<Vote>,
         private usersService: UsersService,
-    ) { }
+        private dataSource: DataSource,
+    ) {}
 
     async getForvote(max: number, user: UserDto): Promise<VideoDto[]> {
         const userVotes = this.votesRepository
@@ -40,7 +41,7 @@ export class VideosService {
             ])
             .where(
                 'allowedVideo.queuePositon IS NULL AND ' +
-                `allowedVideo.id NOT IN (${userVotes.getSql()})`,
+                    `allowedVideo.id NOT IN (${userVotes.getSql()})`,
                 { userId: user.id },
             )
             .leftJoin('allowedVideo.video', 'video')
@@ -75,7 +76,7 @@ export class VideosService {
     }
 
     async Allow(videoId: number, allower: UserDto) {
-        const video = await this.videosRepository.findOne(videoId);
+        const video = await this.videosRepository.findOne({ where: { id: videoId } });
 
         if (!video) {
             throw BaseError.NotFound('Няма видео с това id');
@@ -89,7 +90,7 @@ export class VideosService {
             video,
             allowerId: allower.id,
         });
-        await getManager().transaction('READ UNCOMMITTED', async (entityManager) => {
+        await this.dataSource.transaction('READ UNCOMMITTED', async (entityManager) => {
             await entityManager.insert(AllowedVideo, allowedVideo);
             await entityManager.getRepository(Video).update({ id: video.id }, video);
         });
@@ -98,7 +99,7 @@ export class VideosService {
     }
 
     async disallow(videoId: number, disAllower: UserDto): Promise<{ deleted: boolean }> {
-        const video = await this.videosRepository.findOne(videoId);
+        const video = await this.videosRepository.findOne({ where: { id: videoId } });
 
         if (!video) {
             throw BaseError.NotFound('Няма видео с това id');
@@ -136,9 +137,9 @@ export class VideosService {
             throw BaseError.Forbidden('Видеото е позволено от човек с по-висок приоритет');
         }
 
-        await getManager().transaction('READ UNCOMMITTED', async (entityManager) => {
+        await this.dataSource.transaction('READ UNCOMMITTED', async (entityManager) => {
             video.isAllowed = false;
-            await entityManager.getRepository<AllowedVideo>(AllowedVideo).delete(allowedVideo);
+            await entityManager.getRepository<AllowedVideo>(AllowedVideo).delete(allowedVideo.id);
             await entityManager.getRepository(Video).update({ id: video.id }, video);
         });
 
@@ -170,7 +171,7 @@ export class VideosService {
             voterId: voter.id,
         });
 
-        await getManager().transaction('READ UNCOMMITTED', async (entityManager) => {
+        await this.dataSource.transaction('READ UNCOMMITTED', async (entityManager) => {
             await entityManager.insert(Vote, toDbVote);
             await entityManager.getRepository(AllowedVideo).increment({ id: videoId }, 'votes', 1);
         });
@@ -180,7 +181,7 @@ export class VideosService {
 
     async getUnmoderated(max: number): Promise<VideoDto[]> {
         return this.videosRepository.find({
-            where: { isAllowed: null },
+            where: { isAllowed: IsNull() },
             take: max,
             select: ['id', 'queueId', 'link'],
             order: { id: 'ASC' },

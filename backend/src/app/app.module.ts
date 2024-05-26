@@ -5,7 +5,7 @@ import {
     RequestMethod,
     ValidationPipe,
 } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { configModule } from '../config/config.module';
 import { APP_FILTER, APP_PIPE } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '../auth/auth.module';
@@ -19,34 +19,13 @@ import { RightsService } from '../users/services/rights.service';
 import { UsersService } from '../users/services/users.service';
 import { UsersModule } from '../users/users.module';
 import { VideosModule } from '../videos/videos.module';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import * as path from 'path';
+
+import { DatabaseModule } from '../database/database.module';
 
 @Module({
     imports: [
-        ConfigModule.forRoot({
-            isGlobal: true,
-            envFilePath: `.${process.env.NODE_ENV}.env`,
-        }),
-        TypeOrmModule.forRoot({
-            type: 'postgres',
-            ...(process.env.DATABASE_URL ? { url: process.env.DATABASE_URL } : {
-                host: process.env.DB_HOST,
-                port: +process.env.DB_PORT,
-                username: process.env.DB_USERNAME,
-                password: process.env.DB_PASSWORD,
-                database: process.env.DB_DATABASE
-            }),
-            synchronize: true,
-            autoLoadEntities: true,
-            logging: process.env.NODE_ENV == 'DEV',
-            ssl: !process.env.DATABASE_URL ? false : {
-                rejectUnauthorized: false
-            }
-        }),
-        ServeStaticModule.forRoot({
-            rootPath: path.join(__dirname, '../../../', 'frontend', 'build'),
-        }),
+        configModule,
+        DatabaseModule,
         UsersModule,
         AuthModule,
         VideosModule,
@@ -75,11 +54,10 @@ export class AppModule implements OnModuleInit {
         private readonly rightService: RightsService,
         private readonly priorityService: PriorityService,
         private readonly queuesService: QueuesService,
-    ) { }
+    ) {}
 
     async onModuleInit() {
-        if (!((process.env.NODE_ENV == 'dev') || (process.env.NODE_ENV == 'test')))
-            return;
+        if (!(process.env.NODE_ENV == 'dev' || process.env.NODE_ENV == 'test')) return;
         console.log('Filling db');
 
         //CREate admin
