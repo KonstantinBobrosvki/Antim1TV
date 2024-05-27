@@ -21,8 +21,8 @@ const ModerateVideosPage: IPage = Object.assign(
     const { tvIdToName } = useTvs();
     const [refreshCount, setRefreshCount] = useState(0);
     const { result, isLoading, error } = useFetching(
-      VideosApi.GetUnmoderated(accses, refreshCount),
-      [refreshCount]
+      VideosApi.GetUnmoderated(accses, 0),
+      []
     );
     const [moderated, setModerated] = useState<number[]>([]);
 
