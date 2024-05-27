@@ -2,12 +2,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
-import * as dotenv from 'dotenv';
 async function bootstrap() {
-    dotenv.config({ path: `../\.${process.env.NODE_ENV}\.env` });
-
     const app = await NestFactory.create(AppModule);
-    app.setGlobalPrefix('api')
+    app.setGlobalPrefix('api');
     app.enableCors();
     const config = new DocumentBuilder()
         .setTitle('Antim 1 tv api')
