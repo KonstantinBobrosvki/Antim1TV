@@ -19,7 +19,7 @@ import {
 } from './helpers';
 
 import * as _ from './extends';
-import { RightsEnum } from '../src/users/Models/Enums/rights.enum';
+import { RightsEnum } from '../src/users/entities/Enums/rights.enum';
 import { VideoDto } from '../src/videos/dto/video.dto';
 import { AllowedVideoDto } from '../src/videos/dto/allowedVideo.dto';
 import { VoteDTO } from '../src/videos/dto/vote.dto';

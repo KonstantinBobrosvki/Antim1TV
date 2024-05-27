@@ -19,7 +19,7 @@ import {
     deleteRightRequestFactory,
     giveRightRequestFactory,
 } from './helpers';
-import { RightsEnum } from '../src/users/Models/Enums/rights.enum';
+import { RightsEnum } from '../src/users/entities/Enums/rights.enum';
 import { UserDto } from '../src/users/dto/user.dto';
 
 describe('Users module e2e', () => {

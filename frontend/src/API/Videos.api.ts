@@ -1,5 +1,4 @@
 import axios, { AxiosResponse } from "axios";
-import { BrokenImageURL } from "../shared/consts";
 import { AllowedVideoDto } from "../types/allowedVideo.dto";
 export type VideoDto = {
   id: number;

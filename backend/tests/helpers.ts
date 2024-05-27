@@ -3,8 +3,8 @@ import * as request from 'supertest';
 import { CreateUserDto } from '../src/auth/dto/create-user.dto';
 import { UserDto } from '../src/users/dto/user.dto';
 import { randomUUID } from 'crypto';
-import { RightsEnum } from '../src/users/Models/Enums/rights.enum';
-import { Client, Pool } from 'pg';
+import { RightsEnum } from '../src/users/entities/Enums/rights.enum';
+import { Pool } from 'pg';
 
 export type ApiResponse<T = any> = {
     status: number;
