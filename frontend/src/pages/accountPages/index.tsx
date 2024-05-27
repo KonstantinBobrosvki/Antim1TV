@@ -5,7 +5,12 @@ import ModerateUsersPage from "./ModerateUsersPage/moderateUsers.page";
 import ModerateVideosPage from "./moderateVideosPage/moderateVideos.page";
 
 export const accountRoutes: SubRoute = {
-    baseUrl: '/users',
-    name: (<><PersonBadge />Аккаунт </>),
-    subRoutes: [MePage, ModerateVideosPage, ModerateUsersPage]
-}
+  baseUrl: "/users",
+  name: (
+    <>
+      <PersonBadge />
+      Акаунт{" "}
+    </>
+  ),
+  subRoutes: [MePage, ModerateVideosPage, ModerateUsersPage],
+};
