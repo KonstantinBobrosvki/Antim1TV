@@ -2,7 +2,7 @@ import { FC, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } fro
 import { Row, Col, Button, Form } from "react-bootstrap"
 import { Forward, PauseBtn, PlayBtn, SkipBackward, SkipEnd, VolumeDown } from "react-bootstrap-icons"
 import ReactPlayer from "react-player"
-import { AllowedVideoDto } from "../../../../../../backend/src/videos/dto/allowedVideo.dto"
+import { AllowedVideoDto } from "../../../../types/allowedVideo.dto"
 import PlayerApi from "../../../../API/Player.api"
 import SocketApi from "../../../../API/Socket.api"
 import { Center } from "../../../../components/Center/Center"

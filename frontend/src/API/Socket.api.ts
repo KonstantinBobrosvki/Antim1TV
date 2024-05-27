@@ -1,6 +1,6 @@
 import io, { Socket } from "socket.io-client";
-import { StateDto } from "../../../backend/src/players/dto/state.dto";
-import { ActionDto } from "../../../backend/src/players/dto/action.dto";
+import { StateDto } from "../types/state.dto";
+import { ActionDto } from "../types/action.dto";
 import { Actions } from "../shared/ActionsEnum";
 
 class SocketApi {
@@ -15,8 +15,11 @@ class SocketApi {
   };
 
   constructor(tvId: number, bearer: string) {
-    this.socket = io("localhost:3001", {
-      host: "localhost:3001",
+    const ho = process.env.REACT_APP_BACKEND_HOST;
+    console.log({ ho });
+
+    this.socket = io(ho as string, {
+      host: ho,
       extraHeaders: {
         authorization: "Bearer " + bearer,
         tvId: tvId.toString(),

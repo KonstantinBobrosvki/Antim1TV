@@ -13,5 +13,35 @@ services:
     ports:
       - "5432:5432"
 
+  backend:
+    build:
+      context: ./backend
+      dockerfile: .dockerfile
+    container_name: nestjs
+    environment:
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_USER: yourusername
+      DATABASE_PASSWORD: yourpassword
+      DATABASE_NAME: yourdatabase
+      PORT: 3000
+      SECRET_ACCSESS: PU_fmi
+    depends_on:
+      - postgres
+    ports:
+      - "3000:3000"
+
+  frontend:
+    build:
+      args:
+        REACT_APP_BACKEND_HOST: http://localhost:3000
+      context: ./frontend
+      dockerfile: .dockerfile
+    container_name: react
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
 volumes:
   postgres-data:

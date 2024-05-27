@@ -1,6 +1,6 @@
 import { FC, memo, useEffect, useState } from "react"
 import SocketApi from "../../../../API/Socket.api"
-import { StateDto } from '../../../../../../backend/src/players/dto/state.dto'
+import { StateDto } from '../../../../types/state.dto'
 import { Button, Card } from "react-bootstrap"
 import { VideoBox } from "../../../../components/videoBox/videobox"
 import { Center } from "../../../../components/Center/Center"
