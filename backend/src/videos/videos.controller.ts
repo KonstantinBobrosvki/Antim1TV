@@ -57,8 +57,11 @@ export class VideosController {
         description: 'Unmoderatted videos',
         type: [VideoDto],
     })
-    getForModerating() {
-        return this.videosService.getUnmoderated(30);
+    getForModerating(
+        @Query('take', ParseIntPipe, new RangePipe(1, 30)) take: number,
+        @Query('skip', ParseIntPipe, PositivePipe) skip: number,
+    ) {
+        return this.videosService.getUnmoderated(take, skip);
     }
 
     @Put('/:id/allow')

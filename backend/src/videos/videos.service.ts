@@ -21,7 +21,7 @@ export class VideosService {
         @InjectRepository(Vote)
         private votesRepository: Repository<Vote>,
         private usersService: UsersService,
-    ) { }
+    ) {}
 
     async getForvote(max: number, user: UserDto): Promise<VideoDto[]> {
         const userVotes = this.votesRepository
@@ -40,7 +40,7 @@ export class VideosService {
             ])
             .where(
                 'allowedVideo.queuePositon IS NULL AND ' +
-                `allowedVideo.id NOT IN (${userVotes.getSql()})`,
+                    `allowedVideo.id NOT IN (${userVotes.getSql()})`,
                 { userId: user.id },
             )
             .leftJoin('allowedVideo.video', 'video')
@@ -178,10 +178,11 @@ export class VideosService {
         return toDbVote;
     }
 
-    async getUnmoderated(max: number): Promise<VideoDto[]> {
+    async getUnmoderated(max: number, skip: number): Promise<VideoDto[]> {
         return this.videosRepository.find({
             where: { isAllowed: null },
             take: max,
+            skip,
             select: ['id', 'queueId', 'link'],
             order: { id: 'ASC' },
         });

@@ -80,9 +80,9 @@ export class VideosApi {
       .then((res) => res.data);
   }
 
-  static GetUnmoderated(bearer: string): Promise<VideoDto[]> {
+  static GetUnmoderated(bearer: string, page: number): Promise<VideoDto[]> {
     return axios
-      .get(`/videos/unmoderated`, {
+      .get(`/videos/unmoderated?take=30&skip=${page * 30}`, {
         headers: {
           authorization: "Bearer " + bearer,
         },
