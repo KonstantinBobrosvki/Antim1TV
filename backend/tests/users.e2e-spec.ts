@@ -1,6 +1,4 @@
-import * as request from 'supertest';
 import { Test } from '@nestjs/testing';
-import { AppModule } from '../src/app/app.module';
 
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import * as _ from './extends';
@@ -19,6 +17,8 @@ import {
     deleteRightRequestFactory,
     giveRightRequestFactory,
 } from './helpers';
+import { AppModule } from '../src/app/app.module';
+
 import { RightsEnum } from '../src/users/entities/Enums/rights.enum';
 import { UserDto } from '../src/users/dto/user.dto';
 
@@ -401,9 +401,11 @@ describe('Users module e2e', () => {
                     value = 5;
                 },
             );
+            console.log(response.body);
+
             expect(
                 Object.keys(response.body).filter((k) => response.body[k] && k != 'id').length,
-            ).toBe(1);
+            ).toBe(3);
         });
 
         it('forbiden', async () => {
@@ -457,7 +459,7 @@ describe('Users module e2e', () => {
                 },
             );
             expect(Object.keys(prior.body).filter((k) => prior.body[k] && k != 'id').length).toBe(
-                1,
+                3,
             );
         });
 

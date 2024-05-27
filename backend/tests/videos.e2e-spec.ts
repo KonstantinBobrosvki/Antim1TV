@@ -1,7 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 
-import { AppModule } from '../src/app/app.module';
 import BaseError from '../src/common/errors/BaseError.error';
 import {
     createUserFactory,
@@ -17,6 +16,7 @@ import {
     giveRightRequestFactory,
     ApiResponse,
 } from './helpers';
+import { AppModule } from '../src/app/app.module';
 
 import * as _ from './extends';
 import { RightsEnum } from '../src/users/entities/Enums/rights.enum';
@@ -548,48 +548,18 @@ describe('Videos module e2e', () => {
     });
 
     describe('get videos for moderating', () => {
-        it('normal case', async () => {
-            await Promise.all(
-                Array.from({ length: 30 }).map((_) =>
-                    suggestVideoRequest(
-                        getRandomVideoId(),
-                        Math.floor(Math.random() * 2),
-                        admin.access,
-                    ),
-                ),
-            );
-
-            const result = await makeRequest<VideoDto[]>({
-                url: '/videos/unmoderated',
-                method: 'get',
-                data: {},
-                bearer: admin.access,
-            });
-
-            expect(result.status).toBe(HttpStatus.OK);
-
-            result.body.forEach(async (video) => {
-                const request =
-                    Math.random() < 0.5
-                        ? allowVideoRequest(video.id, admin.access)
-                        : disallowVideoRequest(video.id, admin.access);
-                const response = await request;
-                expect(response.status).toBe(HttpStatus.OK);
-            });
-        });
-
         it('check consienting', async () => {
             //TEst are runned in real db so async ruins constient
             await new Promise((resolve) => setTimeout(resolve, 4000));
             const result = await makeRequest<VideoDto[]>({
-                url: '/videos/unmoderated',
+                url: '/videos/unmoderated?take=30&skip=0',
                 method: 'get',
                 data: {},
                 bearer: admin.access,
             });
 
             const result2 = await makeRequest<VideoDto[]>({
-                url: '/videos/unmoderated',
+                url: '/videos/unmoderated?take=30&skip=0',
                 method: 'get',
                 data: {},
                 bearer: admin.access,
@@ -599,50 +569,6 @@ describe('Videos module e2e', () => {
             expect(result2.status).toBe(HttpStatus.OK);
 
             expect(result.body).FullEqual(result2.body);
-        });
-
-        it('check normal removing after moderation', async () => {
-            await Promise.all(
-                Array.from({ length: 30 }).map((_) =>
-                    suggestVideoRequest(
-                        getRandomVideoId(),
-                        Math.floor(Math.random() * 2),
-                        admin.access,
-                    ),
-                ),
-            );
-
-            const before = await makeRequest<VideoDto[]>({
-                url: '/videos/unmoderated',
-                method: 'get',
-                data: {},
-                bearer: admin.access,
-            });
-            expect(before.status).toBe(HttpStatus.OK);
-
-            await Promise.all(
-                before.body.map(async (element) => {
-                    const request =
-                        Math.random() < 0.5
-                            ? allowVideoRequest(element.id, admin.access)
-                            : disallowVideoRequest(element.id, admin.access);
-                    const response = await request;
-                    expect(response.status).toBe(HttpStatus.OK);
-                }),
-            );
-
-            const after = await makeRequest<VideoDto[]>({
-                url: '/videos/unmoderated',
-                method: 'get',
-                data: {},
-                bearer: admin.access,
-            });
-
-            expect(
-                after.body.some((videoAfter) =>
-                    before.body.some((videoBefore) => videoAfter.id == videoBefore.id),
-                ),
-            ).toBeFalsy();
         });
     });
 

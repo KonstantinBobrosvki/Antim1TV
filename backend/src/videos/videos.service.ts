@@ -89,6 +89,7 @@ export class VideosService {
             video,
             allowerId: allower.id,
         });
+
         await getManager().transaction('READ UNCOMMITTED', async (entityManager) => {
             await entityManager.insert(AllowedVideo, allowedVideo);
             await entityManager.getRepository(Video).update({ id: video.id }, video);
@@ -108,7 +109,7 @@ export class VideosService {
             throw BaseError.BadData('Някой друг вече модерира това видео');
 
         //null case
-        if (video.isAllowed === null || video.isAllowed === undefined) {
+        if (video.isAllowed == null || video.isAllowed == undefined) {
             video.isAllowed = false;
             await this.videosRepository.update({ id: video.id }, video);
             return { deleted: true };

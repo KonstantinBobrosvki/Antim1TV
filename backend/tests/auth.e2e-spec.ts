@@ -2,8 +2,8 @@ import { Test } from '@nestjs/testing';
 import { HttpStatus, INestApplication } from '@nestjs/common';
 
 import BaseError from '../src/common/errors/BaseError.error';
-import { AppModule } from '../src/app/app.module';
 import { createUserFactory, generateUser, requestFactory, UserResponse } from './helpers';
+import { AppModule } from '../src/app/app.module';
 
 import * as _ from './extends';
 

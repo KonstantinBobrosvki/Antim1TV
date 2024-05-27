@@ -6,6 +6,13 @@ import { randomUUID } from 'crypto';
 import { RightsEnum } from '../src/users/entities/Enums/rights.enum';
 import { Pool } from 'pg';
 
+import * as dotenv from 'dotenv';
+import { join } from 'path';
+
+dotenv.config({
+    path: join(__dirname, '../', '.test.env'),
+});
+
 export type ApiResponse<T = any> = {
     status: number;
     body: T;
@@ -183,7 +190,7 @@ export const deleteRightRequestFactory: SenderFuncFactory<RightsEnum, RightsEnum
 
 export const DB_Client = new Pool({
     max: 20,
-    connectionString: `postgresql://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_DATABASE}`,
+    connectionString: `postgresql://${process.env.DATABASE_USER}:${process.env.DATABASE_PASSWORD}@${process.env.DATABASE_HOST}:${process.env.DATABASE_PORT}/${process.env.DATABASE_NAME}`,
 });
 
 function RandomCombiner(

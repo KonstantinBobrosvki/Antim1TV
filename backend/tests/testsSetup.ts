@@ -1,8 +1,4 @@
 import { Client } from 'pg';
-import * as dotenv from 'dotenv';
-dotenv.config({
-    path: __dirname.substring(0, __dirname.lastIndexOf('\\')) + '\\.test.env',
-});
 
 //clear db before test
 module.exports = async () => {
