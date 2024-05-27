@@ -1,7 +1,5 @@
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-console.log(process.env);
-
 export const DatabaseModule = TypeOrmModule.forRoot({
     type: 'postgres',
     name: 'default',
@@ -16,7 +14,7 @@ export const DatabaseModule = TypeOrmModule.forRoot({
           }),
     synchronize: true,
     autoLoadEntities: true,
-    logging: process.env.NODE_ENV == 'dev',
+    logging: process.env.NODE_ENV == 'DEV',
     ssl: !process.env.DATABASE_URL
         ? false
         : {

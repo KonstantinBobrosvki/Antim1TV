@@ -14,24 +14,23 @@ import { StateDto } from './dto/state.dto';
 
 @WebSocketGateway({ transport: ['socket.io'], cors: true })
 export class PlayersGateway implements OnGatewayConnection {
-    constructor(private readonly jwtService: JwtService) { }
+    constructor(private readonly jwtService: JwtService) {}
 
     handleConnection(client: Socket, ...args: any[]) {
-
+        console.log('New connection');
         const close = () => {
             client.emit('logout', 'Не сте влезли или нямате нужните права');
             client.disconnect(true);
         };
         if (!client.handshake.headers.authorization) {
             close();
-            return
+            return;
         }
         const authHeader = client.handshake.headers.authorization;
         if (!authHeader) {
             close();
-            return
+            return;
         }
-
 
         try {
             const [bearer, token] = authHeader.split(' ');
@@ -40,32 +39,30 @@ export class PlayersGateway implements OnGatewayConnection {
                 const user = this.jwtService.verify<UserDto>(token);
                 if (!user.rights.includes(RightsEnum.ControllPlayer)) {
                     close();
-                    return
+                    return;
                 }
-
-            }
-            else{
+            } else {
                 close();
-                return
+                return;
             }
         } catch (error) {
             close();
-            return
+            return;
         }
 
         const tvId = +client.handshake.headers.tvid;
         if (isNaN(tvId)) {
             close();
-            return
+            return;
         }
-        
+
         client.join(tvId.toString());
     }
 
     @SubscribeMessage('sendAction')
     sendAction(@MessageBody() data: ActionDto, @ConnectedSocket() client: Socket) {
         console.log(data);
-        
+
         client.to(data.queueId.toString()).emit('receiveAction', data);
     }
 

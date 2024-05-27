@@ -79,7 +79,7 @@ export class PlayersService {
         });
 
         if (allowedVideo) return allowedVideo.toDto();
-        throw BaseError.NotFound('Няма видеа след това');
+        return this.getNewVideo(queuId);
     }
 
     async getVideoBefore(queuId: number, playPosition: number): Promise<AllowedVideoDto> {

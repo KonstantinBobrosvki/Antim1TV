@@ -18,15 +18,16 @@ type PlayerProps = {
 }
 
 const Player: FC<PlayerProps> = ({ id }) => {
-    const bearer = useAppSelector(state => state.userReducer.user!.access)
+    const bearer:string = useAppSelector(state => state.userReducer.user!.access)
     const dispatch = useAppDispatch()
 
     const [sendActions, setSendActions] = useState(false)
     const [receiveActions, setReceiveActions] = useState(true)
 
     const playerApi = useMemo(() => new PlayerApi(id, bearer), [])
-    const socketApi = useMemo(() => new SocketApi(id, bearer), []);
-
+    const socketApi = useRef(new SocketApi(id, bearer)).current;
+   
+    
     const [isPlaying, setIsPlaying] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
     const [current, setCurrent] = useState<AllowedVideoDto>({ video: { link: RickRollYoutube } } as any)
@@ -36,7 +37,10 @@ const Player: FC<PlayerProps> = ({ id }) => {
 
     const PlayerEvents = {
         onReady: () => {
-            const pl = (playerRef as any).current.player.player.player as any
+            const pl = (playerRef as any).current?.player?.player?.player as any
+            if(!pl){
+                return;
+            }
             pl.getPlaybackQuality('medium')
             pl.loadVideoById(GetVideoId(current.video.link))
         }, onEnded: () => {
@@ -194,8 +198,10 @@ const Player: FC<PlayerProps> = ({ id }) => {
         try {
             console.log('changed current');
 
-            const pl = (playerRef as any).current.player.player.player as any
-
+            const pl = (playerRef as any)?.current?.player?.player?.player as any
+            if(!pl){
+                return;
+            }
             pl.loadVideoById(GetVideoId(current.video.link))
 
         } catch (error) {
