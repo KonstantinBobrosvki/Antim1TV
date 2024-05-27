@@ -14,7 +14,7 @@ export const DatabaseModule = TypeOrmModule.forRoot({
           }),
     synchronize: true,
     autoLoadEntities: true,
-    logging: process.env.NODE_ENV == 'DEV',
+    logging: process.env.NODE_ENV == 'dev',
     ssl: !process.env.DATABASE_URL
         ? false
         : {

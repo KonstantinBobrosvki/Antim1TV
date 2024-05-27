@@ -30,6 +30,10 @@ services:
       - postgres
     ports:
       - "3000:3000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    command: npm run start:dev
 
   frontend:
     build:
@@ -42,6 +46,10 @@ services:
       - "80:80"
     depends_on:
       - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run start
 
 volumes:
   postgres-data:
