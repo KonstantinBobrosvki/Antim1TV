@@ -2,12 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { User } from '../Models/user.entity';
-import { Right } from '../Models/right.entity';
-import { RightsEnum } from '../Models/Enums/rights.enum';
+import { User } from '../entities/user.entity';
+import { Right } from '../entities/right.entity';
+import { RightsEnum } from '../entities/Enums/rights.enum';
 import { UserDto } from '../dto/user.dto';
 import BaseError from '../../common/errors/BaseError.error';
-import { Priority } from '../Models/priority.entity';
+import { Priority } from '../entities/priority.entity';
 
 let isSettedAdmin = false;
 

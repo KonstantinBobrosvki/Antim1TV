@@ -15,7 +15,7 @@ import { UsersService } from './services/users.service';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { Rights } from '../auth/decorators/Rights.decorator';
-import { RightsEnum } from './Models/Enums/rights.enum';
+import { RightsEnum } from './entities/Enums/rights.enum';
 import { RightsGuard } from '../auth/guards/rights.guard';
 import { User } from '../auth/decorators/user.decorator';
 import { UserDto } from './dto/user.dto';
@@ -26,7 +26,7 @@ import { PriorityService } from './services/priority.service';
 import { ChangePriorityDto } from './dto/changePriority.dto';
 import BaseError from '../common/errors/BaseError.error';
 import { RangePipe } from '../common/pipes/range.pipe';
-import { Priority } from './Models/priority.entity';
+import { Priority } from './entities/priority.entity';
 
 @ApiTags('Users')
 @Controller('users')
@@ -36,7 +36,7 @@ export class UsersController {
         private readonly usersService: UsersService,
         private readonly rightsService: RightsService,
         private readonly priorityService: PriorityService,
-    ) { }
+    ) {}
 
     @Get()
     @Rights([[RightsEnum.BanUser], [RightsEnum.ChangePriority], [RightsEnum.ChangeRight]])
@@ -49,12 +49,9 @@ export class UsersController {
         @Query('take', ParseIntPipe, new RangePipe(1, 100)) take: number,
         @Query('skip', ParseIntPipe, PositivePipe) skip: number,
         @Query('namePattern') namePattern?: string,
-
     ) {
-        if (!namePattern)
-            return this.usersService.findAll(skip, take);
-        else
-            return this.usersService.findByName(namePattern, skip, take)
+        if (!namePattern) return this.usersService.findAll(skip, take);
+        else return this.usersService.findByName(namePattern, skip, take);
     }
 
     @Delete(':id')

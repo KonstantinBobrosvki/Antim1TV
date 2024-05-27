@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, BeforeInsert } from 'typeorm';
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    OneToMany,
+    OneToOne,
+    BeforeInsert,
+    CreateDateColumn,
+} from 'typeorm';
 import { UserDto } from '../dto/user.dto';
 import { Priority } from './priority.entity';
 import { Right } from './right.entity';
@@ -38,4 +46,10 @@ export class User {
     emailToLower() {
         this.email = this.email.toLowerCase();
     }
+
+    @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP(6)' })
+    public created_at: Date;
+
+    @Column('int2', { nullable: true })
+    grade: number;
 }

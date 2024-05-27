@@ -1,7 +1,7 @@
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { UserDto } from '../../users/dto/user.dto';
-import { RightsEnum } from '../../users/Models/Enums/rights.enum';
+import { RightsEnum } from '../../users/entities/Enums/rights.enum';
 
 @Injectable()
 export class RightsGuard implements CanActivate {

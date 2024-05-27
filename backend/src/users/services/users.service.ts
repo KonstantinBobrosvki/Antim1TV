@@ -11,12 +11,12 @@ import {
 } from 'typeorm';
 
 import { CreateUserDto } from '../../auth/dto/create-user.dto';
-import { User } from '../Models/user.entity';
+import { User } from '../entities/user.entity';
 import { UserDto } from '../dto/user.dto';
 import { PriorityService } from './priority.service';
 import { PG_UNIQUE_CONSTRAINT_VIOLATION } from '../../common/const/db';
 import BaseError from '../../common/errors/BaseError.error';
-import { RightsEnum } from '../Models/Enums/rights.enum';
+import { RightsEnum } from '../entities/Enums/rights.enum';
 
 type UserRelations = 'rights' | 'priority';
 

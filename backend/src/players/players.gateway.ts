@@ -8,7 +8,7 @@ import {
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { UserDto } from '../users/dto/user.dto';
-import { RightsEnum } from '../users/Models/Enums/rights.enum';
+import { RightsEnum } from '../users/entities/Enums/rights.enum';
 import { ActionDto } from './dto/action.dto';
 import { StateDto } from './dto/state.dto';
 

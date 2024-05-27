@@ -4,7 +4,7 @@ import { Rights } from '../auth/decorators/Rights.decorator';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { RightsGuard } from '../auth/guards/rights.guard';
 import { PositivePipe } from '../common/pipes/positive.pipe';
-import { RightsEnum } from '../users/Models/Enums/rights.enum';
+import { RightsEnum } from '../users/entities/Enums/rights.enum';
 import { AllowedVideoDto } from '../videos/dto/allowedVideo.dto';
 import { PlayersService } from './players.service';
 

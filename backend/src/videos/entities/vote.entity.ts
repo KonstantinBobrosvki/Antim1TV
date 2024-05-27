@@ -1,5 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, OneToOne, Column } from 'typeorm';
-import { User } from '../../users/Models/user.entity';
+import { Entity, PrimaryGeneratedColumn, OneToOne, Column, CreateDateColumn } from 'typeorm';
+import { User } from '../../users/entities/user.entity';
 import { VoteDTO } from '../dto/vote.dto';
 import { AllowedVideo } from './allowedVideo.entity';
 
@@ -32,6 +32,9 @@ export class Vote {
 
     @Column({ nullable: false })
     voterId: number;
+
+    @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP(6)', nullable: false })
+    createdDate: Date;
 
     toDTO(): VoteDTO {
         return new VoteDTO(this);

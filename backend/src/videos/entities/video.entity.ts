@@ -6,7 +6,7 @@ import {
     ManyToOne,
     CreateDateColumn,
 } from 'typeorm';
-import { User } from '../../users/Models/user.entity';
+import { User } from '../../users/entities/user.entity';
 import { VideoDto } from '../dto/video.dto';
 import { Queue } from '../../queues/entities/queue.entity';
 

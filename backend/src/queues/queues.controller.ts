@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
 import { QueuesService } from './queues.service';
 import { CreateQueueDto } from './dto/create-queue.dto';
 import { Rights } from '../auth/decorators/Rights.decorator';
-import { RightsEnum } from '../users/Models/Enums/rights.enum';
+import { RightsEnum } from '../users/entities/Enums/rights.enum';
 import { RightsGuard } from '../auth/guards/rights.guard';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';

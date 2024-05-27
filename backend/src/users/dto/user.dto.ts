@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { RightsEnum } from '../Models/Enums/rights.enum';
+import { RightsEnum } from '../entities/Enums/rights.enum';
 
 export class UserDto {
     @ApiProperty({ example: 1 })

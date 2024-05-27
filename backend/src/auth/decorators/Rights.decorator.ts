@@ -1,5 +1,5 @@
 import { SetMetadata } from '@nestjs/common';
-import { RightsEnum } from '../../users/Models/Enums/rights.enum';
+import { RightsEnum } from '../../users/entities/Enums/rights.enum';
 
 //Decorator for roles which should user have
 /**

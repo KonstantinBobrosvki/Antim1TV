@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 
-import { User } from '../Models/user.entity';
-import { Priority } from '../Models/priority.entity';
+import { User } from '../entities/user.entity';
+import { Priority } from '../entities/priority.entity';
 import { UserDto } from '../dto/user.dto';
 import BaseError from '../../common/errors/BaseError.error';
 

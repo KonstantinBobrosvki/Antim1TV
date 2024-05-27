@@ -1,5 +1,5 @@
-import { Entity, Column, OneToOne, JoinColumn, PrimaryColumn } from 'typeorm';
-import { User } from '../../users/Models/user.entity';
+import { Entity, Column, OneToOne, JoinColumn, PrimaryColumn, CreateDateColumn } from 'typeorm';
+import { User } from '../../users/entities/user.entity';
 import { AllowedVideoDto } from '../dto/allowedVideo.dto';
 import { Video } from './video.entity';
 
@@ -17,10 +17,10 @@ export class AllowedVideo {
     @JoinColumn({ name: 'id' })
     video: Video;
 
-    @Column('int', { default: 0 })
+    @Column('bigint', { default: 0 })
     votes: number;
 
-    @Column('int', { nullable: true })
+    @Column('bigint', { nullable: true })
     queuePositon?: number;
 
     @OneToOne(() => User, (_) => _, {
@@ -33,6 +33,12 @@ export class AllowedVideo {
 
     @Column({ nullable: false })
     allowerId: number;
+
+    @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP(6)' })
+    public created_at: Date;
+
+    @Column('varchar', { length: 200, nullable: true })
+    public comment: string;
 
     toDto() {
         const dto = new AllowedVideoDto();

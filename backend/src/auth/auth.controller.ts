@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserDto } from '../users/dto/user.dto';
-import { RightsEnum } from '../users/Models/Enums/rights.enum';
+import { RightsEnum } from '../users/entities/Enums/rights.enum';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/login-user.dto';
 
